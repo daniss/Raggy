@@ -102,3 +102,10 @@ coverage.xml
 
 # Claude Code files
 CLAUDE.md
+
+# ChromaDB data
+chroma_data/
+
+# Backend specific
+backend.log
+*.log
