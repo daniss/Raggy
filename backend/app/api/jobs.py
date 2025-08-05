@@ -1,7 +1,6 @@
 import logging
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Depends, Query, BackgroundTasks
-from app.models.schemas import HealthResponse
 from app.core.deps import get_current_user
 from app.services.background_jobs import job_manager, JobStatus, JobPriority
 from app.services.task_handlers import (

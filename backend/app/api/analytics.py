@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Query
 from app.models.schemas import AnalyticsResponse

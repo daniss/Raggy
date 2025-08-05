@@ -16,6 +16,7 @@ from app.services.batch_processor import batch_processor, BatchStatus
 from app.services.task_handlers import enqueue_document_processing
 from app.services.background_jobs import JobPriority
 from datetime import datetime
+from app.core.file_constants import ALLOWED_FILE_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -71,16 +72,7 @@ async def upload_documents(
                     continue
                 
                 # Validate file type
-                allowed_types = [
-                    "application/pdf",
-                    "text/plain",
-                    "text/markdown",
-                    "text/csv",
-                    "application/csv",
-                    "application/msword",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                ]
-                if not validate_file_type(file.content_type or "text/plain", allowed_types):
+                if not validate_file_type(file.content_type or "text/plain", ALLOWED_FILE_TYPES):
                     logger.warning(f"Unsupported file type: {file.content_type} for {safe_filename}")
                     continue
                 
@@ -434,15 +426,7 @@ async def upload_stats(current_user: dict = Depends(get_current_user)):
             "collection_stats": stats,
             "cache_stats": cache_stats,
             "sample_documents": sample_docs,
-            "supported_formats": [
-                "application/pdf",
-                "text/plain",
-                "text/markdown",
-                "text/csv",
-                "application/csv",
-                "application/msword",
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            ]
+            "supported_formats": ALLOWED_FILE_TYPES
         }
         
     except Exception as e:
@@ -494,16 +478,7 @@ async def upload_batch(
                 continue
             
             # Validate file type
-            allowed_types = [
-                "application/pdf",
-                "text/plain", 
-                "text/markdown",
-                "text/csv",
-                "application/csv",
-                "application/msword",
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            ]
-            if not validate_file_type(file.content_type or "text/plain", allowed_types):
+            if not validate_file_type(file.content_type or "text/plain", ALLOWED_FILE_TYPES):
                 logger.warning(f"Unsupported file type: {file.content_type} for {file.filename}")
                 continue
             

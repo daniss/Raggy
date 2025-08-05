@@ -4,13 +4,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   MessageCircle, 
-  Zap, 
-  Shield, 
-  Globe, 
-  Clock,
   CheckCircle,
   ArrowRight,
-  Sparkles,
   Building2,
   Users,
   FileText,
@@ -327,16 +322,6 @@ export default function HomePage() {
 
       {/* Chat Widget */}
       <ChatWidget />
-      
-      {/* Temporary debug button */}
-      <div className="fixed bottom-6 left-6 z-[10000]">
-        <Button 
-          onClick={() => console.log('Debug button clicked!')}
-          className="bg-red-500 hover:bg-red-600"
-        >
-          Debug
-        </Button>
-      </div>
     </div>
   );
 }

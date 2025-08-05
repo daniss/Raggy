@@ -53,6 +53,9 @@ yarn-error.log*
 .next/
 out/
 
+# TypeScript
+*.tsbuildinfo
+
 # Database
 *.db
 *.sqlite
@@ -76,8 +79,9 @@ Thumbs.db
 .ipynb_checkpoints
 
 # Model cache (HuggingFace transformers)
-models/
+*.cache/
 .cache/
+huggingface_models/
 
 # Redis dump
 dump.rdb

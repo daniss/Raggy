@@ -5,7 +5,6 @@ import logging
 from datetime import datetime, timedelta
 from typing import Optional, List
 from fastapi import APIRouter, HTTPException, Depends, Query, Request
-from app.models.schemas import UserRole
 from app.core.deps import get_current_user, get_current_organization, require_admin
 from app.core.audit_middleware import get_request_info
 from app.services.audit_logger import audit_logger, AuditAction, AuditResourceType
