@@ -1,0 +1,500 @@
+support-bot-backend  | 2025-08-05 20:12:58,342 - hpack.hpack - DEBUG - Adding (b'accept-encoding', b'gzip, deflate, zstd') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Encoding 70 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Adding (b'user-agent', b'python-httpx/0.28.1') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Encoding 69 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Adding (b'x-client-info', b'supabase-py/2.17.0') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Encoding 68 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Adding (b'apikey', b'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Encoding 67 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Adding (b'authorization', b'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:True, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Encoding 23 with 4 bits
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Encoding 180 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Adding (b'accept-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,343 - hpack.hpack - DEBUG - Encoding 66 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,344 - hpack.hpack - DEBUG - Adding (b'content-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,344 - hpack.hpack - DEBUG - Encoding 65 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,344 - hpack.hpack - DEBUG - Adding (b'prefer', b'count=exact') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,344 - hpack.hpack - DEBUG - Encoding 64 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,344 - hpack.hpack - DEBUG - Adding (b'cookie', b'__cf_bm=iMBXt5hJIXVnk5pVu0ot1G38NaZUVtiStw8dQQ1hJOk-1754424681-1.0.1.1-BCvM3F7b355TUUKw6JS8v1Itdo.yl.KuL2DzaK5RsjeJo3wDoguSTJsHHvnezX8iRDWzl6j8JECjZ49hHdApIoe5AiZhXqUKVS1VvXnUlok') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,344 - hpack.hpack - DEBUG - Encoding 63 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,344 - hpack.hpack - DEBUG - Encoded header block to b'\xc9\xc8\x87D\x95b\xc2\xa1,w\x0b\x12\x1c\x96\xd2Z\x92\x8f\xf1\x05\xa0\xa4L\n\x8a\x1f\xc7\xc6\xc5\xc4\xc3\x1f\x08\xff5\xbaQ\xd8[\x14/\xac\xb3\xc7\x88\x86\xd4l\xb98{\xc8\x1d&\xc8\x8c\x95ml\x97\xb29\x93\xad\x7f\x9coe}r\xfa\xcbY\x19\xd0mF\xcb\xeeO\xcb\xb3\xf3\xa7\x0f\xbf\xdd\xd9\x11\x92\xac\xb4~\x9b#\x99*\x9e\xa9)\xc3\xeaLxl.<\xad\xc9Hi\xfd\x12Z\xe7L\x87\xc8o\x06%/\xa3\xf7vG2U\xa6\x82U\xfb_1q\x94\x94\xbe\x8f\xdd\xd9\x11\x92\x9a\'\x92\xf6G4o t\xdf\x85\xad\x1e\xe6oO\xaf\x06\xfd\xfc\x9f\xc6N\x87\xf5\xa2\xff6\xf4\xf4\xe0\xde\xab\xfdY\x97b\xfb=\x8c"z>\xb5\xf8\xeaW\xc7Nfd\xfc\xe2\xcf\xbf\xd6\xed-\xdd\xf8\xe3\xd6<o\xfb.:\xf9\x86\xae\x9d\x7f\xc2\xc1\xc0\xbf'
+support-bot-backend  | 2025-08-05 20:12:58,344 - httpcore.http2 - DEBUG - send_request_headers.complete
+support-bot-backend  | 2025-08-05 20:12:58,345 - httpcore.http2 - DEBUG - send_request_body.started request=<Request [b'HEAD']> stream_id=3
+support-bot-backend  | 2025-08-05 20:12:58,345 - httpcore.http2 - DEBUG - send_request_body.complete
+support-bot-backend  | 2025-08-05 20:12:58,345 - httpcore.http2 - DEBUG - receive_response_headers.started request=<Request [b'HEAD']> stream_id=3
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoding b'\x88\xd0\xcf^\x84\x02\xc1`_\x7f\x0f\x8f}\xc1\xbd+2\x00\x83\x95\xc2\xca\xcb\x8b^\xbf\x8b\xce]\x8fbC\x92\xdaKRQ\xfe \xb4\x14\x89\x81QC\xcd\xcc\xcb\xca\xc9\xc8\x7f\x08\x9a\x00_y\xd8\xe4\x91g\xca\xf3K:\xdb\xd2\xac\xf4\xa1\x1a\xd2\xb8\xf8\x07(\x821\x01\xaf\xc7\xc6\x7f\x06\x016\xc5\xc4\xc3'
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded 8, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded (b':status', b'200'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded 80, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded (b'date', b'Tue, 05 Aug 2025 20:12:58 GMT'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded 79, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded (b'content-type', b'application/json; charset=utf-8'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded 30, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded 4, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded (b'content-range', b'0-1/2'), total consumed 6 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded 78, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded 15, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,397 - hpack.hpack - DEBUG - Decoded (b'cf-ray', b'96a8f3d0caf6ef36-CDG'), total consumed 18 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,398 - hpack.hpack - DEBUG - Decoded 78, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,398 - hpack.hpack - DEBUG - Decoded (b'cf-cache-status', b'DYNAMIC'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,398 - hpack.hpack - DEBUG - Decoded 29, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,398 - hpack.hpack - DEBUG - Decoded 15, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,399 - hpack.hpack - DEBUG - Decoded (b'content-location', b'/documents?select=%2A'), total consumed 17 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,399 - hpack.hpack - DEBUG - Decoded 77, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,399 - hpack.hpack - DEBUG - Decoded (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,399 - hpack.hpack - DEBUG - Decoded 76, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'vary', b'Accept-Encoding'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 75, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'content-profile', b'public'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 74, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'preference-applied', b'count=exact'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 73, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'sb-gateway-version', <memory at 0x7e4de5dbbdc0>), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 72, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 71, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 26, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'sb-request-id', b'01987bdd-9e84-758f-8f1a-f690af21a204'), total consumed 29 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 71, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'x-content-type-options', b'nosniff'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 70, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'x-envoy-attempt-count', <memory at 0x7e4de5db93c0>), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 69, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 1, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'x-envoy-upstream-service-time', <memory at 0x7e4de5db8e80>), total consumed 4 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 69, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'server', b'cloudflare'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 68, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'content-encoding', b'gzip'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded 67, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,400 - hpack.hpack - DEBUG - Decoded (b'alt-svc', b'h3=":443"; ma=86400'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,400 - httpcore.http2 - DEBUG - receive_response_headers.complete return_value=(200, [(b'date', b'Tue, 05 Aug 2025 20:12:58 GMT'), (b'content-type', b'application/json; charset=utf-8'), (b'content-range', b'0-1/2'), (b'cf-ray', b'96a8f3d0caf6ef36-CDG'), (b'cf-cache-status', b'DYNAMIC'), (b'content-location', b'/documents?select=%2A'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'vary', b'Accept-Encoding'), (b'content-profile', b'public'), (b'preference-applied', b'count=exact'), (b'sb-gateway-version', b'1'), (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), (b'sb-request-id', b'01987bdd-9e84-758f-8f1a-f690af21a204'), (b'x-content-type-options', b'nosniff'), (b'x-envoy-attempt-count', b'1'), (b'x-envoy-upstream-service-time', b'6'), (b'server', b'cloudflare'), (b'content-encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+support-bot-backend  | 2025-08-05 20:12:58,401 - httpx - INFO - HTTP Request: HEAD https://xgvartqkxryvmfgkxbgh.supabase.co/rest/v1/documents?select=%2A "HTTP/2 200 OK"
+support-bot-backend  | 2025-08-05 20:12:58,401 - httpcore.http2 - DEBUG - receive_response_body.started request=<Request [b'HEAD']> stream_id=3
+support-bot-backend  | 2025-08-05 20:12:58,401 - httpcore.http2 - DEBUG - receive_response_body.complete
+support-bot-backend  | 2025-08-05 20:12:58,401 - httpcore.http2 - DEBUG - response_closed.started stream_id=3
+support-bot-backend  | 2025-08-05 20:12:58,401 - httpcore.http2 - DEBUG - response_closed.complete
+support-bot-backend  | 2025-08-05 20:12:58,412 - groq._base_client - DEBUG - Request options: {'method': 'post', 'url': '/openai/v1/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-ca5415d7-32e9-4d23-ba75-ae2f895a5818', 'json_data': {'messages': [{'role': 'user', 'content': 'Test de connexion'}], 'model': 'deepseek-r1-distill-llama-70b', 'max_tokens': 10}}
+support-bot-backend  | 2025-08-05 20:12:58,414 - groq._base_client - DEBUG - Sending HTTP Request: POST https://api.groq.com/openai/v1/chat/completions
+support-bot-backend  | 2025-08-05 20:12:58,416 - httpcore.connection - DEBUG - close.started
+support-bot-backend  | 2025-08-05 20:12:58,417 - httpcore.connection - DEBUG - close.complete
+support-bot-backend  | 2025-08-05 20:12:58,417 - httpcore.connection - DEBUG - connect_tcp.started host='api.groq.com' port=443 local_address=None timeout=5.0 socket_options=None
+support-bot-backend  | 2025-08-05 20:12:58,444 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7e4de5ce0510>
+support-bot-backend  | 2025-08-05 20:12:58,444 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x7e4de6201760> server_hostname='api.groq.com' timeout=5.0
+support-bot-backend  | 2025-08-05 20:12:58,477 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7e4de5cf3cd0>
+support-bot-backend  | 2025-08-05 20:12:58,481 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+support-bot-backend  | 2025-08-05 20:12:58,486 - httpcore.http11 - DEBUG - send_request_headers.complete
+support-bot-backend  | 2025-08-05 20:12:58,486 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+support-bot-backend  | 2025-08-05 20:12:58,486 - httpcore.http11 - DEBUG - send_request_body.complete
+support-bot-backend  | 2025-08-05 20:12:58,486 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+support-bot-backend  | 2025-08-05 20:12:58,705 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Tue, 05 Aug 2025 20:12:58 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Cache-Control', b'private, max-age=0, no-store, no-cache, must-revalidate'), (b'vary', b'Origin'), (b'x-groq-region', b'fra'), (b'x-ratelimit-limit-requests', b'1000'), (b'x-ratelimit-limit-tokens', b'6000'), (b'x-ratelimit-remaining-requests', b'676'), (b'x-ratelimit-remaining-tokens', b'5990'), (b'x-ratelimit-reset-requests', b'7h46m2.702s'), (b'x-ratelimit-reset-tokens', b'100ms'), (b'x-request-id', b'req_01k1xxv7rme7baeeqytzwrq9p7'), (b'via', b'1.1 google'), (b'cf-cache-status', b'DYNAMIC'), (b'Server', b'cloudflare'), (b'CF-RAY', b'96a8f3d19c7c3d5d-CDG'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+support-bot-backend  | 2025-08-05 20:12:58,705 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+support-bot-backend  | 2025-08-05 20:12:58,706 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+support-bot-backend  | 2025-08-05 20:12:58,706 - httpcore.http11 - DEBUG - receive_response_body.complete
+support-bot-backend  | 2025-08-05 20:12:58,706 - httpcore.http11 - DEBUG - response_closed.started
+support-bot-backend  | 2025-08-05 20:12:58,707 - httpcore.http11 - DEBUG - response_closed.complete
+support-bot-backend  | 2025-08-05 20:12:58,707 - groq._base_client - DEBUG - HTTP Response: POST https://api.groq.com/openai/v1/chat/completions "200 OK" Headers({'date': 'Tue, 05 Aug 2025 20:12:58 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'cache-control': 'private, max-age=0, no-store, no-cache, must-revalidate', 'vary': 'Origin', 'x-groq-region': 'fra', 'x-ratelimit-limit-requests': '1000', 'x-ratelimit-limit-tokens': '6000', 'x-ratelimit-remaining-requests': '676', 'x-ratelimit-remaining-tokens': '5990', 'x-ratelimit-reset-requests': '7h46m2.702s', 'x-ratelimit-reset-tokens': '100ms', 'x-request-id': 'req_01k1xxv7rme7baeeqytzwrq9p7', 'via': '1.1 google', 'cf-cache-status': 'DYNAMIC', 'server': 'cloudflare', 'cf-ray': '96a8f3d19c7c3d5d-CDG', 'content-encoding': 'gzip', 'alt-svc': 'h3=":443"; ma=86400'})
+support-bot-backend  | 2025-08-05 20:12:58,714 - app.rag.qa - INFO - Groq API connection successful
+support-bot-backend  | 2025-08-05 20:12:58,716 - httpcore.http2 - DEBUG - send_request_headers.started request=<Request [b'GET']> stream_id=5
+support-bot-backend  | 2025-08-05 20:12:58,716 - hpack.hpack - DEBUG - Adding (b':method', b'GET') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,716 - hpack.hpack - DEBUG - Encoding 2 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,716 - hpack.hpack - DEBUG - Adding (b':authority', b'xgvartqkxryvmfgkxbgh.supabase.co') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,716 - hpack.hpack - DEBUG - Encoding 73 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Adding (b':scheme', b'https') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 7 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Adding (b':path', b'/rest/v1/chat_logs?select=id&limit=1') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 4 with 6 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 26 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Adding (b'accept', b'*/*') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 72 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Adding (b'accept-encoding', b'gzip, deflate, zstd') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 71 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Adding (b'user-agent', b'python-httpx/0.28.1') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 70 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Adding (b'x-client-info', b'supabase-py/2.17.0') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 69 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Adding (b'apikey', b'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 68 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Adding (b'authorization', b'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:True, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 23 with 4 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 180 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Adding (b'accept-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,717 - hpack.hpack - DEBUG - Encoding 67 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,718 - hpack.hpack - DEBUG - Adding (b'content-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,718 - hpack.hpack - DEBUG - Encoding 66 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,718 - hpack.hpack - DEBUG - Adding (b'cookie', b'__cf_bm=iMBXt5hJIXVnk5pVu0ot1G38NaZUVtiStw8dQQ1hJOk-1754424681-1.0.1.1-BCvM3F7b355TUUKw6JS8v1Itdo.yl.KuL2DzaK5RsjeJo3wDoguSTJsHHvnezX8iRDWzl6j8JECjZ49hHdApIoe5AiZhXqUKVS1VvXnUlok') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:12:58,718 - hpack.hpack - DEBUG - Encoding 64 with 7 bits
+support-bot-backend  | 2025-08-05 20:12:58,718 - hpack.hpack - DEBUG - Encoded header block to b'\x82\xc9\x87D\x9ab\xc2\xa1,w\x0b\x04\x9ci\x8a\x83\xcc\x8f\xf1\x05\xa0\xa4L\x06\x93\xe2\x83Rd\xc0\x1f\xc8\xc7\xc6\xc5\xc4\x1f\x08\xff5\xbaQ\xd8[\x14/\xac\xb3\xc7\x88\x86\xd4l\xb98{\xc8\x1d&\xc8\x8c\x95ml\x97\xb29\x93\xad\x7f\x9coe}r\xfa\xcbY\x19\xd0mF\xcb\xeeO\xcb\xb3\xf3\xa7\x0f\xbf\xdd\xd9\x11\x92\xac\xb4~\x9b#\x99*\x9e\xa9)\xc3\xeaLxl.<\xad\xc9Hi\xfd\x12Z\xe7L\x87\xc8o\x06%/\xa3\xf7vG2U\xa6\x82U\xfb_1q\x94\x94\xbe\x8f\xdd\xd9\x11\x92\x9a\'\x92\xf6G4o t\xdf\x85\xad\x1e\xe6oO\xaf\x06\xfd\xfc\x9f\xc6N\x87\xf5\xa2\xff6\xf4\xf4\xe0\xde\xab\xfdY\x97b\xfb=\x8c"z>\xb5\xf8\xeaW\xc7Nfd\xfc\xe2\xcf\xbf\xd6\xed-\xdd\xf8\xe3\xd6<o\xfb.:\xf9\x86\xae\x9d\x7f\xc3\xc2\xc0'
+support-bot-backend  | 2025-08-05 20:12:58,718 - httpcore.http2 - DEBUG - send_request_headers.complete
+support-bot-backend  | 2025-08-05 20:12:58,718 - httpcore.http2 - DEBUG - send_request_body.started request=<Request [b'GET']> stream_id=5
+support-bot-backend  | 2025-08-05 20:12:58,718 - httpcore.http2 - DEBUG - send_request_body.complete
+support-bot-backend  | 2025-08-05 20:12:58,718 - httpcore.http2 - DEBUG - receive_response_headers.started request=<Request [b'GET']> stream_id=5
+support-bot-backend  | 2025-08-05 20:12:58,770 - hpack.hpack - DEBUG - Decoding b'\x88\xd5\xd4^\x84\x02\xc0c\xe7\x7f\x14\x8f}\xc1\xbd+22"\xb2\xd9ee\xc5\xaf_\xc5\xd3\xc6]\x94`\x93\x8d1Py\x91\xfePjL\x98\x03\xf0\x82\xd0R&\x03I\xd2\xd1\xd0\xce\xcd\x7f\r\x9a\x00_y\xd8\xe4\x91g\xe5\x965\x9d\x10#Y\xe9]qb:\x06J\xdc\xac\xb6\x10\x8b\xcc\xcb\x7f\x0b\x017\xca\xc8'
+support-bot-backend  | 2025-08-05 20:12:58,770 - hpack.hpack - DEBUG - Decoded 8, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded (b':status', b'200'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded 85, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded (b'date', b'Tue, 05 Aug 2025 20:12:58 GMT'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded 84, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded (b'content-type', b'application/json; charset=utf-8'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded 30, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded 4, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded (b'content-range', b'0-0/*'), total consumed 6 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded 83, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded 15, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded (b'cf-ray', b'96a8f3d32e35ef36-CDG'), total consumed 18 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded 83, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded (b'cf-cache-status', b'DYNAMIC'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded 70, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,771 - hpack.hpack - DEBUG - Decoded (b'content-encoding', b'gzip'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded 29, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded 20, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded (b'content-location', b'/chat_logs?limit=1&select=id'), total consumed 22 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded 82, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded 81, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded (b'vary', b'Accept-Encoding'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded 80, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded (b'content-profile', b'public'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded 78, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded (b'sb-gateway-version', <memory at 0x7e4de5dbbdc0>), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded 77, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,772 - hpack.hpack - DEBUG - Decoded (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded 76, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded 26, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded (b'sb-request-id', b'01987bdd-9ffb-720b-8f76-c703e5f35112'), total consumed 29 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded 76, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded (b'x-content-type-options', b'nosniff'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded 75, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded (b'x-envoy-attempt-count', <memory at 0x7e4de5db93c0>), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded 74, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded 1, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded (b'x-envoy-upstream-service-time', <memory at 0x7e4de5c54640>), total consumed 4 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded 74, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded (b'server', b'cloudflare'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded 72, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:12:58,773 - hpack.hpack - DEBUG - Decoded (b'alt-svc', b'h3=":443"; ma=86400'), consumed 1
+support-bot-backend  | 2025-08-05 20:12:58,774 - httpcore.http2 - DEBUG - receive_response_headers.complete return_value=(200, [(b'date', b'Tue, 05 Aug 2025 20:12:58 GMT'), (b'content-type', b'application/json; charset=utf-8'), (b'content-range', b'0-0/*'), (b'cf-ray', b'96a8f3d32e35ef36-CDG'), (b'cf-cache-status', b'DYNAMIC'), (b'content-encoding', b'gzip'), (b'content-location', b'/chat_logs?limit=1&select=id'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'vary', b'Accept-Encoding'), (b'content-profile', b'public'), (b'sb-gateway-version', b'1'), (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), (b'sb-request-id', b'01987bdd-9ffb-720b-8f76-c703e5f35112'), (b'x-content-type-options', b'nosniff'), (b'x-envoy-attempt-count', b'1'), (b'x-envoy-upstream-service-time', b'7'), (b'server', b'cloudflare'), (b'alt-svc', b'h3=":443"; ma=86400')])
+support-bot-backend  | 2025-08-05 20:12:58,774 - httpx - INFO - HTTP Request: GET https://xgvartqkxryvmfgkxbgh.supabase.co/rest/v1/chat_logs?select=id&limit=1 "HTTP/2 200 OK"
+support-bot-backend  | 2025-08-05 20:12:58,774 - httpcore.http2 - DEBUG - receive_response_body.started request=<Request [b'GET']> stream_id=5
+support-bot-backend  | 2025-08-05 20:12:58,775 - httpcore.http2 - DEBUG - receive_response_body.complete
+support-bot-backend  | 2025-08-05 20:12:58,775 - httpcore.http2 - DEBUG - response_closed.started stream_id=5
+support-bot-backend  | 2025-08-05 20:12:58,775 - httpcore.http2 - DEBUG - response_closed.complete
+support-bot-backend  | INFO:     127.0.0.1:47398 - "GET /health HTTP/1.1" 200 OK
+support-bot-backend  | 2025-08-05 20:13:28,895 - httpcore.connection - DEBUG - close.started
+support-bot-backend  | 2025-08-05 20:13:28,898 - httpcore.connection - DEBUG - close.complete
+support-bot-backend  | 2025-08-05 20:13:28,898 - httpcore.connection - DEBUG - connect_tcp.started host='xgvartqkxryvmfgkxbgh.supabase.co' port=443 local_address=None timeout=120 socket_options=None
+support-bot-backend  | 2025-08-05 20:13:28,974 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7e4de5c46910>
+support-bot-backend  | 2025-08-05 20:13:28,974 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x7e4de6626180> server_hostname='xgvartqkxryvmfgkxbgh.supabase.co' timeout=120
+support-bot-backend  | 2025-08-05 20:13:29,007 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7e4de5c5a490>
+support-bot-backend  | 2025-08-05 20:13:29,010 - httpcore.http2 - DEBUG - send_connection_init.started request=<Request [b'HEAD']>
+support-bot-backend  | 2025-08-05 20:13:29,011 - httpcore.http2 - DEBUG - send_connection_init.complete
+support-bot-backend  | 2025-08-05 20:13:29,011 - httpcore.http2 - DEBUG - send_request_headers.started request=<Request [b'HEAD']> stream_id=1
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Adding (b':method', b'HEAD') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 2 with 6 bits
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 4 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Adding (b':authority', b'xgvartqkxryvmfgkxbgh.supabase.co') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 1 with 6 bits
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 24 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Adding (b':scheme', b'https') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 7 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Adding (b':path', b'/rest/v1/document_vectors?select=%2A') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 4 with 6 bits
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 26 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Adding (b'accept', b'*/*') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 19 with 6 bits
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 3 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Adding (b'accept-encoding', b'gzip, deflate, zstd') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,011 - hpack.hpack - DEBUG - Encoding 16 with 6 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 15 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Adding (b'user-agent', b'python-httpx/0.28.1') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 58 with 6 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 14 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Adding (b'x-client-info', b'supabase-py/2.17.0') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 10 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 13 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Adding (b'apikey', b'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 5 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 175 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Adding (b'authorization', b'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:True, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 23 with 4 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 180 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Adding (b'accept-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 10 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 5 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Adding (b'content-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 11 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 5 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Adding (b'prefer', b'count=exact') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 5 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 8 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Adding (b'cookie', b'__cf_bm=iMBXt5hJIXVnk5pVu0ot1G38NaZUVtiStw8dQQ1hJOk-1754424681-1.0.1.1-BCvM3F7b355TUUKw6JS8v1Itdo.yl.KuL2DzaK5RsjeJo3wDoguSTJsHHvnezX8iRDWzl6j8JECjZ49hHdApIoe5AiZhXqUKVS1VvXnUlok') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,012 - hpack.hpack - DEBUG - Encoding 32 with 6 bits
+support-bot-backend  | 2025-08-05 20:13:29,013 - hpack.hpack - DEBUG - Encoding 140 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,013 - hpack.hpack - DEBUG - Encoded header block to b'B\x84\xc7\x82\x1b\xffA\x98\xf37q\xd8\x9e\xdd|\xd9\xeb\xbd2\xcd\xd7\xccsN\xba-\xacq\x8d\x05\\\x87\x87D\x9ab\xc2\xa1,w\x0b\x12\x1c\x96\xd2Z\x93\x17r\x91\'\xb1\x1f\xe2\x0bAH\x98\x15\x14?S\x83\xf9c\xe7P\x8f\x9b\xd9\xab\xfaRB\xcb@\xd2_\xa5=\xa12\x7fz\x8e\xaf\xd2g=KN\x94\xd7\xe5\x80.\'\x97\x0f@\x8a\xf2\xb1(1jJ\xc6\xaaS\xff\x8dE\xb5\x8e1\xa0\xabW\xe9\x81.\x17W\x07@\x85\x1df\xea__\xff0/\xac\xb3\xc7\x88\x86\xd4l\xb98{\xc8\x1d&\xc8\x8c\x95ml\x97\xb29\x93\xad\x7f\x9coe}r\xfa\xcbY\x19\xd0mF\xcb\xeeO\xcb\xb3\xf3\xa7\x0f\xbf\xdd\xd9\x11\x92\xac\xb4~\x9b#\x99*\x9e\xa9)\xc3\xeaLxl.<\xad\xc9Hi\xfd\x12Z\xe7L\x87\xc8o\x06%/\xa3\xf7vG2U\xa6\x82U\xfb_1q\x94\x94\xbe\x8f\xdd\xd9\x11\x92\x9a\'\x92\xf6G4o t\xdf\x85\xad\x1e\xe6oO\xaf\x06\xfd\xfc\x9f\xc6N\x87\xf5\xa2\xff6\xf4\xf4\xe0\xde\xab\xfdY\x97b\xfb=\x8c"z>\xb5\xf8\xeaW\xc7Nfd\xfc\xe2\xcf\xbf\xd6\xed-\xdd\xf8\xe3\xd6<o\xfb.:\xf9\x86\xae\x9d\x7f\x1f\x08\xff5\xbaQ\xd8[\x14/\xac\xb3\xc7\x88\x86\xd4l\xb98{\xc8\x1d&\xc8\x8c\x95ml\x97\xb29\x93\xad\x7f\x9coe}r\xfa\xcbY\x19\xd0mF\xcb\xeeO\xcb\xb3\xf3\xa7\x0f\xbf\xdd\xd9\x11\x92\xac\xb4~\x9b#\x99*\x9e\xa9)\xc3\xeaLxl.<\xad\xc9Hi\xfd\x12Z\xe7L\x87\xc8o\x06%/\xa3\xf7vG2U\xa6\x82U\xfb_1q\x94\x94\xbe\x8f\xdd\xd9\x11\x92\x9a\'\x92\xf6G4o t\xdf\x85\xad\x1e\xe6oO\xaf\x06\xfd\xfc\x9f\xc6N\x87\xf5\xa2\xff6\xf4\xf4\xe0\xde\xab\xfdY\x97b\xfb=\x8c"z>\xb5\xf8\xeaW\xc7Nfd\xfc\xe2\xcf\xbf\xd6\xed-\xdd\xf8\xe3\xd6<o\xfb.:\xf9\x86\xae\x9d\x7f@\x8a\x19\x08Z\xd2\xb5v\x1eSP_\x85\xae\xd8\xe81?@\x8b!\xeaIjJ\xd5\xd8yMA\x7f\x85\xae\xd8\xe81?@\x85\xae\xc2\xca[?\x88!\xed\xa90\x17\xc8\xc8\x9f`\xff\r\x8a"K\x14t\xc0m\x17\x7f\x12\xdc\xf9r~q\xab\xabu\xf1\xb4\x07Hq2\xf6\x91\xfe\xf0\xe2\x93nO\x87\xa4\xd9\xb03\xe5\xd5\xd5`\xba\xdbM\t\xa7\x1e\n\xc1\\\x0b\x85p\xadv\xf7}\x0c\xe1v6[o\x7f\x0e\x19\xbc9\x97s\xdd\xc3\x912\x1d\x7fT/\x9a\xdc\xe2\xbf\xecy\x9b\xda\x8e\x85\xcav|_<\xd6\xee\xdf\x95\x18\xf1\xf7\xa8\xbe\xff\x1e6\xdb\xfc\xbd\xd0\xe7G\xb2\xe0\xbd\xd3\xf5\xa7\xe7\xc7$5\xe49[\x84\xdf\xb3\xfev\xe1\x9b\x8e\xe0\xf1\xef\xf9W\n\x0f\xd7'
+support-bot-backend  | 2025-08-05 20:13:29,013 - httpcore.http2 - DEBUG - send_request_headers.complete
+support-bot-backend  | 2025-08-05 20:13:29,013 - httpcore.http2 - DEBUG - send_request_body.started request=<Request [b'HEAD']> stream_id=1
+support-bot-backend  | 2025-08-05 20:13:29,013 - httpcore.http2 - DEBUG - send_request_body.complete
+support-bot-backend  | 2025-08-05 20:13:29,013 - httpcore.http2 - DEBUG - receive_response_headers.started request=<Request [b'HEAD']> stream_id=1
+support-bot-backend  | 2025-08-05 20:13:29,029 - httpcore.http2 - DEBUG - receive_remote_settings.started
+support-bot-backend  | 2025-08-05 20:13:29,029 - httpcore.http2 - DEBUG - receive_remote_settings.complete return_value=<RemoteSettingsChanged changed_settings:{ChangedSetting(setting=3, original_value=None, new_value=100), ChangedSetting(setting=4, original_value=65535, new_value=65536), ChangedSetting(setting=5, original_value=16384, new_value=16777215)}>
+support-bot-backend  | 2025-08-05 20:13:29,092 - hpack.hpack - DEBUG - Decoding b"?\xe1\x1f\x88a\x96\xdfi~\x94\x03jCl\xca\x08\x02mA\x02\xe0Y\xb8'\xd4\xc5\xa3\x7f_\x96\x1du\xd0b\r&=LtA\xea\xfbP\x93\x8e\xc4\x150Z\x99V{^\x03*/0@\x85$\xabX?_\x8f}\xc1\xbd+O\x81\xc2\xb4\xd8\x86\x11-z\xfe/@\x8a$\xab\x10d\x9c\xab!#M\xa8\x86\xbf\xcfL:2^]\x94bC\x92\xdaKRb\xeeR$\xf6#\xfcAh)\x13\x02\xa2\x87x\xa0\xa4~V\x1c\xc5\x81\x90\xb6\xcb\x80\x00>\xd45D\xa2\xd9\x0b\xba\xd8\xef\x9e\x91\x9a\xa4}\xa9]\x85\xa0\xe3\x93{\x8b\x84\x84-i[\x05D<\x86\xaao@\x8b!\xeaIjJ\xd5\xd8yMA\x7f\x85\xae\xd8\xe81?@\x8d\xae\xc2\xca[\x0bQ\n\xb0\xeb\xae\x83\x16O\x88!\xed\xa90\x17\xc8\xc8\x9f@\x8dDkL4\x97\xc0\xfd-\xdc\xb6 \xc7\xab\x011@\x8aDkWa\xfa\x14\x89Z\xc2\xcb\x90\xf37q\xd8\x9e\xdd|\xd9\xeb\xbd2\xcd\xd7\xccsO@\x8aDkX^\xd6\x95\tX\xd2\x7f\x9a\x00_y\xd8\xe4*\xc1q\xa7Vu\xf8\xc4\xb0\xc3,kF\xf3\xd2\xca\xcc\x80\x14r?@\x90\xf2\xb1\x0fRKRVO\xaa\xca\xb1\xebI\x8fR?\x85\xa8\xe8\xa8\xd2\xcb@\x8f\xf2\xb1j\xee\x7fK\r)-5\xa5b\x1e\xda\x93\x011@\x95\xf2\xb1j\xee\x7fK[Z\x13aGJ\xc8-\x9d\xccB\xac\x93R_\x0219v\x87%\x07\xb6Ih\x1d\x85Z\x83\x9b\xd9\xab@\x85\x1d\tY\x1d\xc9\x90\x9d\x98?\x9b\x8d4\xcf\xf3\xf6\xa5#\x81\xe7\x1a\x00?"
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded 4096, consumed 3 bytes
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.table - DEBUG - Resizing header table to 4096 from 4096
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded 8, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded (b':status', b'200'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded 33, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded 22, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded (b'date', b'Tue, 05 Aug 2025 20:13:29 GMT'), total consumed 24 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded 31, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded 22, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded (b'content-type', b'application/json; charset=utf-8'), total consumed 24 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded 30, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,093 - hpack.hpack - DEBUG - Decoded 3, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded (b'content-range', <memory at 0x7e4de5dbb580>), total consumed 5 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded 5, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded 15, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded (b'cf-ray', b'96a8f4906e452a12-CDG'), total consumed 23 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded 10, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded 6, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded (b'cf-cache-status', b'DYNAMIC'), total consumed 19 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded 29, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded 20, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded (b'content-location', b'/document_vectors?select=%2A'), total consumed 22 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded 56, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,094 - hpack.hpack - DEBUG - Decoded 32, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), total consumed 34 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded 59, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded 11, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded (b'vary', b'Accept-Encoding'), total consumed 13 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded 11, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded 5, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded (b'content-profile', b'public'), total consumed 19 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded 13, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded 8, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded (b'preference-applied', b'count=exact'), total consumed 24 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,095 - hpack.hpack - DEBUG - Decoded 13, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded 1, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded (b'sb-gateway-version', <memory at 0x7e4de5dbaa40>), total consumed 17 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded 10, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded 16, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), total consumed 29 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded 10, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded 26, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded (b'sb-request-id', b'01987bde-1647-79b2-a1fb-b88ff3d02bd9'), total consumed 39 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded 16, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded 5, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded (b'x-content-type-options', b'nosniff'), total consumed 24 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,096 - hpack.hpack - DEBUG - Decoded 15, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded 1, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded (b'x-envoy-attempt-count', <memory at 0x7e4de5dbad40>), total consumed 19 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded 21, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded 2, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded (b'x-envoy-upstream-service-time', <memory at 0x7e4de5dbb7c0>), total consumed 26 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded 54, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded 7, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded (b'server', b'cloudflare'), total consumed 9 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded 26, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded 3, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded (b'content-encoding', b'gzip'), total consumed 5 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded 5, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,097 - hpack.hpack - DEBUG - Decoded 16, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,098 - hpack.hpack - DEBUG - Decoded (b'alt-svc', b'h3=":443"; ma=86400'), total consumed 24 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,098 - httpcore.http2 - DEBUG - receive_response_headers.complete return_value=(200, [(b'date', b'Tue, 05 Aug 2025 20:13:29 GMT'), (b'content-type', b'application/json; charset=utf-8'), (b'content-range', b'*/0'), (b'cf-ray', b'96a8f4906e452a12-CDG'), (b'cf-cache-status', b'DYNAMIC'), (b'content-location', b'/document_vectors?select=%2A'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'vary', b'Accept-Encoding'), (b'content-profile', b'public'), (b'preference-applied', b'count=exact'), (b'sb-gateway-version', b'1'), (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), (b'sb-request-id', b'01987bde-1647-79b2-a1fb-b88ff3d02bd9'), (b'x-content-type-options', b'nosniff'), (b'x-envoy-attempt-count', b'1'), (b'x-envoy-upstream-service-time', b'19'), (b'server', b'cloudflare'), (b'content-encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+support-bot-backend  | 2025-08-05 20:13:29,099 - httpx - INFO - HTTP Request: HEAD https://xgvartqkxryvmfgkxbgh.supabase.co/rest/v1/document_vectors?select=%2A "HTTP/2 200 OK"
+support-bot-backend  | 2025-08-05 20:13:29,099 - httpcore.http2 - DEBUG - receive_response_body.started request=<Request [b'HEAD']> stream_id=1
+support-bot-backend  | 2025-08-05 20:13:29,099 - httpcore.http2 - DEBUG - receive_response_body.complete
+support-bot-backend  | 2025-08-05 20:13:29,099 - httpcore.http2 - DEBUG - response_closed.started stream_id=1
+support-bot-backend  | 2025-08-05 20:13:29,099 - httpcore.http2 - DEBUG - response_closed.complete
+support-bot-backend  | 2025-08-05 20:13:29,109 - httpcore.http2 - DEBUG - send_request_headers.started request=<Request [b'HEAD']> stream_id=3
+support-bot-backend  | 2025-08-05 20:13:29,109 - hpack.hpack - DEBUG - Adding (b':method', b'HEAD') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,109 - hpack.hpack - DEBUG - Encoding 73 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,109 - hpack.hpack - DEBUG - Adding (b':authority', b'xgvartqkxryvmfgkxbgh.supabase.co') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,109 - hpack.hpack - DEBUG - Encoding 72 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,109 - hpack.hpack - DEBUG - Adding (b':scheme', b'https') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,109 - hpack.hpack - DEBUG - Encoding 7 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,109 - hpack.hpack - DEBUG - Adding (b':path', b'/rest/v1/documents?select=%2A') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Encoding 4 with 6 bits
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Encoding 21 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Adding (b'accept', b'*/*') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Encoding 71 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Adding (b'accept-encoding', b'gzip, deflate, zstd') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Encoding 70 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Adding (b'user-agent', b'python-httpx/0.28.1') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Encoding 69 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Adding (b'x-client-info', b'supabase-py/2.17.0') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Encoding 68 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Adding (b'apikey', b'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Encoding 67 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Adding (b'authorization', b'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:True, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,110 - hpack.hpack - DEBUG - Encoding 23 with 4 bits
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Encoding 180 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Adding (b'accept-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Encoding 66 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Adding (b'content-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Encoding 65 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Adding (b'prefer', b'count=exact') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Encoding 64 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Adding (b'cookie', b'__cf_bm=iMBXt5hJIXVnk5pVu0ot1G38NaZUVtiStw8dQQ1hJOk-1754424681-1.0.1.1-BCvM3F7b355TUUKw6JS8v1Itdo.yl.KuL2DzaK5RsjeJo3wDoguSTJsHHvnezX8iRDWzl6j8JECjZ49hHdApIoe5AiZhXqUKVS1VvXnUlok') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Encoding 63 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,111 - hpack.hpack - DEBUG - Encoded header block to b'\xc9\xc8\x87D\x95b\xc2\xa1,w\x0b\x12\x1c\x96\xd2Z\x92\x8f\xf1\x05\xa0\xa4L\n\x8a\x1f\xc7\xc6\xc5\xc4\xc3\x1f\x08\xff5\xbaQ\xd8[\x14/\xac\xb3\xc7\x88\x86\xd4l\xb98{\xc8\x1d&\xc8\x8c\x95ml\x97\xb29\x93\xad\x7f\x9coe}r\xfa\xcbY\x19\xd0mF\xcb\xeeO\xcb\xb3\xf3\xa7\x0f\xbf\xdd\xd9\x11\x92\xac\xb4~\x9b#\x99*\x9e\xa9)\xc3\xeaLxl.<\xad\xc9Hi\xfd\x12Z\xe7L\x87\xc8o\x06%/\xa3\xf7vG2U\xa6\x82U\xfb_1q\x94\x94\xbe\x8f\xdd\xd9\x11\x92\x9a\'\x92\xf6G4o t\xdf\x85\xad\x1e\xe6oO\xaf\x06\xfd\xfc\x9f\xc6N\x87\xf5\xa2\xff6\xf4\xf4\xe0\xde\xab\xfdY\x97b\xfb=\x8c"z>\xb5\xf8\xeaW\xc7Nfd\xfc\xe2\xcf\xbf\xd6\xed-\xdd\xf8\xe3\xd6<o\xfb.:\xf9\x86\xae\x9d\x7f\xc2\xc1\xc0\xbf'
+support-bot-backend  | 2025-08-05 20:13:29,112 - httpcore.http2 - DEBUG - send_request_headers.complete
+support-bot-backend  | 2025-08-05 20:13:29,112 - httpcore.http2 - DEBUG - send_request_body.started request=<Request [b'HEAD']> stream_id=3
+support-bot-backend  | 2025-08-05 20:13:29,112 - httpcore.http2 - DEBUG - send_request_body.complete
+support-bot-backend  | 2025-08-05 20:13:29,112 - httpcore.http2 - DEBUG - receive_response_headers.started request=<Request [b'HEAD']> stream_id=3
+support-bot-backend  | 2025-08-05 20:13:29,178 - hpack.hpack - DEBUG - Decoding b'\x88\xd0\xcf^\x84\x02\xc1`_\x7f\x0f\x8f}\xc1\xbd+O\x84\x12\xbe\x01\x0c"Z\xf5\xfc_\xce]\x8fbC\x92\xdaKRQ\xfe \xb4\x14\x89\x81QC\xcd\xcc\xcb\xca\xc9\xc8\x7f\x08\x9a\x00_y\xd8\xe4*\xc1r0,\xe9\x1c\n\xcf?+\xeb\r\xa1\x15\xf0\xca\xf1\n\x07\xbf\xc7\xc6\x7f\x06\x017\xc5\xc4\xc3'
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded 8, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded (b':status', b'200'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded 80, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded (b'date', b'Tue, 05 Aug 2025 20:13:29 GMT'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded 79, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded (b'content-type', b'application/json; charset=utf-8'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded 30, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded 4, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded (b'content-range', b'0-1/2'), total consumed 6 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded 78, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded 15, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,179 - hpack.hpack - DEBUG - Decoded (b'cf-ray', b'96a8f4910f902a12-CDG'), total consumed 18 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded 78, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded (b'cf-cache-status', b'DYNAMIC'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded 29, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded 15, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded (b'content-location', b'/documents?select=%2A'), total consumed 17 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded 77, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded 76, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded (b'vary', b'Accept-Encoding'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded 75, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded (b'content-profile', b'public'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded 74, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded (b'preference-applied', b'count=exact'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,180 - hpack.hpack - DEBUG - Decoded 73, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded (b'sb-gateway-version', <memory at 0x7e4de5dbaa40>), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded 72, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded 71, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded 26, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded (b'sb-request-id', b'01987bde-16b0-7c61-89f9-a42e91f8ce08'), total consumed 29 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded 71, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded (b'x-content-type-options', b'nosniff'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded 70, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded (b'x-envoy-attempt-count', <memory at 0x7e4de5dbad40>), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded 69, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded 1, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded (b'x-envoy-upstream-service-time', <memory at 0x7e4de5dbaec0>), total consumed 4 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,181 - hpack.hpack - DEBUG - Decoded 69, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,182 - hpack.hpack - DEBUG - Decoded (b'server', b'cloudflare'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,182 - hpack.hpack - DEBUG - Decoded 68, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,182 - hpack.hpack - DEBUG - Decoded (b'content-encoding', b'gzip'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,182 - hpack.hpack - DEBUG - Decoded 67, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,182 - hpack.hpack - DEBUG - Decoded (b'alt-svc', b'h3=":443"; ma=86400'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,182 - httpcore.http2 - DEBUG - receive_response_headers.complete return_value=(200, [(b'date', b'Tue, 05 Aug 2025 20:13:29 GMT'), (b'content-type', b'application/json; charset=utf-8'), (b'content-range', b'0-1/2'), (b'cf-ray', b'96a8f4910f902a12-CDG'), (b'cf-cache-status', b'DYNAMIC'), (b'content-location', b'/documents?select=%2A'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'vary', b'Accept-Encoding'), (b'content-profile', b'public'), (b'preference-applied', b'count=exact'), (b'sb-gateway-version', b'1'), (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), (b'sb-request-id', b'01987bde-16b0-7c61-89f9-a42e91f8ce08'), (b'x-content-type-options', b'nosniff'), (b'x-envoy-attempt-count', b'1'), (b'x-envoy-upstream-service-time', b'7'), (b'server', b'cloudflare'), (b'content-encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+support-bot-backend  | 2025-08-05 20:13:29,183 - httpx - INFO - HTTP Request: HEAD https://xgvartqkxryvmfgkxbgh.supabase.co/rest/v1/documents?select=%2A "HTTP/2 200 OK"
+support-bot-backend  | 2025-08-05 20:13:29,183 - httpcore.http2 - DEBUG - receive_response_body.started request=<Request [b'HEAD']> stream_id=3
+support-bot-backend  | 2025-08-05 20:13:29,183 - httpcore.http2 - DEBUG - receive_response_body.complete
+support-bot-backend  | 2025-08-05 20:13:29,183 - httpcore.http2 - DEBUG - response_closed.started stream_id=3
+support-bot-backend  | 2025-08-05 20:13:29,183 - httpcore.http2 - DEBUG - response_closed.complete
+support-bot-backend  | 2025-08-05 20:13:29,184 - groq._base_client - DEBUG - Request options: {'method': 'post', 'url': '/openai/v1/chat/completions', 'files': None, 'idempotency_key': 'stainless-python-retry-e190f211-c8b8-4b9e-b63f-5c239fd8ee9b', 'json_data': {'messages': [{'role': 'user', 'content': 'Test de connexion'}], 'model': 'deepseek-r1-distill-llama-70b', 'max_tokens': 10}}
+support-bot-backend  | 2025-08-05 20:13:29,185 - groq._base_client - DEBUG - Sending HTTP Request: POST https://api.groq.com/openai/v1/chat/completions
+support-bot-backend  | 2025-08-05 20:13:29,186 - httpcore.connection - DEBUG - close.started
+support-bot-backend  | 2025-08-05 20:13:29,186 - httpcore.connection - DEBUG - close.complete
+support-bot-backend  | 2025-08-05 20:13:29,186 - httpcore.connection - DEBUG - connect_tcp.started host='api.groq.com' port=443 local_address=None timeout=5.0 socket_options=None
+support-bot-backend  | 2025-08-05 20:13:29,200 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7e4de5c26050>
+support-bot-backend  | 2025-08-05 20:13:29,200 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x7e4de6201760> server_hostname='api.groq.com' timeout=5.0
+support-bot-backend  | 2025-08-05 20:13:29,236 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x7e4de5c25e10>
+support-bot-backend  | 2025-08-05 20:13:29,236 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+support-bot-backend  | 2025-08-05 20:13:29,236 - httpcore.http11 - DEBUG - send_request_headers.complete
+support-bot-backend  | 2025-08-05 20:13:29,237 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+support-bot-backend  | 2025-08-05 20:13:29,237 - httpcore.http11 - DEBUG - send_request_body.complete
+support-bot-backend  | 2025-08-05 20:13:29,237 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+support-bot-backend  | 2025-08-05 20:13:29,521 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Tue, 05 Aug 2025 20:13:29 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Cache-Control', b'private, max-age=0, no-store, no-cache, must-revalidate'), (b'vary', b'Origin'), (b'x-groq-region', b'fra'), (b'x-ratelimit-limit-requests', b'1000'), (b'x-ratelimit-limit-tokens', b'6000'), (b'x-ratelimit-remaining-requests', b'675'), (b'x-ratelimit-remaining-tokens', b'5990'), (b'x-ratelimit-reset-requests', b'7h47m29.202s'), (b'x-ratelimit-reset-tokens', b'100ms'), (b'x-request-id', b'req_01k1xxw5tyfcgsf232dqewab8y'), (b'cf-cache-status', b'DYNAMIC'), (b'Server', b'cloudflare'), (b'CF-RAY', b'96a8f491eebf02aa-CDG'), (b'Content-Encoding', b'gzip'), (b'alt-svc', b'h3=":443"; ma=86400')])
+support-bot-backend  | 2025-08-05 20:13:29,522 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+support-bot-backend  | 2025-08-05 20:13:29,522 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+support-bot-backend  | 2025-08-05 20:13:29,522 - httpcore.http11 - DEBUG - receive_response_body.complete
+support-bot-backend  | 2025-08-05 20:13:29,522 - httpcore.http11 - DEBUG - response_closed.started
+support-bot-backend  | 2025-08-05 20:13:29,522 - httpcore.http11 - DEBUG - response_closed.complete
+support-bot-backend  | 2025-08-05 20:13:29,523 - groq._base_client - DEBUG - HTTP Response: POST https://api.groq.com/openai/v1/chat/completions "200 OK" Headers({'date': 'Tue, 05 Aug 2025 20:13:29 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'cache-control': 'private, max-age=0, no-store, no-cache, must-revalidate', 'vary': 'Origin', 'x-groq-region': 'fra', 'x-ratelimit-limit-requests': '1000', 'x-ratelimit-limit-tokens': '6000', 'x-ratelimit-remaining-requests': '675', 'x-ratelimit-remaining-tokens': '5990', 'x-ratelimit-reset-requests': '7h47m29.202s', 'x-ratelimit-reset-tokens': '100ms', 'x-request-id': 'req_01k1xxw5tyfcgsf232dqewab8y', 'cf-cache-status': 'DYNAMIC', 'server': 'cloudflare', 'cf-ray': '96a8f491eebf02aa-CDG', 'content-encoding': 'gzip', 'alt-svc': 'h3=":443"; ma=86400'})
+support-bot-backend  | 2025-08-05 20:13:29,523 - app.rag.qa - INFO - Groq API connection successful
+support-bot-backend  | 2025-08-05 20:13:29,524 - httpcore.http2 - DEBUG - send_request_headers.started request=<Request [b'GET']> stream_id=5
+support-bot-backend  | 2025-08-05 20:13:29,524 - hpack.hpack - DEBUG - Adding (b':method', b'GET') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,524 - hpack.hpack - DEBUG - Encoding 2 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,524 - hpack.hpack - DEBUG - Adding (b':authority', b'xgvartqkxryvmfgkxbgh.supabase.co') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,524 - hpack.hpack - DEBUG - Encoding 73 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b':scheme', b'https') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 7 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b':path', b'/rest/v1/chat_logs?select=id&limit=1') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 4 with 6 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 26 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b'accept', b'*/*') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 72 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b'accept-encoding', b'gzip, deflate, zstd') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 71 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b'user-agent', b'python-httpx/0.28.1') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 70 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b'x-client-info', b'supabase-py/2.17.0') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 69 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b'apikey', b'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 68 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b'authorization', b'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhndmFydHFreHJ5dm1mZ2t4YmdoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDA4Mzg5NywiZXhwIjoyMDY5NjU5ODk3fQ.Qza128bkpwke9amK3dXV3zZ5ueBTHbPaH9zeHpY1njk') to the header table, sensitive:True, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 23 with 4 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 180 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b'accept-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Encoding 67 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,525 - hpack.hpack - DEBUG - Adding (b'content-profile', b'public') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,526 - hpack.hpack - DEBUG - Encoding 66 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,526 - hpack.hpack - DEBUG - Adding (b'cookie', b'__cf_bm=iMBXt5hJIXVnk5pVu0ot1G38NaZUVtiStw8dQQ1hJOk-1754424681-1.0.1.1-BCvM3F7b355TUUKw6JS8v1Itdo.yl.KuL2DzaK5RsjeJo3wDoguSTJsHHvnezX8iRDWzl6j8JECjZ49hHdApIoe5AiZhXqUKVS1VvXnUlok') to the header table, sensitive:False, huffman:True
+support-bot-backend  | 2025-08-05 20:13:29,526 - hpack.hpack - DEBUG - Encoding 64 with 7 bits
+support-bot-backend  | 2025-08-05 20:13:29,526 - hpack.hpack - DEBUG - Encoded header block to b'\x82\xc9\x87D\x9ab\xc2\xa1,w\x0b\x04\x9ci\x8a\x83\xcc\x8f\xf1\x05\xa0\xa4L\x06\x93\xe2\x83Rd\xc0\x1f\xc8\xc7\xc6\xc5\xc4\x1f\x08\xff5\xbaQ\xd8[\x14/\xac\xb3\xc7\x88\x86\xd4l\xb98{\xc8\x1d&\xc8\x8c\x95ml\x97\xb29\x93\xad\x7f\x9coe}r\xfa\xcbY\x19\xd0mF\xcb\xeeO\xcb\xb3\xf3\xa7\x0f\xbf\xdd\xd9\x11\x92\xac\xb4~\x9b#\x99*\x9e\xa9)\xc3\xeaLxl.<\xad\xc9Hi\xfd\x12Z\xe7L\x87\xc8o\x06%/\xa3\xf7vG2U\xa6\x82U\xfb_1q\x94\x94\xbe\x8f\xdd\xd9\x11\x92\x9a\'\x92\xf6G4o t\xdf\x85\xad\x1e\xe6oO\xaf\x06\xfd\xfc\x9f\xc6N\x87\xf5\xa2\xff6\xf4\xf4\xe0\xde\xab\xfdY\x97b\xfb=\x8c"z>\xb5\xf8\xeaW\xc7Nfd\xfc\xe2\xcf\xbf\xd6\xed-\xdd\xf8\xe3\xd6<o\xfb.:\xf9\x86\xae\x9d\x7f\xc3\xc2\xc0'
+support-bot-backend  | 2025-08-05 20:13:29,526 - httpcore.http2 - DEBUG - send_request_headers.complete
+support-bot-backend  | 2025-08-05 20:13:29,526 - httpcore.http2 - DEBUG - send_request_body.started request=<Request [b'GET']> stream_id=5
+support-bot-backend  | 2025-08-05 20:13:29,526 - httpcore.http2 - DEBUG - send_request_body.complete
+support-bot-backend  | 2025-08-05 20:13:29,526 - httpcore.http2 - DEBUG - receive_response_headers.started request=<Request [b'GET']> stream_id=5
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoding b"\x88\xd5\xd4^\x84\x02\xc0c\xe7\x7f\x14\x8f}\xc1\xbd+O\xb223\x18\x86\x11-z\xfe/\xd3\xc6]\x94`\x93\x8d1Py\x91\xfePjL\x98\x03\xf0\x82\xd0R&\x03I\xd2\xd1\xd0\xce\xcd\x7f\r\x9a\x00_y\xd8\xe4*\xc1y\xb2\xac\xeb\xf1\xbc\xb4r\xb8\x15\x99h\xac\x80\x80q\xf1\xc7'\xcc\xcb\xc2\xc9\xc7"
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 8, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded (b':status', b'200'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 85, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded (b'date', b'Tue, 05 Aug 2025 20:13:29 GMT'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 84, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded (b'content-type', b'application/json; charset=utf-8'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 30, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 4, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded (b'content-range', b'0-0/*'), total consumed 6 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 83, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 15, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded (b'cf-ray', b'96a8f493ac3b2a12-CDG'), total consumed 18 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 83, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded (b'cf-cache-status', b'DYNAMIC'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 70, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded (b'content-encoding', b'gzip'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 29, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 20, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded (b'content-location', b'/chat_logs?limit=1&select=id'), total consumed 22 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 82, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,600 - hpack.hpack - DEBUG - Decoded 81, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'vary', b'Accept-Encoding'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 80, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'content-profile', b'public'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 78, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'sb-gateway-version', <memory at 0x7e4de5dbaa40>), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 77, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 76, consumed 2 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 26, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'sb-request-id', b'01987bde-185e-79b8-bf61-34e30c069abd'), total consumed 29 bytes, indexed True
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 76, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'x-content-type-options', b'nosniff'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 75, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'x-envoy-attempt-count', <memory at 0x7e4de5dbad40>), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 66, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'x-envoy-upstream-service-time', <memory at 0x7e4de5dbaec0>), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 73, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'server', b'cloudflare'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded 71, consumed 1 bytes
+support-bot-backend  | 2025-08-05 20:13:29,601 - hpack.hpack - DEBUG - Decoded (b'alt-svc', b'h3=":443"; ma=86400'), consumed 1
+support-bot-backend  | 2025-08-05 20:13:29,601 - httpcore.http2 - DEBUG - receive_response_headers.complete return_value=(200, [(b'date', b'Tue, 05 Aug 2025 20:13:29 GMT'), (b'content-type', b'application/json; charset=utf-8'), (b'content-range', b'0-0/*'), (b'cf-ray', b'96a8f493ac3b2a12-CDG'), (b'cf-cache-status', b'DYNAMIC'), (b'content-encoding', b'gzip'), (b'content-location', b'/chat_logs?limit=1&select=id'), (b'strict-transport-security', b'max-age=31536000; includeSubDomains; preload'), (b'vary', b'Accept-Encoding'), (b'content-profile', b'public'), (b'sb-gateway-version', b'1'), (b'sb-project-ref', b'xgvartqkxryvmfgkxbgh'), (b'sb-request-id', b'01987bde-185e-79b8-bf61-34e30c069abd'), (b'x-content-type-options', b'nosniff'), (b'x-envoy-attempt-count', b'1'), (b'x-envoy-upstream-service-time', b'7'), (b'server', b'cloudflare'), (b'alt-svc', b'h3=":443"; ma=86400')])
+support-bot-backend  | 2025-08-05 20:13:29,602 - httpx - INFO - HTTP Request: GET https://xgvartqkxryvmfgkxbgh.supabase.co/rest/v1/chat_logs?select=id&limit=1 "HTTP/2 200 OK"
+support-bot-backend  | 2025-08-05 20:13:29,602 - httpcore.http2 - DEBUG - receive_response_body.started request=<Request [b'GET']> stream_id=5
+support-bot-backend  | 2025-08-05 20:13:29,602 - httpcore.http2 - DEBUG - receive_response_body.complete
+support-bot-backend  | 2025-08-05 20:13:29,602 - httpcore.http2 - DEBUG - response_closed.started stream_id=5
+support-bot-backend  | 2025-08-05 20:13:29,602 - httpcore.http2 - DEBUG - response_closed.complete
+support-bot-backend  | INFO:     127.0.0.1:58970 - "GET /health HTTP/1.1" 200 OK

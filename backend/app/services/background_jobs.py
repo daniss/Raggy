@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 import uuid
-from typing import Dict, Any, Optional, List, Callable
+from typing import Dict, Any, Optional, List, Callable, Union
 from datetime import datetime, timedelta
 from enum import Enum
 import redis
@@ -11,6 +11,22 @@ from dataclasses import dataclass, asdict
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+
+def ensure_datetime(value: Union[str, datetime, None]) -> Optional[datetime]:
+    """Convert string timestamp to datetime object if needed."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        try:
+            # Handle ISO format with Z suffix
+            if value.endswith('Z'):
+                value = value.replace('Z', '+00:00')
+            return datetime.fromisoformat(value)
+        except ValueError:
+            logger.warning(f"Could not parse datetime string: {value}")
+            return datetime.utcnow()
+    return value
 
 
 class JobStatus(Enum):
@@ -45,6 +61,14 @@ class BackgroundJob:
     retry_count: int = 0
     max_retries: int = 3
     result: Optional[Dict[str, Any]] = None
+    
+    def __post_init__(self):
+        """Ensure all datetime fields are properly typed."""
+        self.created_at = ensure_datetime(self.created_at) or datetime.utcnow()
+        self.scheduled_for = ensure_datetime(self.scheduled_for)
+        self.started_at = ensure_datetime(self.started_at)
+        self.completed_at = ensure_datetime(self.completed_at)
+        self.failed_at = ensure_datetime(self.failed_at)
 
 
 class BackgroundJobManager:
@@ -122,7 +146,7 @@ class BackgroundJobManager:
         return job_id
     
     async def _store_job(self, job: BackgroundJob):
-        """Store job data in Redis."""
+        """Store job data in Redis with proper datetime serialization."""
         if self.redis_client:
             job_data = asdict(job)
             # Convert datetime objects to ISO strings
@@ -152,7 +176,9 @@ class BackgroundJobManager:
         # Convert back from ISO strings
         for key, value in data.items():
             if key.endswith('_at') and value:
-                data[key] = datetime.fromisoformat(value)
+                data[key] = ensure_datetime(value)
+            elif key == 'scheduled_for' and value:
+                data[key] = ensure_datetime(value)
             elif key == 'status':
                 data[key] = JobStatus(value)
             elif key == 'priority':
@@ -194,16 +220,17 @@ class BackgroundJobManager:
         logger.info("Stopping background job worker")
     
     async def _process_job(self, job: BackgroundJob):
-        """Process a single job."""
+        """Process a single job with timeout protection."""
         logger.info(f"Processing job {job.id}: {job.task_name}")
         
         # Check if job should be processed now
-        if job.scheduled_for and job.scheduled_for > datetime.utcnow():
+        if job.scheduled_for and ensure_datetime(job.scheduled_for) > datetime.utcnow():
             # Reschedule for later
-            delay = (job.scheduled_for - datetime.utcnow()).total_seconds()
-            priority_score = job.priority.value * 1000 + int(job.scheduled_for.timestamp())
+            scheduled_time = ensure_datetime(job.scheduled_for)
+            delay = (scheduled_time - datetime.utcnow()).total_seconds()
+            priority_score = job.priority.value * 1000 + int(scheduled_time.timestamp())
             self.redis_client.zadd(self.queue_key, {job.id: priority_score})
-            logger.info(f"Job {job.id} rescheduled for {job.scheduled_for}")
+            logger.info(f"Job {job.id} rescheduled for {scheduled_time}")
             return
         
         # Mark job as processing
@@ -220,8 +247,17 @@ class BackgroundJobManager:
             if not handler:
                 raise ValueError(f"No handler registered for task: {job.task_name}")
             
-            # Execute task
-            result = await handler(job.payload)
+            # Execute task with timeout protection
+            import asyncio
+            timeout_seconds = 300  # 5 minutes timeout for individual jobs
+            
+            try:
+                result = await asyncio.wait_for(
+                    handler(job.payload), 
+                    timeout=timeout_seconds
+                )
+            except asyncio.TimeoutError:
+                raise TimeoutError(f"Job {job.id} timed out after {timeout_seconds} seconds")
             
             # Mark as completed
             job.status = JobStatus.COMPLETED
@@ -246,13 +282,14 @@ class BackgroundJobManager:
             if job.retry_count <= job.max_retries:
                 # Retry with exponential backoff
                 retry_delay = min(300, 2 ** job.retry_count)  # Max 5 minutes
-                job.scheduled_for = datetime.utcnow() + timedelta(seconds=retry_delay)
+                retry_time = datetime.utcnow() + timedelta(seconds=retry_delay)
+                job.scheduled_for = retry_time
                 job.status = JobStatus.RETRYING
                 
                 await self._store_job(job)
                 
                 # Add back to queue for retry
-                priority_score = job.priority.value * 1000 + int(job.scheduled_for.timestamp())
+                priority_score = job.priority.value * 1000 + int(retry_time.timestamp())
                 self.redis_client.zadd(self.queue_key, {job.id: priority_score})
                 
                 logger.info(f"Job {job.id} scheduled for retry {job.retry_count}/{job.max_retries} in {retry_delay}s")

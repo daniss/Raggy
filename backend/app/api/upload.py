@@ -15,7 +15,7 @@ from app.rag.supabase_retriever import supabase_retriever
 from app.services.batch_processor import batch_processor, BatchStatus
 from app.services.task_handlers import enqueue_document_processing
 from app.services.background_jobs import JobPriority
-from datetime import datetime
+from datetime import datetime, timezone
 from app.core.file_constants import ALLOWED_FILE_TYPES
 
 logger = logging.getLogger(__name__)
@@ -28,13 +28,12 @@ async def upload_documents(
     request: Request,
     background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(...),
-    async_processing: bool = Query(True, description="Process documents asynchronously using background jobs"),
     current_user: dict = Depends(get_current_user),
     current_org: dict = Depends(get_current_organization)
 ):
     """
     Upload and process documents for the knowledge base.
-    By default uses background jobs for async processing.
+    Always uses background jobs for async processing to prevent timeouts.
     """
     try:
         if not files:
@@ -89,86 +88,37 @@ async def upload_documents(
                 )
                 
                 try:
-                    if async_processing:
-                        # Use background job for async processing
-                        job_id = await enqueue_document_processing(
-                            filename=file.filename,
-                            content=file_content,
-                            content_type=file.content_type or "text/plain",
-                            user_id=current_user.get("id") if current_user else "anonymous",
-                            metadata={
-                                "document_id": document_id,
-                                "organization_id": current_org["id"],
-                                "upload_date": datetime.utcnow().isoformat(),
-                                "file_size": len(file_content)
-                            },
-                            priority=JobPriority.HIGH if len(files) == 1 else JobPriority.NORMAL
-                        )
-                        
-                        # Update document status to processing
-                        await update_document_status(
-                            document_id=document_id,
-                            status="processing",
-                            job_id=job_id
-                        )
-                        
-                        processed_files.append({
-                            "filename": file.filename,
-                            "chunks": 0,  # Will be updated by background job
-                            "document_ids": [],
+                    # Always use background job for async processing to prevent timeouts
+                    job_id = await enqueue_document_processing(
+                        filename=file.filename,
+                        content=file_content,
+                        content_type=file.content_type or "text/plain",
+                        user_id=current_user.get("id") if current_user else "anonymous",
+                        metadata={
                             "document_id": document_id,
-                            "job_id": job_id,
-                            "status": "processing"
-                        })
-                        
-                        logger.info(f"Queued {file.filename} for background processing (job_id: {job_id})")
-                    else:
-                        # Synchronous processing (legacy mode)
-                        # Load documents from file
-                        documents = document_loader.load_from_bytes(
-                            file_bytes=file_content,
-                            content_type=file.content_type or "text/plain",
-                            filename=file.filename,
-                            metadata={
-                                "filename": file.filename,
-                                "document_id": document_id,
-                                "uploaded_by": current_user.get("id") if current_user else "anonymous",
-                                "upload_date": datetime.utcnow().isoformat(),
-                                "file_size": len(file_content),
-                                "organization_id": current_org["id"]
-                            }
-                        )
-                        
-                        # Split documents into chunks using optimal strategy
-                        if settings.use_adaptive_chunking:
-                            # Use adaptive splitter for optimal chunk sizes based on document type
-                            chunks = adaptive_splitter.split_documents(documents)
-                            logger.debug(f"Used adaptive chunking for {file.filename}")
-                        else:
-                            # Use standard content-aware splitter
-                            chunks = document_splitter.split_documents(documents)
-                            logger.debug(f"Used standard chunking for {file.filename}")
-                        
-                        # Add chunks to vector store
-                        chunk_ids = retriever.add_documents(chunks)
-                        
-                        # Update document status to completed
-                        await update_document_status(
-                            document_id=document_id,
-                            status="completed",
-                            chunks_count=len(chunks)
-                        )
-                        
-                        total_chunks += len(chunks)
-                        processed_files.append({
-                            "filename": file.filename,
-                            "chunks": len(chunks),
-                            "document_ids": chunk_ids,
-                            "document_id": document_id
-                        })
+                            "organization_id": current_org["id"],
+                            "upload_date": datetime.now(timezone.utc).isoformat(),
+                            "file_size": len(file_content)
+                        },
+                        priority=JobPriority.HIGH if len(files) == 1 else JobPriority.NORMAL
+                    )
                     
-                    if not async_processing:
-                        logger.info(f"Successfully processed {file.filename}: {len(chunks)} chunks")
+                    # Update document status to processing
+                    await update_document_status(
+                        document_id=document_id,
+                        status="processing"
+                    )
+                    
+                    processed_files.append({
+                        "filename": file.filename,
+                        "chunks": 0,  # Will be updated by background job
+                        "document_ids": [],
+                        "document_id": document_id,
+                        "job_id": job_id,
+                        "status": "processing"
+                    })
+                    
+                    logger.info(f"Queued {file.filename} for background processing (job_id: {job_id})")
                     
                     # Log audit event for successful upload
                     client_ip, user_agent = get_request_info(request)
@@ -200,7 +150,8 @@ async def upload_documents(
                 # Continue processing other files
                 continue
         
-        if total_chunks == 0:
+        # Check if any files were successfully processed
+        if not processed_files:
             raise HTTPException(
                 status_code=400, 
                 detail="No documents could be processed successfully"
@@ -208,7 +159,7 @@ async def upload_documents(
         
         return UploadResponse(
             success=True,
-            message=f"Successfully {'queued' if async_processing else 'processed'} {len(processed_files)} files" + (f" with {total_chunks} chunks" if not async_processing else " for background processing"),
+            message=f"Successfully queued {len(processed_files)} files for background processing",
             document_id=str(uuid.uuid4()),  # Generate a batch ID
             chunks_created=total_chunks
         )
@@ -488,7 +439,7 @@ async def upload_batch(
                 "content_type": file.content_type or "text/plain",
                 "metadata": {
                     "user_id": current_user.get("id") if current_user else "anonymous",
-                    "upload_date": datetime.utcnow().isoformat(),
+                    "upload_date": datetime.now(timezone.utc).isoformat(),
                     "file_size": len(file_content),
                     "organization_id": current_org["id"]
                 }

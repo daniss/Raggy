@@ -48,8 +48,8 @@ export default function RootLayout({
         'min-h-screen bg-background font-sans antialiased',
         inter.className
       )}>
-        <div className="relative flex min-h-screen flex-col">
-          <div className="flex-1">
+        <div className="relative flex h-screen flex-col">
+          <div className="flex-1 flex flex-col overflow-hidden">
             <AuthProvider>
               <ErrorBoundary>
                 {children}

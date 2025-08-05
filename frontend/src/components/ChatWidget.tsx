@@ -32,6 +32,7 @@ interface Message {
   timestamp: Date;
   sources?: Source[];
   isLoading?: boolean;
+  responseTime?: number; // Add response time to message interface
 }
 
 interface ChatWidgetProps {
@@ -116,7 +117,8 @@ export default function ChatWidget({
         content: response.answer,
         timestamp: new Date(),
         sources: response.sources,
-        isLoading: false
+        isLoading: false,
+        responseTime: response.response_time // Store response time
       };
 
       setMessages(prev => prev.map(msg => 
@@ -260,6 +262,11 @@ export default function ChatWidget({
             hour: '2-digit', 
             minute: '2-digit' 
           })}
+          {message.type === 'assistant' && message.responseTime && (
+            <span className="ml-2 text-blue-600">
+              • ça a pris {message.responseTime.toFixed(2)} seconde{message.responseTime !== 1 ? 's' : ''}
+            </span>
+          )}
         </p>
       </div>
     </div>

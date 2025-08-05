@@ -1,8 +1,9 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 from app.core.config import settings
 from app.core.rate_limiting import RateLimitMiddleware
@@ -223,8 +224,7 @@ async def health_check():
         return HealthResponse(
             status=status,
             timestamp=datetime.utcnow(),
-            version=settings.api_version,
-            dependencies=dependencies
+            services=dependencies
         )
         
     except Exception as e:
@@ -234,31 +234,66 @@ async def health_check():
 
 # Global exception handler
 @app.exception_handler(Exception)
-async def global_exception_handler(request, exc):
-    """Global exception handler."""
+async def global_exception_handler(request: Request, exc: Exception):
+    """Global exception handler with datetime serialization support."""
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
     
-    return JSONResponse(
-        status_code=500,
-        content=ErrorResponse(
+    try:
+        error_response = ErrorResponse(
             error="Internal server error",
             detail="An unexpected error occurred",
             code="INTERNAL_ERROR"
-        ).model_dump()
-    )
+        )
+        
+        # Use jsonable_encoder to handle datetime and other complex objects
+        serializable_content = jsonable_encoder(error_response.model_dump())
+        
+        return JSONResponse(
+            status_code=500,
+            content=serializable_content
+        )
+    except Exception as serialization_error:
+        logger.error(f"Error in exception handler serialization: {serialization_error}")
+        # Fallback to basic error response
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "Internal server error",
+                "detail": "An unexpected error occurred",
+                "code": "INTERNAL_ERROR",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
 
 
 # HTTP exception handler
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request, exc: HTTPException):
-    """HTTP exception handler."""
-    return JSONResponse(
-        status_code=exc.status_code,
-        content=ErrorResponse(
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """HTTP exception handler with datetime serialization support."""
+    try:
+        error_response = ErrorResponse(
             error=exc.detail,
             code=f"HTTP_{exc.status_code}"
-        ).model_dump()
-    )
+        )
+        
+        # Use jsonable_encoder to handle datetime and other complex objects
+        serializable_content = jsonable_encoder(error_response.model_dump())
+        
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=serializable_content
+        )
+    except Exception as serialization_error:
+        logger.error(f"Error in HTTP exception handler serialization: {serialization_error}")
+        # Fallback to basic error response
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error": str(exc.detail),
+                "code": f"HTTP_{exc.status_code}",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
 
 
 if __name__ == "__main__":

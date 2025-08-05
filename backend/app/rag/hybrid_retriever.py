@@ -265,6 +265,28 @@ class HybridRetriever:
             return self.dense_retriever.similarity_search(
                 query, k=k, organization_id=organization_id
             )
+    
+    def add_documents(self, documents: List[Document]) -> List[str]:
+        """Add documents to both vector store and keyword retriever."""
+        try:
+            logger.info(f"Adding {len(documents)} documents to hybrid retriever")
+            
+            # Add to dense vector store (primary storage)
+            document_ids = self.dense_retriever.add_documents(documents)
+            
+            # BM25 doesn't need explicit document addition - it queries from the same DB
+            # The sparse retriever queries the document_vectors table directly
+            
+            logger.info(f"Successfully added {len(documents)} documents to hybrid retriever")
+            return document_ids
+            
+        except Exception as e:
+            logger.error(f"Failed to add documents to hybrid retriever: {e}")
+            raise
+
+    def get_collection_stats(self) -> Dict[str, Any]:
+        """Get statistics about the vector collection (delegates to dense retriever)."""
+        return self.dense_retriever.get_collection_stats()
 
 
 # Global hybrid retriever instance

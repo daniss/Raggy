@@ -361,7 +361,7 @@ export default function DocumentsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-h-full">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -635,8 +635,9 @@ export default function DocumentsPage() {
               )}
             </div>
           ) : (
-            <Table>
-            <TableHeader>
+            <div className="overflow-x-auto">
+              <Table>
+              <TableHeader>
               <TableRow>
                 <TableHead className="w-12">
                   <Checkbox
@@ -701,7 +702,8 @@ export default function DocumentsPage() {
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+            </Table>
+            </div>
           )}
           
           {/* Pagination Controls */}

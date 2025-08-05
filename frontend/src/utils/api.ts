@@ -432,11 +432,47 @@ export const usageApi = {
 
 // Utility functions
 export const handleApiError = (error: any): string => {
+  // Log the full error for debugging
+  console.error('API Error:', {
+    message: error.message,
+    response: error.response?.data,
+    status: error.response?.status,
+    config: {
+      url: error.config?.url,
+      method: error.config?.method,
+      data: error.config?.data
+    }
+  });
+
   if (error.response?.data?.error) {
     return error.response.data.error;
   }
   if (error.response?.data?.detail) {
     return error.response.data.detail;
+  }
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+  if (error.response?.status === 500) {
+    return 'Erreur interne du serveur. Le document sera traité en arrière-plan.';
+  }
+  if (error.response?.status === 502) {
+    return 'Service temporairement indisponible. Veuillez réessayer dans quelques instants.';
+  }
+  if (error.response?.status === 413) {
+    return 'Fichier trop volumineux. Veuillez choisir un fichier plus petit.';
+  }
+  if (error.response?.status === 415) {
+    return 'Type de fichier non supporté. Veuillez choisir un fichier PDF, DOC, DOCX ou TXT.';
+  }
+  if (error.response?.status === 422) {
+    return 'Erreur de validation. Vérifiez le format de votre fichier.';
+  }
+  if (error.message?.includes('timeout')) {
+    return 'Délai d\'attente dépassé. Le fichier est en cours de traitement.';
+  }
+  if (error.message?.includes('Network Error')) {
+    return 'Erreur de connexion. Vérifiez votre connexion internet.';
   }
   if (error.message) {
     return error.message;

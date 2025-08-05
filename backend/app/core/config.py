@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     
     # RAG Configuration
     embedding_model: str = Field(
-        default="intfloat/multilingual-e5-large-instruct", 
+        default="intfloat/multilingual-e5-base", 
         env="EMBEDDING_MODEL"
     )
     chunk_size: int = Field(default=1000, env="CHUNK_SIZE")

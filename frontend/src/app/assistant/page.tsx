@@ -6,9 +6,10 @@ import {
   Sparkles,
   AlertCircle,
   Info,
-  RefreshCw,
   FileText,
-  X
+  RefreshCw,
+  X,
+  Bot
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -28,6 +29,7 @@ interface Message {
   timestamp: Date;
   sources?: Source[];
   isLoading?: boolean;
+  responseTime?: number; // Add response time to message interface
 }
 
 export default function AssistantPage() {
@@ -97,12 +99,25 @@ export default function AssistantPage() {
     setIsLoading(true);
     setError(null);
 
+    // Add a timeout warning
+    const timeoutWarning = setTimeout(() => {
+      if (isLoading) {
+        console.warn('Response taking longer than expected...');
+      }
+    }, 3000);
+
     try {
+      const startTime = Date.now();
+      
       const response: ChatResponse = await chatApi.sendMessage({
         question: userMessage.content,
         conversation_id: conversationId
       });
 
+      const responseTime = Date.now() - startTime;
+      console.log(`RAG Response time: ${responseTime}ms`);
+      
+      clearTimeout(timeoutWarning);
       setConversationId(response.conversation_id);
 
       const assistantMessage: Message = {
@@ -111,7 +126,8 @@ export default function AssistantPage() {
         content: response.answer,
         timestamp: new Date(),
         sources: response.sources,
-        isLoading: false
+        isLoading: false,
+        responseTime: response.response_time // Use backend response time
       };
 
       setMessages(prev => prev.map(msg => 
@@ -119,6 +135,7 @@ export default function AssistantPage() {
       ));
 
     } catch (error) {
+      clearTimeout(timeoutWarning);
       const errorMsg = handleApiError(error);
       setError(errorMsg);
       
@@ -136,6 +153,7 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
         msg.id === loadingMessage.id ? errorMessage : msg
       ));
     } finally {
+      clearTimeout(timeoutWarning);
       setIsLoading(false);
     }
   };
@@ -187,37 +205,7 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
   }
 
   return (
-    <div className="flex h-full bg-gray-50">
-      {/* Mobile Sidebar Overlay */}
-      {showMobileSidebar && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div 
-            className="fixed inset-0 bg-gray-600 bg-opacity-75" 
-            onClick={() => setShowMobileSidebar(false)} 
-          />
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-            <div className="absolute top-4 right-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowMobileSidebar(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            <DocumentSidebar
-              onDocumentSelect={(doc) => {
-                handleDocumentSelect(doc);
-                setShowMobileSidebar(false);
-              }}
-              onDocumentPreview={handleDocumentPreview}
-              selectedDocumentId={selectedDocument?.id}
-              className="flex"
-            />
-          </div>
-        </div>
-      )}
-
+    <div className="flex h-full bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Document Sidebar */}
       <DocumentSidebar
         onDocumentSelect={handleDocumentSelect}
@@ -227,14 +215,14 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
       />
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Mobile Document Button */}
-        <div className="lg:hidden p-4 border-b bg-white">
+        <div className="lg:hidden p-4 border-b bg-white/80 backdrop-blur-sm flex-shrink-0">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowMobileSidebar(true)}
-            className="w-full"
+            className="w-full border-gray-200 hover:border-gray-300 hover:bg-gray-50"
           >
             <FileText className="w-4 h-4 mr-2" />
             Voir les documents ({selectedDocument ? selectedDocument.filename : 'Aucun sélectionné'})
@@ -243,48 +231,57 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
 
         {/* Messages */}
         <ScrollArea ref={scrollAreaRef} className="flex-1">
-          <div className="max-w-4xl mx-auto">
+          <div className="w-full min-h-full">
             {/* Welcome message for empty state */}
             {messages.length === 1 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-6"
+                className="p-6 flex items-center justify-center min-h-full"
               >
-                <div className="max-w-md mx-auto">
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Sécurité :</strong> Vos données restent privées et isolées.
-                    </AlertDescription>
-                  </Alert>
+                <div className="max-w-2xl mx-auto text-center">
+                  <div className="mb-8">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                      <Bot className="w-8 h-8 text-white" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      Bienvenue dans votre Assistant IA
+                    </h2>
+                    <p className="text-gray-600 mb-6">
+                      Posez-moi des questions sur vos documents. Je suis là pour vous aider à trouver les informations dont vous avez besoin.
+                    </p>
+                  </div>
                 </div>
               </motion.div>
             )}
 
             {/* Messages list */}
-            <AnimatePresence mode="popLayout">
-              {messages.map((message, index) => (
-                <ChatMessage
-                  key={message.id}
-                  message={message}
-                  isLatest={index === messages.length - 1}
-                />
-              ))}
-            </AnimatePresence>
+            <div className="py-4">
+              <AnimatePresence mode="popLayout">
+                {messages.map((message, index) => (
+                  <ChatMessage
+                    key={message.id}
+                    message={message}
+                    isLatest={index === messages.length - 1}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
 
             {/* Error display */}
             {error && (
-              <div className="p-6">
-                <ErrorAlert
-                  title="Erreur de communication"
-                  message={error}
-                  onDismiss={() => setError(null)}
-                  action={{
-                    label: "Réessayer",
-                    onClick: handleRetry
-                  }}
-                />
+              <div className="px-6 pb-4">
+                <div className="max-w-4xl mx-auto">
+                  <ErrorAlert
+                    title="Erreur de communication"
+                    message={error}
+                    onDismiss={() => setError(null)}
+                    action={{
+                      label: "Réessayer",
+                      onClick: handleRetry
+                    }}
+                  />
+                </div>
               </div>
             )}
 

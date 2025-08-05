@@ -85,7 +85,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+      <div className="h-screen flex overflow-hidden bg-gray-50">
         {/* Error Alert */}
         {error && (
           <div className="fixed top-4 right-4 z-50 max-w-md">
@@ -125,9 +125,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* Main content */}
-      <div className="md:pl-64 flex flex-col flex-1">
+      <div className="md:pl-64 flex flex-col flex-1 h-screen overflow-hidden">
         {/* Top bar */}
-        <div className="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200">
+        <div className="sticky top-0 z-10 bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
             <Button
               variant="ghost"
@@ -163,7 +163,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
 
         {/* Page content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto min-h-0">
           {children}
         </main>
       </div>
@@ -176,7 +176,7 @@ function Sidebar({ navigation }: { navigation: any[] }) {
   const { user } = useAuth();
   
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-white border-r border-gray-200">
+    <div className="flex-1 flex flex-col min-h-0 bg-white border-r border-gray-200 h-full">
       <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
         <div className="flex items-center flex-shrink-0 px-4">
           <h1 className="text-xl font-semibold text-gray-900">

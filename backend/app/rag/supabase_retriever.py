@@ -4,6 +4,7 @@ import logging
 from typing import List, Dict, Any, Optional
 from uuid import UUID
 import asyncio
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 from langchain.schema import Document
@@ -24,34 +25,45 @@ class SupabaseRetriever:
         self.collection_name = "document_vectors"
         
     def add_documents(self, documents: List[Document]) -> List[str]:
-        """Add documents to the vector store."""
+        """Add documents to the vector store with optimized batch processing."""
         try:
             if not documents:
                 return []
                 
             logger.info(f"Adding {len(documents)} documents to Supabase vector store")
             
-            # Process documents in batches to avoid memory issues
-            batch_size = 100
+            # Use very small batches for better performance and timeout avoidance
+            batch_size = 25  # Further reduced for timeout prevention
             all_ids = []
+            total_batches = (len(documents) + batch_size - 1) // batch_size
             
             for i in range(0, len(documents), batch_size):
                 batch = documents[i:i + batch_size]
-                batch_ids = self._add_document_batch(batch)
-                all_ids.extend(batch_ids)
+                batch_num = i // batch_size + 1
                 
-            logger.info(f"Successfully added {len(all_ids)} documents")
+                logger.info(f"Processing batch {batch_num}/{total_batches} ({len(batch)} documents)")
+                
+                try:
+                    batch_ids = self._add_document_batch_optimized(batch)
+                    all_ids.extend(batch_ids)
+                    logger.debug(f"Batch {batch_num} completed: {len(batch_ids)} documents added")
+                except Exception as batch_error:
+                    logger.error(f"Batch {batch_num} failed: {batch_error}")
+                    # Try to continue with next batch rather than failing entirely
+                    continue
+                
+            logger.info(f"Successfully added {len(all_ids)}/{len(documents)} documents")
             return all_ids
             
         except Exception as e:
             logger.error(f"Failed to add documents: {e}")
             raise
     
-    @retry_database
     def _execute_supabase_query(self, operation: str, *args, **kwargs):
-        """Execute Supabase operation with retry logic."""
+        """Execute Supabase operation with optimized retry logic."""
         try:
             if operation == "insert":
+                # For inserts, try direct execution first (faster)
                 return self.supabase.table("document_vectors").insert(*args, **kwargs).execute()
             elif operation == "select":
                 return self.supabase.table("document_vectors").select(*args, **kwargs).execute()
@@ -63,15 +75,94 @@ class SupabaseRetriever:
                 raise ValueError(f"Unknown operation: {operation}")
         except Exception as e:
             logger.error(f"Supabase {operation} operation failed: {e}")
+            # For insert operations, don't retry automatically - let the fallback handle it
+            if operation == "insert":
+                raise
+            # For other operations, still use retry logic
+            return self._execute_supabase_query_with_retry(operation, *args, **kwargs)
+    
+    @retry_database
+    def _execute_supabase_query_with_retry(self, operation: str, *args, **kwargs):
+        """Execute Supabase operation with retry logic for non-insert operations."""
+        try:
+            if operation == "select":
+                return self.supabase.table("document_vectors").select(*args, **kwargs).execute()
+            elif operation == "rpc":
+                return self.supabase.rpc(*args, **kwargs).execute()
+            elif operation == "delete":
+                return self.supabase.table("document_vectors").delete(*args, **kwargs).execute()
+            else:
+                raise ValueError(f"Unknown operation: {operation}")
+        except Exception as e:
+            logger.error(f"Supabase {operation} operation failed: {e}")
             raise
     
-    def _add_document_batch(self, documents: List[Document]) -> List[str]:
-        """Add a batch of documents."""
-        batch_data = []
+    def _add_document_batch_optimized(self, documents: List[Document]) -> List[str]:
+        """Add a batch of documents with optimized embedding generation and timeout protection."""
+        try:
+            if not documents:
+                return []
+            
+            start_time = time.time()
+            
+            # Extract all text content for batch embedding
+            texts = [doc.page_content for doc in documents]
+            
+            # Generate embeddings in batch with timeout tracking
+            logger.debug(f"Generating embeddings for {len(texts)} documents")
+            embedding_start = time.time()
+            embeddings = self.embedder.embed_documents(texts)
+            embedding_time = time.time() - embedding_start
+            logger.debug(f"Embedding generation took {embedding_time:.2f} seconds")
+            
+            # Check if embedding took too long (warning)
+            if embedding_time > 30:  # 30 seconds warning threshold
+                logger.warning(f"Embedding generation took {embedding_time:.2f}s - consider smaller batches")
+            
+            # Prepare batch data
+            batch_data = []
+            for doc, embedding in zip(documents, embeddings):
+                doc_data = {
+                    "document_id": doc.metadata.get("document_id"),
+                    "chunk_index": doc.metadata.get("chunk_index", 0),
+                    "content": doc.page_content,
+                    "embedding": embedding,
+                    "metadata": doc.metadata,
+                    "organization_id": doc.metadata.get("organization_id")
+                }
+                batch_data.append(doc_data)
+            
+            # Insert batch into Supabase with timing
+            logger.debug(f"Inserting {len(batch_data)} documents to database")
+            insert_start = time.time()
+            result = self._execute_supabase_query("insert", batch_data)
+            insert_time = time.time() - insert_start
+            logger.debug(f"Database insertion took {insert_time:.2f} seconds")
+            
+            total_time = time.time() - start_time
+            logger.debug(f"Total batch processing time: {total_time:.2f} seconds")
+            
+            if result.data:
+                document_ids = [str(row["id"]) for row in result.data]
+                logger.debug(f"Successfully inserted {len(document_ids)} documents")
+                return document_ids
+            else:
+                logger.warning("No data returned from insert operation")
+                return []
+                
+        except Exception as e:
+            logger.error(f"Failed to process document batch: {e}")
+            # Fallback to individual processing if batch fails
+            logger.info("Falling back to individual document processing")
+            return self._add_document_batch_fallback(documents)
+
+    def _add_document_batch_fallback(self, documents: List[Document]) -> List[str]:
+        """Fallback method for adding documents one by one."""
+        document_ids = []
         
         for doc in documents:
             try:
-                # Generate embedding for the document content
+                # Generate embedding for single document
                 embedding = self.embedder.embed_query(doc.page_content)
                 
                 # Prepare data for insertion
@@ -83,25 +174,22 @@ class SupabaseRetriever:
                     "metadata": doc.metadata,
                     "organization_id": doc.metadata.get("organization_id")
                 }
-                batch_data.append(doc_data)
                 
+                # Insert single document
+                result = self._execute_supabase_query("insert", [doc_data])
+                
+                if result.data and len(result.data) > 0:
+                    document_ids.append(str(result.data[0]["id"]))
+                    
             except Exception as e:
-                logger.error(f"Failed to process document: {e}")
+                logger.error(f"Failed to process individual document: {e}")
                 continue
         
-        if not batch_data:
-            return []
-            
-        # Insert batch into Supabase with retry logic
-        try:
-            result = self._execute_supabase_query("insert", batch_data)
-            if result.data:
-                return [str(row["id"]) for row in result.data]
-            return []
-            
-        except Exception as e:
-            logger.error(f"Failed to insert batch: {e}")
-            raise
+        return document_ids
+
+    def _add_document_batch(self, documents: List[Document]) -> List[str]:
+        """Legacy method - kept for compatibility."""
+        return self._add_document_batch_optimized(documents)
     
     def similarity_search(
         self, 

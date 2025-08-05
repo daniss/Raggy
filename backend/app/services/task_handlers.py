@@ -33,14 +33,28 @@ async def process_single_document(payload: Dict[str, Any]) -> Dict[str, Any]:
         else:
             content = payload['content']
         
-        # Save document info to database
-        document_id = await save_document_info(
-            filename=payload['filename'],
-            content_type=payload['content_type'],
-            size_bytes=len(content),
-            file_path="",  # We don't store files, just process them
-            user_id=payload.get('user_id')
-        )
+        # Get document_id from metadata if it exists (from upload endpoint)
+        # or create a new document record if not
+        document_id = payload.get('metadata', {}).get('document_id')
+        
+        if document_id:
+            # Document already exists, just update status to processing
+            await update_document_status(
+                document_id=document_id,
+                status="processing"
+            )
+            logger.info(f"Using existing document_id: {document_id}")
+        else:
+            # Create new document record (fallback for older code paths)
+            document_id = await save_document_info(
+                filename=payload['filename'],
+                content_type=payload['content_type'],
+                size_bytes=len(content),
+                file_path="",  # We don't store files, just process them
+                user_id=payload.get('user_id'),
+                organization_id=payload.get('metadata', {}).get('organization_id')
+            )
+            logger.info(f"Created new document_id: {document_id}")
         
         # Load documents from bytes
         documents = document_loader.load_from_bytes(
@@ -57,11 +71,32 @@ async def process_single_document(payload: Dict[str, Any]) -> Dict[str, Any]:
             }
         )
         
+        logger.info(f"Loaded {len(documents)} document segments from {payload['filename']}")
+        
         # Split documents into chunks
         chunks = document_splitter.split_documents(documents)
         
-        # Add chunks to vector store
-        chunk_ids = retriever.add_documents(chunks)
+        logger.info(f"Created {len(chunks)} chunks from {len(documents)} document segments")
+        
+        # Process chunks in smaller batches to avoid timeouts
+        chunk_ids = []
+        batch_size = 50  # Process chunks in batches of 50
+        total_batches = (len(chunks) + batch_size - 1) // batch_size
+        
+        for i in range(0, len(chunks), batch_size):
+            batch = chunks[i:i + batch_size]
+            batch_num = i // batch_size + 1
+            
+            logger.info(f"Processing chunk batch {batch_num}/{total_batches} ({len(batch)} chunks)")
+            
+            try:
+                batch_ids = retriever.add_documents(batch)
+                chunk_ids.extend(batch_ids)
+                logger.info(f"Batch {batch_num} completed: {len(batch_ids)} chunks added")
+            except Exception as batch_error:
+                logger.error(f"Batch {batch_num} failed: {batch_error}")
+                # Continue with next batch rather than failing entirely
+                continue
         
         # Update document status
         await update_document_status(
