@@ -3,6 +3,7 @@
 from .embedder import embedder, HuggingFaceEmbedder
 from .loader import document_loader, DocumentLoader
 from .splitter import document_splitter, DocumentSplitter
+from .adaptive_splitter import adaptive_splitter, AdaptiveDocumentSplitter
 from .retriever import retriever
 from .supabase_retriever import supabase_retriever, SupabaseRetriever
 from .hybrid_retriever import hybrid_retriever, HybridRetriever
@@ -19,6 +20,8 @@ __all__ = [
     "DocumentLoader",
     "document_splitter",
     "DocumentSplitter",
+    "adaptive_splitter",
+    "AdaptiveDocumentSplitter",
     "retriever",
     "supabase_retriever",
     "SupabaseRetriever",

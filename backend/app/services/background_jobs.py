@@ -171,15 +171,18 @@ class BackgroundJobManager:
         
         while self.running:
             try:
-                # Get next job from queue
-                job_data = self.redis_client.bzpopmin(self.queue_key, timeout=5)
+                # Use non-blocking approach with zpopmin instead of blocking bzpopmin
+                job_data = self.redis_client.zpopmin(self.queue_key, count=1)
                 
                 if job_data:
-                    _, job_id, _ = job_data
+                    job_id, _ = job_data[0]
                     job = await self.get_job(job_id)
                     
                     if job:
                         await self._process_job(job)
+                else:
+                    # No jobs available, wait before checking again
+                    await asyncio.sleep(0.5)
                 
             except Exception as e:
                 logger.error(f"Error in background job worker: {e}")

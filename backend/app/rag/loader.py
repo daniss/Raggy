@@ -18,6 +18,8 @@ class DocumentLoader:
             "application/pdf": self._load_pdf,
             "text/plain": self._load_text,
             "text/markdown": self._load_text,
+            "text/csv": self._load_csv,
+            "application/csv": self._load_csv,
             "application/msword": self._load_with_unstructured,
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document": self._load_with_unstructured,
         }
@@ -108,6 +110,43 @@ class DocumentLoader:
             logger.error(f"Failed to load text file: {e}")
             raise
     
+    def _load_csv(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
+        """Load CSV document using unstructured library."""
+        try:
+            # Use unstructured's partition function which will automatically detect CSV
+            elements = partition(filename=file_path)
+            
+            documents = []
+            for element in elements:
+                if hasattr(element, 'text') and element.text.strip():
+                    element_metadata = metadata.copy()
+                    element_metadata.update({
+                        "element_type": element.category if hasattr(element, 'category') else "table",
+                        "file_type": "csv"
+                    })
+                    
+                    documents.append(Document(
+                        page_content=element.text,
+                        metadata=element_metadata
+                    ))
+            
+            # If no elements were extracted, try to read as plain text
+            if not documents:
+                logger.warning(f"No structured elements found in CSV, reading as plain text")
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    text = file.read()
+                if text.strip():
+                    documents.append(Document(
+                        page_content=text,
+                        metadata=metadata
+                    ))
+            
+            return documents
+            
+        except Exception as e:
+            logger.error(f"Failed to load CSV: {e}")
+            raise
+    
     def _load_with_unstructured(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
         """Load document using unstructured library."""
         try:
@@ -138,6 +177,8 @@ class DocumentLoader:
             "application/pdf": ".pdf",
             "text/plain": ".txt",
             "text/markdown": ".md",
+            "text/csv": ".csv",
+            "application/csv": ".csv",
             "application/msword": ".doc",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
         }

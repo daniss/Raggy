@@ -10,7 +10,8 @@ import {
   FolderOpen,
   ChevronRight,
   Clock,
-  Loader2
+  Loader2,
+  Eye
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -30,12 +31,14 @@ interface Document {
 
 interface DocumentSidebarProps {
   onDocumentSelect?: (doc: Document) => void;
+  onDocumentPreview?: (doc: Document) => void;
   selectedDocumentId?: string;
   className?: string;
 }
 
 export default function DocumentSidebar({ 
   onDocumentSelect, 
+  onDocumentPreview,
   selectedDocumentId,
   className 
 }: DocumentSidebarProps) {
@@ -199,11 +202,10 @@ export default function DocumentSidebar({
               const isSelected = selectedDocumentId === doc.id;
               
               return (
-                <button
+                <div
                   key={doc.id}
-                  onClick={() => onDocumentSelect?.(doc)}
                   className={cn(
-                    "w-full px-4 py-3 flex items-start space-x-3 hover:bg-gray-50 transition-colors text-left",
+                    "group px-4 py-3 flex items-start space-x-3 hover:bg-gray-50 transition-colors",
                     isSelected && "bg-blue-50 hover:bg-blue-50"
                   )}
                 >
@@ -217,7 +219,10 @@ export default function DocumentSidebar({
                     )} />
                   </div>
                   
-                  <div className="flex-1 min-w-0">
+                  <button
+                    onClick={() => onDocumentSelect?.(doc)}
+                    className="flex-1 min-w-0 text-left"
+                  >
                     <p className={cn(
                       "text-sm font-medium truncate",
                       isSelected ? "text-blue-900" : "text-gray-900"
@@ -239,8 +244,19 @@ export default function DocumentSidebar({
                         {formatDate(doc.upload_date)}
                       </span>
                     </div>
-                  </div>
-                </button>
+                  </button>
+                  
+                  {/* Preview button */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDocumentPreview?.(doc)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-8 w-8"
+                    title="Prévisualiser le document"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                </div>
               );
             })}
           </div>

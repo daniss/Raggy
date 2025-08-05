@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import DocumentSidebar from './components/DocumentSidebar';
 import ChatMessage from './components/ChatMessage';
 import ChatInput from './components/ChatInput';
+import DocumentPreview from '@/components/DocumentPreview';
 import { chatApi, organizationApi, handleApiError, type ChatResponse, type Source } from '@/utils/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorAlert } from '@/components/ErrorAlert';
@@ -36,16 +37,7 @@ export default function AssistantPage() {
     {
       id: '1',
       type: 'assistant',
-      content: `Bonjour ! Je suis votre assistant IA privé. 
-      
-Je peux vous aider à explorer et comprendre vos documents internes. Posez-moi des questions sur :
-
-- 📄 Le contenu de vos documents
-- 📊 Les données et informations clés
-- 🔍 La recherche d'informations spécifiques
-- 💡 L'analyse et la synthèse de vos contenus
-
-Comment puis-je vous aider aujourd'hui ?`,
+      content: `Bonjour ! Je suis votre assistant IA. Posez-moi des questions sur vos documents.`,
       timestamp: new Date()
     }
   ]);
@@ -54,6 +46,8 @@ Comment puis-je vous aider aujourd'hui ?`,
   const [error, setError] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string>();
   const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [previewDocument, setPreviewDocument] = useState<any>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -171,6 +165,16 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
     setMessages(prev => [...prev, contextMessage]);
   };
 
+  const handleDocumentPreview = (doc: any) => {
+    setPreviewDocument(doc);
+    setShowPreview(true);
+  };
+
+  const handleClosePreview = () => {
+    setShowPreview(false);
+    setPreviewDocument(null);
+  };
+
   if (isInitializing) {
     return (
       <div className="flex h-full items-center justify-center bg-gray-50">
@@ -206,6 +210,7 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
                 handleDocumentSelect(doc);
                 setShowMobileSidebar(false);
               }}
+              onDocumentPreview={handleDocumentPreview}
               selectedDocumentId={selectedDocument?.id}
               className="flex"
             />
@@ -216,6 +221,7 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
       {/* Document Sidebar */}
       <DocumentSidebar
         onDocumentSelect={handleDocumentSelect}
+        onDocumentPreview={handleDocumentPreview}
         selectedDocumentId={selectedDocument?.id}
         className="hidden lg:flex"
       />
@@ -243,59 +249,15 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-8"
+                className="p-6"
               >
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Sparkles className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                    Bienvenue dans votre Assistant IA
-                  </h2>
-                  <p className="text-gray-600 max-w-md mx-auto">
-                    Explorez vos documents internes et obtenez des réponses instantanées grâce à l'intelligence artificielle.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Conseil :</strong> Sélectionnez un document dans la barre latérale pour des questions ciblées.
-                    </AlertDescription>
-                  </Alert>
-                  
+                <div className="max-w-md mx-auto">
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      <strong>Sécurité :</strong> Vos données restent privées et isolées dans votre organisation.
+                      <strong>Sécurité :</strong> Vos données restent privées et isolées.
                     </AlertDescription>
                   </Alert>
-                </div>
-
-                {/* Example questions */}
-                <div className="mt-8">
-                  <p className="text-sm text-gray-500 text-center mb-4">
-                    Essayez ces exemples de questions :
-                  </p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {[
-                      "Résume les points clés de nos documents",
-                      "Quelles sont nos procédures principales ?",
-                      "Trouve les informations sur [sujet]",
-                      "Compare les données entre documents"
-                    ].map((question, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSendMessage(question)}
-                        className="text-xs"
-                      >
-                        {question}
-                      </Button>
-                    ))}
-                  </div>
                 </div>
               </motion.div>
             )}
@@ -341,6 +303,13 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
           }
         />
       </div>
+
+      {/* Document Preview Modal */}
+      <DocumentPreview
+        document={previewDocument}
+        isOpen={showPreview}
+        onClose={handleClosePreview}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ from langchain.schema import Document
 import logging
 import time
 from app.core.config import settings
+from app.core.retry_handler import retry_external_api, groq_circuit_breaker
 from app.rag.hybrid_retriever import hybrid_retriever as retriever
 from app.rag.reranker import reranker
 from app.rag.query_enhancer import query_enhancer
@@ -22,6 +23,31 @@ class GroqQAChain:
         self.max_tokens = settings.max_tokens
         
         logger.info(f"Initialized Groq QA chain with model: {self.model}")
+    
+    @retry_external_api
+    def _call_groq_api(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
+        """Make API call to Groq with retry logic."""
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                top_p=1,
+                stream=False
+            )
+            
+            return {
+                "content": response.choices[0].message.content,
+                "usage": response.usage.total_tokens if hasattr(response, 'usage') else None
+            }
+            
+        except Exception as e:
+            logger.error(f"Groq API call failed: {e}")
+            raise
     
     def _build_prompt(self, question: str, context_docs: List[Document]) -> str:
         """Build prompt with context and question."""
@@ -131,23 +157,22 @@ Réponse:"""
             logger.info(f"Context: {len(context_docs)} docs, {total_context_chars} chars total")
             logger.debug(f"Full context sent to LLM: {user_prompt[:500]}...")
             
-            # Call Groq API
+            # Call Groq API with retry logic
             logger.debug(f"Calling Groq API with model: {self.model}")
             
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=self.temperature,
-                max_tokens=self.max_tokens,
-                top_p=1,
-                stream=False
-            )
-            
-            # Extract answer
-            answer = response.choices[0].message.content
+            try:
+                groq_response = self._call_groq_api(system_prompt, user_prompt)
+                answer = groq_response["content"]
+                tokens_used = groq_response["usage"]
+                
+            except Exception as e:
+                logger.error(f"Failed to get response from Groq API: {e}")
+                # Check if circuit breaker is open
+                if "Circuit breaker is open" in str(e):
+                    answer = "Service temporairement indisponible. Notre système de génération de réponses est en cours de récupération. Veuillez réessayer dans quelques instants."
+                else:
+                    answer = "Désolé, je rencontre actuellement des difficultés techniques. Veuillez réessayer dans quelques instants."
+                tokens_used = None
             
             # Calculate response time
             response_time = time.time() - start_time
@@ -171,7 +196,8 @@ Réponse:"""
                 "sources": sources,
                 "response_time": response_time,
                 "model_used": self.model,
-                "tokens_used": response.usage.total_tokens if hasattr(response, 'usage') else None
+                "tokens_used": tokens_used,
+                "circuit_breaker_state": groq_circuit_breaker.get_state()
             }
             
             logger.info(f"Generated answer in {response_time:.2f}s with {len(sources)} sources")
@@ -182,7 +208,7 @@ Réponse:"""
             logger.error(f"Failed to generate answer: {e}")
             
             return {
-                "answer": "Désolé, je rencontre actuellement des difficultés téchniques. Veuillez réessayer dans quelques instants.",
+                "answer": "Désolé, je rencontre actuellement des difficultés techniques. Veuillez réessayer dans quelques instants.",
                 "sources": [],
                 "response_time": response_time,
                 "error": str(e)

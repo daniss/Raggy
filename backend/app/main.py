@@ -13,6 +13,8 @@ from app.core.redis_cache import redis_cache
 from app.api.chat import router as chat_router
 from app.api.upload import router as upload_router
 from app.api.analytics import router as analytics_router
+from app.api.advanced_analytics import router as advanced_analytics_router
+from app.api.system_health import router as system_health_router
 from app.api.jobs import router as jobs_router
 from app.api.organizations import router as organizations_router
 from app.api.audit import router as audit_router
@@ -41,8 +43,19 @@ async def lifespan(app: FastAPI):
     try:
         logger.info("✓ All components initialized successfully")
         
-        # Background job worker disabled - causes startup hanging
-        logger.info("✓ Background job worker disabled")
+        # Start background job worker in a non-blocking way
+        try:
+            from app.services.background_jobs import job_manager
+            import asyncio
+            
+            async def start_background_worker():
+                await asyncio.sleep(1)  # Let the app startup complete
+                await job_manager.start_worker()
+            
+            asyncio.create_task(start_background_worker())
+            logger.info("✓ Background job worker scheduled to start")
+        except Exception as e:
+            logger.error(f"Failed to schedule background job worker: {e}")
         
         # Start health monitoring (non-blocking)
         try:
@@ -113,6 +126,8 @@ app.add_middleware(
 app.include_router(chat_router, prefix="/api/v1")
 app.include_router(upload_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
+app.include_router(advanced_analytics_router, prefix="/api/v1")
+app.include_router(system_health_router, prefix="/api/v1")
 app.include_router(jobs_router, prefix="/api/v1")
 app.include_router(organizations_router, prefix="/api/v1")
 app.include_router(audit_router, prefix="/api/v1")
@@ -137,13 +152,15 @@ async def root():
 # Health check endpoint
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
-    """Application health check."""
+    """Application health check with enhanced monitoring."""
     try:
         from app.rag import retriever, qa_chain
         from app.db.supabase_client import supabase_client
+        from app.core.retry_handler import groq_circuit_breaker, database_circuit_breaker
         
         # Check component health
         dependencies = {}
+        overall_healthy = True
         
         # Check Vector Store (Supabase pgvector)
         try:
@@ -151,21 +168,33 @@ async def health_check():
             dependencies["vector_store"] = f"connected ({stats.get('total_vectors', 0)} vectors, {stats.get('total_documents', 0)} docs)"
         except Exception as e:
             dependencies["vector_store"] = f"error: {str(e)[:50]}"
+            overall_healthy = False
         
-        # Check Groq API
+        # Check Groq API with circuit breaker status
         try:
             groq_status = qa_chain.test_connection()
-            dependencies["groq_api"] = "connected" if groq_status else "disconnected"
+            cb_state = groq_circuit_breaker.get_state()
+            status_suffix = f" (CB: {cb_state['state']}, failures: {cb_state['failure_count']})"
+            dependencies["groq_api"] = ("connected" if groq_status else "disconnected") + status_suffix
+            
+            if not groq_status or cb_state['state'] == 'open':
+                overall_healthy = False
         except Exception as e:
             dependencies["groq_api"] = f"error: {str(e)[:50]}"
+            overall_healthy = False
         
-        # Check Supabase
+        # Check Supabase with circuit breaker status
         try:
-            # Simple test query
             result = supabase_client.table("chat_logs").select("id").limit(1).execute()
-            dependencies["supabase"] = "connected"
+            cb_state = database_circuit_breaker.get_state()
+            status_suffix = f" (CB: {cb_state['state']}, failures: {cb_state['failure_count']})"
+            dependencies["supabase"] = "connected" + status_suffix
+            
+            if cb_state['state'] == 'open':
+                overall_healthy = False
         except Exception as e:
             dependencies["supabase"] = f"error: {str(e)[:50]}"
+            overall_healthy = False
         
         # Check Redis
         try:
@@ -174,11 +203,25 @@ async def health_check():
                 dependencies["redis"] = f"connected (hit rate: {stats.get('hit_rate', 0)}%)"
             else:
                 dependencies["redis"] = "disconnected"
+                overall_healthy = False
         except Exception as e:
             dependencies["redis"] = f"error: {str(e)[:50]}"
+            overall_healthy = False
+        
+        # Add system metrics
+        dependencies["system_status"] = {
+            "overall_healthy": overall_healthy,
+            "circuit_breakers_open": len([
+                cb for cb in [groq_circuit_breaker.get_state(), database_circuit_breaker.get_state()]
+                if cb['state'] == 'open'
+            ]),
+            "detailed_health_endpoint": "/api/v1/system/health/detailed"
+        }
+        
+        status = "healthy" if overall_healthy else "degraded"
         
         return HealthResponse(
-            status="healthy",
+            status=status,
             timestamp=datetime.utcnow(),
             version=settings.api_version,
             dependencies=dependencies

@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     
     # RAG Configuration
     embedding_model: str = Field(
-        default="intfloat/multilingual-e5-large", 
+        default="intfloat/multilingual-e5-large-instruct", 
         env="EMBEDDING_MODEL"
     )
     chunk_size: int = Field(default=1000, env="CHUNK_SIZE")
@@ -47,6 +47,7 @@ class Settings(BaseSettings):
     use_reranking: bool = Field(default=True, env="USE_RERANKING")
     use_query_enhancement: bool = Field(default=True, env="USE_QUERY_ENHANCEMENT")
     use_semantic_chunking: bool = Field(default=True, env="USE_SEMANTIC_CHUNKING")
+    use_adaptive_chunking: bool = Field(default=True, env="USE_ADAPTIVE_CHUNKING")
     
     # Hybrid Search Configuration
     dense_weight: float = Field(default=0.7, env="DENSE_WEIGHT")

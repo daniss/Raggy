@@ -8,9 +8,13 @@ from app.core.validation import validate_file_type, validate_file_size, validate
 from app.core.audit_middleware import get_request_info
 from app.services.audit_logger import audit_logger, AuditAction
 from app.core.redis_cache import redis_cache
-from app.rag import document_loader, document_splitter, retriever
+from app.rag import document_loader, document_splitter, adaptive_splitter, retriever
+from app.core.config import settings
 from app.db.supabase_client import save_document_info, update_document_status, delete_document, get_documents_list
+from app.rag.supabase_retriever import supabase_retriever
 from app.services.batch_processor import batch_processor, BatchStatus
+from app.services.task_handlers import enqueue_document_processing
+from app.services.background_jobs import JobPriority
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -23,11 +27,13 @@ async def upload_documents(
     request: Request,
     background_tasks: BackgroundTasks,
     files: List[UploadFile] = File(...),
+    async_processing: bool = Query(True, description="Process documents asynchronously using background jobs"),
     current_user: dict = Depends(get_current_user),
     current_org: dict = Depends(get_current_organization)
 ):
     """
     Upload and process documents for the knowledge base.
+    By default uses background jobs for async processing.
     """
     try:
         if not files:
@@ -69,6 +75,8 @@ async def upload_documents(
                     "application/pdf",
                     "text/plain",
                     "text/markdown",
+                    "text/csv",
+                    "application/csv",
                     "application/msword",
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 ]
@@ -89,43 +97,86 @@ async def upload_documents(
                 )
                 
                 try:
-                    # Load documents from file
-                    documents = document_loader.load_from_bytes(
-                        file_bytes=file_content,
-                        content_type=file.content_type or "text/plain",
-                        filename=file.filename,
-                        metadata={
+                    if async_processing:
+                        # Use background job for async processing
+                        job_id = await enqueue_document_processing(
+                            filename=file.filename,
+                            content=file_content,
+                            content_type=file.content_type or "text/plain",
+                            user_id=current_user.get("id") if current_user else "anonymous",
+                            metadata={
+                                "document_id": document_id,
+                                "organization_id": current_org["id"],
+                                "upload_date": datetime.utcnow().isoformat(),
+                                "file_size": len(file_content)
+                            },
+                            priority=JobPriority.HIGH if len(files) == 1 else JobPriority.NORMAL
+                        )
+                        
+                        # Update document status to processing
+                        await update_document_status(
+                            document_id=document_id,
+                            status="processing",
+                            job_id=job_id
+                        )
+                        
+                        processed_files.append({
                             "filename": file.filename,
+                            "chunks": 0,  # Will be updated by background job
+                            "document_ids": [],
                             "document_id": document_id,
-                            "uploaded_by": current_user.get("id") if current_user else "anonymous",
-                            "upload_date": datetime.utcnow().isoformat(),
-                            "file_size": len(file_content),
-                            "organization_id": current_org["id"]
-                        }
-                    )
+                            "job_id": job_id,
+                            "status": "processing"
+                        })
+                        
+                        logger.info(f"Queued {file.filename} for background processing (job_id: {job_id})")
+                    else:
+                        # Synchronous processing (legacy mode)
+                        # Load documents from file
+                        documents = document_loader.load_from_bytes(
+                            file_bytes=file_content,
+                            content_type=file.content_type or "text/plain",
+                            filename=file.filename,
+                            metadata={
+                                "filename": file.filename,
+                                "document_id": document_id,
+                                "uploaded_by": current_user.get("id") if current_user else "anonymous",
+                                "upload_date": datetime.utcnow().isoformat(),
+                                "file_size": len(file_content),
+                                "organization_id": current_org["id"]
+                            }
+                        )
+                        
+                        # Split documents into chunks using optimal strategy
+                        if settings.use_adaptive_chunking:
+                            # Use adaptive splitter for optimal chunk sizes based on document type
+                            chunks = adaptive_splitter.split_documents(documents)
+                            logger.debug(f"Used adaptive chunking for {file.filename}")
+                        else:
+                            # Use standard content-aware splitter
+                            chunks = document_splitter.split_documents(documents)
+                            logger.debug(f"Used standard chunking for {file.filename}")
+                        
+                        # Add chunks to vector store
+                        chunk_ids = retriever.add_documents(chunks)
+                        
+                        # Update document status to completed
+                        await update_document_status(
+                            document_id=document_id,
+                            status="completed",
+                            chunks_count=len(chunks)
+                        )
+                        
+                        total_chunks += len(chunks)
+                        processed_files.append({
+                            "filename": file.filename,
+                            "chunks": len(chunks),
+                            "document_ids": chunk_ids,
+                            "document_id": document_id
+                        })
                     
-                    # Split documents into chunks
-                    chunks = document_splitter.split_documents(documents)
-                    
-                    # Add chunks to vector store
-                    chunk_ids = retriever.add_documents(chunks)
-                    
-                    # Update document status to completed
-                    await update_document_status(
-                        document_id=document_id,
-                        status="completed",
-                        chunks_count=len(chunks)
-                    )
-                    
-                    total_chunks += len(chunks)
-                    processed_files.append({
-                        "filename": file.filename,
-                        "chunks": len(chunks),
-                        "document_ids": chunk_ids,
-                        "document_id": document_id
-                    })
-                    
-                    logger.info(f"Successfully processed {file.filename}: {len(chunks)} chunks")
+                    if not async_processing:
+                        logger.info(f"Successfully processed {file.filename}: {len(chunks)} chunks")
                     
                     # Log audit event for successful upload
                     client_ip, user_agent = get_request_info(request)
@@ -165,7 +216,7 @@ async def upload_documents(
         
         return UploadResponse(
             success=True,
-            message=f"Successfully processed {len(processed_files)} files with {total_chunks} chunks",
+            message=f"Successfully {'queued' if async_processing else 'processed'} {len(processed_files)} files" + (f" with {total_chunks} chunks" if not async_processing else " for background processing"),
             document_id=str(uuid.uuid4()),  # Generate a batch ID
             chunks_created=total_chunks
         )
@@ -387,6 +438,8 @@ async def upload_stats(current_user: dict = Depends(get_current_user)):
                 "application/pdf",
                 "text/plain",
                 "text/markdown",
+                "text/csv",
+                "application/csv",
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             ]
@@ -445,6 +498,8 @@ async def upload_batch(
                 "application/pdf",
                 "text/plain", 
                 "text/markdown",
+                "text/csv",
+                "application/csv",
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             ]
@@ -606,3 +661,169 @@ async def list_batch_jobs(
     except Exception as e:
         logger.error(f"Failed to list batch jobs: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve batch jobs")
+
+
+@router.get("/documents/{document_id}")
+async def get_document(
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+    current_org: dict = Depends(get_current_organization)
+):
+    """
+    Get document details and content for preview.
+    """
+    try:
+        from app.db.supabase_client import supabase_client
+        
+        # Get document info from database (organization-scoped)
+        result = supabase_client.table("documents").select("*").eq("id", document_id).eq("organization_id", current_org["id"]).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Document not found in your organization")
+        
+        document = result.data[0]
+        
+        logger.info(f"Retrieved document: {document['filename']}")
+        return {
+            "id": document["id"],
+            "filename": document["filename"],
+            "content": document.get("content", ""),
+            "file_type": document["content_type"],
+            "file_size": document["size_bytes"],
+            "upload_date": document["created_at"],
+            "metadata": document.get("metadata", {})
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get document {document_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve document")
+
+
+@router.get("/documents/{document_id}/chunks")
+async def get_document_chunks(
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+    current_org: dict = Depends(get_current_organization)
+):
+    """
+    Get document chunks for preview.
+    """
+    try:
+        # Verify document exists and belongs to organization
+        from app.db.supabase_client import supabase_client
+        doc_result = supabase_client.table("documents").select("id, filename").eq("id", document_id).eq("organization_id", current_org["id"]).execute()
+        
+        if not doc_result.data:
+            raise HTTPException(status_code=404, detail="Document not found in your organization")
+        
+        # Get chunks using the retriever
+        chunks = supabase_retriever.get_document_chunks(document_id)
+        
+        # Sort chunks by chunk_index
+        chunks.sort(key=lambda x: x.metadata.get("chunk_index", 0))
+        
+        # Prepare response
+        chunks_data = []
+        for chunk in chunks:
+            chunks_data.append({
+                "id": chunk.metadata.get("id"),
+                "content": chunk.page_content,
+                "chunk_index": chunk.metadata.get("chunk_index", 0)
+            })
+        
+        logger.info(f"Retrieved {len(chunks_data)} chunks for document {document_id}")
+        return chunks_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get chunks for document {document_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve document chunks")
+
+
+@router.get("/documents/{document_id}/download")
+async def download_document(
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+    current_org: dict = Depends(get_current_organization)
+):
+    """
+    Download original document file.
+    """
+    try:
+        from app.db.supabase_client import supabase_client
+        from fastapi.responses import Response
+        
+        # Get document info from database (organization-scoped)
+        result = supabase_client.table("documents").select("*").eq("id", document_id).eq("organization_id", current_org["id"]).execute()
+        
+        if not result.data:
+            raise HTTPException(status_code=404, detail="Document not found in your organization")
+        
+        document = result.data[0]
+        
+        # For now, return the text content as a download
+        # In a full implementation, you'd store the original binary file
+        content = document.get("content", "")
+        filename = document["filename"]
+        
+        logger.info(f"Downloading document: {filename}")
+        
+        return Response(
+            content=content.encode('utf-8'),
+            media_type="application/octet-stream",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to download document {document_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to download document")
+
+
+@router.get("/documents/{document_id}/analytics")
+async def get_document_analytics(
+    document_id: str,
+    current_user: dict = Depends(get_current_user),
+    current_org: dict = Depends(get_current_organization)
+):
+    """
+    Get analytics data for a specific document.
+    """
+    try:
+        from app.db.supabase_client import supabase_client
+        
+        # Verify document exists and belongs to organization
+        doc_result = supabase_client.table("documents").select("id, filename").eq("id", document_id).eq("organization_id", current_org["id"]).execute()
+        
+        if not doc_result.data:
+            raise HTTPException(status_code=404, detail="Document not found in your organization")
+        
+        # Get basic analytics from database
+        # This is a simplified version - in a full implementation you'd have more detailed analytics
+        
+        # Count how many queries reference this document (simplified query)
+        queries_result = supabase_client.table("conversations").select("id", count="exact").eq("organization_id", current_org["id"]).execute()
+        total_queries = queries_result.count or 0
+        
+        # Get chunks count
+        chunks_result = supabase_client.table("document_vectors").select("id", count="exact").eq("document_id", document_id).execute()
+        chunks_count = chunks_result.count or 0
+        
+        return {
+            "document_id": document_id,
+            "filename": doc_result.data[0]["filename"],
+            "total_queries_in_org": total_queries,
+            "chunks_count": chunks_count,
+            "usage_score": min(100, (total_queries / 10) * 100) if total_queries > 0 else 0,
+            "last_accessed": None  # Would track this in a full implementation
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get analytics for document {document_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve document analytics")

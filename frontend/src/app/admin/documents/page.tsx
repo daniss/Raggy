@@ -146,7 +146,9 @@ export default function DocumentsPage() {
       const validTypes = [
         'application/pdf',
         'text/plain',
-        'text/markdown', 
+        'text/markdown',
+        'text/csv',
+        'application/csv',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ];
@@ -433,7 +435,7 @@ export default function DocumentsPage() {
               Sélectionner Fichiers
             </Button>
             <p className="text-xs text-gray-400 mt-2">
-              Formats: PDF, DOC, DOCX, TXT, MD • Taille max: 10MB
+              Formats: PDF, DOC, DOCX, TXT, MD, CSV • Taille max: 10MB
             </p>
           </div>
           
@@ -441,7 +443,7 @@ export default function DocumentsPage() {
             ref={fileInputRef}
             type="file"
             multiple
-            accept=".pdf,.doc,.docx,.txt,.md"
+            accept=".pdf,.doc,.docx,.txt,.md,.csv"
             onChange={(e) => handleFileSelect(e.target.files)}
             className="hidden"
           />

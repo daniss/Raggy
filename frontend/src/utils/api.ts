@@ -171,6 +171,42 @@ export const uploadApi = {
   },
 };
 
+export const documentApi = {
+  /**
+   * Get document details and content
+   */
+  getDocument: async (documentId: string): Promise<any> => {
+    const response = await api.get(`/upload/documents/${documentId}`);
+    return response.data;
+  },
+
+  /**
+   * Get document chunks for preview
+   */
+  getDocumentChunks: async (documentId: string): Promise<any[]> => {
+    const response = await api.get(`/upload/documents/${documentId}/chunks`);
+    return response.data;
+  },
+
+  /**
+   * Download a document
+   */
+  downloadDocument: async (documentId: string): Promise<Blob> => {
+    const response = await api.get(`/upload/documents/${documentId}/download`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
+  /**
+   * Get document analytics
+   */
+  getDocumentAnalytics: async (documentId: string): Promise<any> => {
+    const response = await api.get(`/upload/documents/${documentId}/analytics`);
+    return response.data;
+  },
+};
+
 export const analyticsApi = {
   /**
    * Get analytics data
@@ -211,6 +247,40 @@ export const analyticsApi = {
     const response = await api.get(`/analytics/export?format=${format}&days=${days}`, {
       responseType: format === 'csv' ? 'blob' : 'json',
     });
+    return response.data;
+  },
+};
+
+export const advancedAnalyticsApi = {
+  /**
+   * Get advanced dashboard data
+   */
+  getDashboard: async (days: number = 30): Promise<any> => {
+    const response = await api.get(`/analytics/advanced/dashboard?days=${days}`);
+    return response.data;
+  },
+
+  /**
+   * Get user engagement metrics
+   */
+  getUserEngagement: async (days: number = 30): Promise<any> => {
+    const response = await api.get(`/analytics/advanced/user-engagement?days=${days}`);
+    return response.data;
+  },
+
+  /**
+   * Get document effectiveness analysis
+   */
+  getDocumentEffectiveness: async (days: number = 30): Promise<any> => {
+    const response = await api.get(`/analytics/advanced/document-effectiveness?days=${days}`);
+    return response.data;
+  },
+
+  /**
+   * Get system health metrics
+   */
+  getSystemHealth: async (days: number = 7): Promise<any> => {
+    const response = await api.get(`/analytics/advanced/system-health?days=${days}`);
     return response.data;
   },
 };

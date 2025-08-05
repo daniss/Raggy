@@ -10,6 +10,7 @@ from langchain.schema import Document
 from langchain.vectorstores.base import VectorStore
 from app.db.supabase_client import supabase_client
 from app.rag.embedder import embedder
+from app.core.retry_handler import retry_database, database_circuit_breaker
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,24 @@ class SupabaseRetriever:
             logger.error(f"Failed to add documents: {e}")
             raise
     
+    @retry_database
+    def _execute_supabase_query(self, operation: str, *args, **kwargs):
+        """Execute Supabase operation with retry logic."""
+        try:
+            if operation == "insert":
+                return self.supabase.table("document_vectors").insert(*args, **kwargs).execute()
+            elif operation == "select":
+                return self.supabase.table("document_vectors").select(*args, **kwargs).execute()
+            elif operation == "rpc":
+                return self.supabase.rpc(*args, **kwargs).execute()
+            elif operation == "delete":
+                return self.supabase.table("document_vectors").delete(*args, **kwargs).execute()
+            else:
+                raise ValueError(f"Unknown operation: {operation}")
+        except Exception as e:
+            logger.error(f"Supabase {operation} operation failed: {e}")
+            raise
+    
     def _add_document_batch(self, documents: List[Document]) -> List[str]:
         """Add a batch of documents."""
         batch_data = []
@@ -73,9 +92,9 @@ class SupabaseRetriever:
         if not batch_data:
             return []
             
-        # Insert batch into Supabase
+        # Insert batch into Supabase with retry logic
         try:
-            result = self.supabase.table("document_vectors").insert(batch_data).execute()
+            result = self._execute_supabase_query("insert", batch_data)
             if result.data:
                 return [str(row["id"]) for row in result.data]
             return []
