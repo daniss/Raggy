@@ -8,7 +8,8 @@ from app.core.sentry_config import capture_exception, add_breadcrumb, set_contex
 from app.core.audit_middleware import get_request_info
 from app.services.audit_logger import audit_logger
 from app.core.redis_cache import redis_cache
-from app.rag import qa_chain, retriever
+from app.rag import retriever
+from app.rag.qa_fast import fast_qa_chain as qa_chain
 from app.db.supabase_client import log_chat_interaction
 import logging
 

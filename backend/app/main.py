@@ -12,6 +12,7 @@ from app.core.audit_middleware import AuditMiddleware
 from app.core.sentry_config import init_sentry, capture_exception, add_breadcrumb
 from app.core.redis_cache import redis_cache
 from app.api.chat import router as chat_router
+from app.api.chat_stream import router as chat_stream_router
 from app.api.upload import router as upload_router
 from app.api.analytics import router as analytics_router
 from app.api.advanced_analytics import router as advanced_analytics_router
@@ -125,6 +126,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(chat_router, prefix="/api/v1")
+app.include_router(chat_stream_router, prefix="/api/v1")
 app.include_router(upload_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(advanced_analytics_router, prefix="/api/v1")

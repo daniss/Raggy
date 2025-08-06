@@ -44,10 +44,15 @@ class Settings(BaseSettings):
     
     # Advanced RAG Configuration
     use_hybrid_search: bool = Field(default=True, env="USE_HYBRID_SEARCH")
-    use_reranking: bool = Field(default=True, env="USE_RERANKING")
-    use_query_enhancement: bool = Field(default=True, env="USE_QUERY_ENHANCEMENT")
+    use_reranking: bool = Field(default=False, env="USE_RERANKING")  # Disabled by default for speed
+    use_query_enhancement: bool = Field(default=False, env="USE_QUERY_ENHANCEMENT")  # Disabled by default for speed
     use_semantic_chunking: bool = Field(default=True, env="USE_SEMANTIC_CHUNKING")
     use_adaptive_chunking: bool = Field(default=True, env="USE_ADAPTIVE_CHUNKING")
+    
+    # Performance Configuration
+    fast_mode: bool = Field(default=True, env="FAST_MODE")  # Enable fast mode by default
+    max_context_docs: int = Field(default=5, env="MAX_CONTEXT_DOCS")  # Limit context documents
+    enable_lightweight_rerank: bool = Field(default=True, env="ENABLE_LIGHTWEIGHT_RERANK")
     
     # Hybrid Search Configuration
     dense_weight: float = Field(default=0.7, env="DENSE_WEIGHT")
