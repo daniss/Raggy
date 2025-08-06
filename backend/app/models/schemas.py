@@ -75,7 +75,8 @@ class UploadResponse(BaseModel):
     """File upload response."""
     success: bool = Field(..., description="Upload success status")
     message: str = Field(..., description="Status message")
-    document: Optional[DocumentInfo] = Field(None, description="Document information")
+    document_id: Optional[str] = Field(None, description="Document or batch ID")
+    chunks_created: Optional[int] = Field(None, description="Number of chunks created")
     job_id: Optional[str] = Field(None, description="Background processing job ID")
 
 

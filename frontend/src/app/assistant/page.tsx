@@ -99,43 +99,107 @@ export default function AssistantPage() {
     setIsLoading(true);
     setError(null);
 
-    // Add a timeout warning
-    const timeoutWarning = setTimeout(() => {
-      if (isLoading) {
-        console.warn('Response taking longer than expected...');
-      }
-    }, 3000);
-
     try {
       const startTime = Date.now();
+      let accumulatedContent = '';
+      let finalSources: Source[] = [];
+      let currentConversationId = '';
       
-      const response: ChatResponse = await chatApi.sendMessage({
-        question: userMessage.content,
-        conversation_id: conversationId
-      });
+      // Get auth token for streaming request
+      const supabase = (await import('@/utils/supabase')).createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      const authToken = session?.access_token || '';
 
-      const responseTime = Date.now() - startTime;
-      console.log(`RAG Response time: ${responseTime}ms`);
-      
-      clearTimeout(timeoutWarning);
-      setConversationId(response.conversation_id);
+      // Send the streaming request
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/v1/chat/stream`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+            'Accept': 'text/event-stream',
+            'Cache-Control': 'no-cache'
+          },
+          body: JSON.stringify({
+            question: userMessage.content,
+            conversation_id: conversationId
+          })
+        }
+      );
 
-      const assistantMessage: Message = {
-        id: loadingMessage.id,
-        type: 'assistant',
-        content: response.answer,
-        timestamp: new Date(),
-        sources: response.sources,
-        isLoading: false,
-        responseTime: response.response_time // Use backend response time
-      };
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-      setMessages(prev => prev.map(msg => 
-        msg.id === loadingMessage.id ? assistantMessage : msg
-      ));
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                
+                switch (data.type) {
+                  case 'start':
+                    currentConversationId = data.conversation_id;
+                    break;
+                    
+                  case 'token':
+                    accumulatedContent += data.content;
+                    // Update message content in real-time
+                    setMessages(prev => prev.map(msg => 
+                      msg.id === loadingMessage.id 
+                        ? { ...msg, content: accumulatedContent }
+                        : msg
+                    ));
+                    break;
+                    
+                  case 'sources':
+                    finalSources = data.sources;
+                    break;
+                    
+                  case 'complete':
+                    const responseTime = Date.now() - startTime;
+                    console.log(`Streaming RAG Response time: ${responseTime}ms`);
+                    
+                    setConversationId(currentConversationId);
+                    
+                    const finalMessage: Message = {
+                      id: loadingMessage.id,
+                      type: 'assistant',
+                      content: accumulatedContent,
+                      timestamp: new Date(),
+                      sources: finalSources,
+                      isLoading: false,
+                      responseTime: data.response_time
+                    };
+
+                    setMessages(prev => prev.map(msg => 
+                      msg.id === loadingMessage.id ? finalMessage : msg
+                    ));
+                    break;
+                    
+                  case 'error':
+                    throw new Error(data.message || 'Une erreur est survenue');
+                }
+              } catch (parseError) {
+                console.warn('Failed to parse SSE data:', parseError);
+              }
+            }
+          }
+        }
+      }
 
     } catch (error) {
-      clearTimeout(timeoutWarning);
       const errorMsg = handleApiError(error);
       setError(errorMsg);
       
@@ -153,7 +217,6 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
         msg.id === loadingMessage.id ? errorMessage : msg
       ));
     } finally {
-      clearTimeout(timeoutWarning);
       setIsLoading(false);
     }
   };

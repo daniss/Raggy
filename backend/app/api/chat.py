@@ -10,6 +10,7 @@ from app.services.audit_logger import audit_logger
 from app.core.redis_cache import redis_cache
 from app.rag import retriever
 from app.rag.qa_fast import fast_qa_chain as qa_chain
+from app.api.metrics import track_qa_metrics
 from app.db.supabase_client import log_chat_interaction
 import logging
 
@@ -84,6 +85,14 @@ async def chat(
             sources=sources,
             conversation_id=conversation_id,
             response_time=result["response_time"]
+        )
+        
+        # Track QA metrics in background
+        background_tasks.add_task(
+            track_qa_metrics,
+            query=request.question,
+            answer=result["answer"],
+            sources=result["sources"]
         )
         
         # Log interaction asynchronously if user is authenticated

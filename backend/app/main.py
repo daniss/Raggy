@@ -22,6 +22,7 @@ from app.api.organizations import router as organizations_router
 from app.api.audit import router as audit_router
 from app.api.usage import router as usage_router
 from app.api.monitoring import router as monitoring_router
+from app.api.metrics import router as metrics_router
 from app.models.schemas import HealthResponse, ErrorResponse
 from datetime import datetime
 
@@ -136,6 +137,7 @@ app.include_router(organizations_router, prefix="/api/v1")
 app.include_router(audit_router, prefix="/api/v1")
 app.include_router(usage_router, prefix="/api/v1")
 app.include_router(monitoring_router, prefix="/api/v1")
+app.include_router(metrics_router, prefix="/api/v1")
 
 
 # Root endpoint

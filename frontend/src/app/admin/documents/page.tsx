@@ -175,25 +175,14 @@ export default function DocumentsPage() {
     try {
       setUploadError(null);
       
-      // Update progress to show upload started
-      setUploadingFiles(prev => prev.map(f => 
-        f.file === uploadingFile.file ? { ...f, progress: 10, status: 'uploading' } : f
-      ));
-
-      // Upload using real API
+      // Upload using real API (returns immediately with background job queued)
       const result = await uploadApi.uploadDocuments([uploadingFile.file]);
       
-      // Update progress to show processing
-      setUploadingFiles(prev => prev.map(f => 
-        f.file === uploadingFile.file ? { ...f, progress: 100, status: 'processing' } : f
-      ));
-
-      // Wait a bit then mark as completed
-      setTimeout(() => {
-        setUploadingFiles(prev => prev.filter(f => f.file !== uploadingFile.file));
-        // Refresh document list
-        fetchDocuments();
-      }, 1000);
+      // Remove from upload queue immediately
+      setUploadingFiles(prev => prev.filter(f => f.file !== uploadingFile.file));
+      
+      // Refresh document list to show new document with "processing" status
+      fetchDocuments();
 
     } catch (error) {
       console.error('Upload failed:', error);
@@ -470,13 +459,12 @@ export default function DocumentsPage() {
                       <span className={`text-xs ${
                         file.status === 'error' ? 'text-red-500' : 'text-gray-500'
                       }`}>
-                        {file.status === 'uploading' ? `${file.progress}%` : 
-                         file.status === 'processing' ? 'Traitement...' : 
+                        {file.status === 'uploading' ? 'Téléchargement...' : 
                          file.status === 'error' ? `Erreur: ${file.error}` : 'Terminé'}
                       </span>
                     </div>
                     <Progress 
-                      value={file.status === 'uploading' ? file.progress : 100} 
+                      value={file.status === 'uploading' ? 50 : 100} 
                       className={`h-2 ${
                         file.status === 'error' ? '[&>div]:bg-red-500' : ''
                       }`}
