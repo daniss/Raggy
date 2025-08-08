@@ -53,6 +53,23 @@ async def log_chat_interaction(
         logger.error(f"Failed to log chat interaction: {e}")
 
 
+async def log_anonymous_interaction(
+    question: str,
+    response_time: float,
+    sources_count: int
+) -> None:
+    """Log anonymous chat interaction for analytics (bypasses RLS)."""
+    try:
+        # Log anonymous interactions to a simple metrics table or just log locally
+        logger.info(f"ANONYMOUS_CHAT: question_length={len(question)}, response_time={response_time:.2f}s, sources={sources_count}")
+        
+        # For now, we'll use application logging since RLS prevents anonymous inserts
+        # In production, consider a separate metrics collection system
+        
+    except Exception as e:
+        logger.error(f"Failed to log anonymous interaction: {e}")
+
+
 async def get_analytics_data(days: int = 30, organization_id: Optional[str] = None) -> Dict[str, Any]:
     """Get comprehensive analytics data from chat logs."""
     try:
@@ -93,6 +110,23 @@ async def get_analytics_data(days: int = 30, organization_id: Optional[str] = No
         satisfaction_ratings = [log.get("satisfaction_rating") for log in logs if log.get("satisfaction_rating")]
         avg_satisfaction = sum(satisfaction_ratings) / len(satisfaction_ratings) if satisfaction_ratings else 0
         
+        # Get recent document uploads for activity feed
+        recent_docs = []
+        try:
+            docs_query = supabase_client.table("documents").select(
+                "filename, upload_date, status, uploaded_by"
+            ).gte("upload_date", start_date.isoformat()).lte(
+                "upload_date", end_date.isoformat()
+            )
+            if organization_id:
+                docs_query = docs_query.eq("organization_id", organization_id)
+            docs_query = docs_query.order("upload_date", desc=True).limit(5)
+            
+            docs_result = docs_query.execute()
+            recent_docs = docs_result.data or []
+        except Exception as e:
+            logger.warning(f"Failed to fetch recent documents: {e}")
+
         return {
             "total_queries": total_queries,
             "unique_users": unique_users,
@@ -100,8 +134,9 @@ async def get_analytics_data(days: int = 30, organization_id: Optional[str] = No
             "success_rate": round(success_rate, 1),
             "avg_satisfaction": round(avg_satisfaction, 1),
             "recent_queries": logs[:10],
-            "popular_topics": [],  # TODO: Implement topic analysis
-            "daily_stats": []  # TODO: Implement daily aggregation
+            "recent_documents": recent_docs,
+            "popular_topics": [],
+            "daily_stats": []
         }
         
     except Exception as e:
@@ -112,6 +147,7 @@ async def get_analytics_data(days: int = 30, organization_id: Optional[str] = No
             "avg_response_time": 0,
             "success_rate": 0,
             "recent_queries": [],
+            "recent_documents": [],
             "popular_topics": [],
             "daily_stats": []
         }
@@ -236,8 +272,13 @@ async def update_document_status(
 async def delete_document(document_id: str) -> None:
     """Delete document from database."""
     try:
+        # Delete the document itself
         result = supabase_client.table("documents").delete().eq("id", document_id).execute()
-        logger.info(f"Deleted document {document_id}")
+        logger.info(f"Deleted document {document_id}, affected rows: {len(result.data) if result.data else 0}")
+        
+        # Also delete associated document vectors from the vector table
+        vector_result = supabase_client.table("document_vectors").delete().eq("document_id", document_id).execute()
+        logger.info(f"Deleted {len(vector_result.data) if vector_result.data else 0} vector entries for document {document_id}")
         
     except Exception as e:
         logger.error(f"Failed to delete document: {e}")

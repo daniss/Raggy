@@ -11,7 +11,7 @@ from app.core.redis_cache import redis_cache
 from app.rag import retriever
 from app.rag.qa_fast import fast_qa_chain as qa_chain
 from app.api.metrics import track_qa_metrics
-from app.db.supabase_client import log_chat_interaction
+from app.db.supabase_client import log_chat_interaction, log_anonymous_interaction
 import logging
 
 logger = logging.getLogger(__name__)
@@ -48,23 +48,7 @@ async def chat(
             }
         )
         
-        # Check cache first with organization context
-        cache_key = f"{request.question}:{organization_id}" if organization_id else request.question
-        cached_response = redis_cache.get_chat_response(cache_key)
-        if cached_response:
-            logger.info(f"Cache hit for question: {request.question[:50]}...")
-            add_breadcrumb(
-                message="Cache hit",
-                category="cache",
-                data={"question": request.question[:50]}
-            )
-            
-            # Update response time and conversation ID
-            cached_response["conversation_id"] = conversation_id
-            cached_response["response_time"] = time.time() - start_time
-            cached_response["from_cache"] = True
-            
-            return ChatResponse(**cached_response)
+        # Note: Chat response caching disabled for legal consulting to ensure fresh, contextual responses
         
         # Generate response using RAG pipeline (organization-scoped)
         organization_id = current_org["id"] if current_org else None
@@ -95,19 +79,30 @@ async def chat(
             sources=result["sources"]
         )
         
-        # Log interaction asynchronously if user is authenticated
-        if current_user:
+        # Log all interactions for analytics
+        # Note: Anonymous users need special handling due to RLS policies
+        if current_user and organization_id:
+            # Authenticated users: log normally
             background_tasks.add_task(
                 log_chat_interaction,
-                user_id=current_user.get("id", "anonymous"),
+                user_id=current_user.get("id"),
                 question=request.question,
                 answer=result["answer"],
                 sources=result["sources"],
                 response_time=result["response_time"],
                 organization_id=organization_id
             )
+        else:
+            # Anonymous users: log for metrics but bypass RLS
+            background_tasks.add_task(
+                log_anonymous_interaction,
+                question=request.question,
+                response_time=result["response_time"],
+                sources_count=len(result["sources"])
+            )
             
-            # Log audit event for chat interaction
+        # Log audit event for chat interaction (only for authenticated users)
+        if current_user:
             client_ip, user_agent = get_request_info(http_request)
             background_tasks.add_task(
                 audit_logger.log_chat_event,
@@ -120,14 +115,7 @@ async def chat(
                 user_agent=user_agent
             )
         
-        # Cache the response for future requests with organization context
-        cache_data = response.model_dump()
-        cache_data.pop("from_cache", None)  # Remove cache flag
-        redis_cache.set_chat_response(
-            question=cache_key,
-            response=cache_data,
-            expire_minutes=30  # Cache for 30 minutes
-        )
+        # Note: Chat response caching disabled - legal consulting requires fresh, contextual responses
         
         logger.info(f"Chat request completed in {result['response_time']:.2f}s")
         return response
