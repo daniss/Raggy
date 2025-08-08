@@ -19,17 +19,8 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Check if we're in demo mode
-  const isDemoMode = process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_real_supabase_url_here' ||
-                     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'your_real_anon_key_here';
-
   // Check if user is already logged in
   useEffect(() => {
-    if (isDemoMode) {
-      // In demo mode, don't check session - let user see login form
-      return;
-    }
-
     const checkSession = async () => {
       try {
         const session = await getSession();
@@ -41,7 +32,7 @@ export default function LoginPage() {
       }
     };
     checkSession();
-  }, [router, isDemoMode]);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,21 +40,6 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      // Demo mode: simulate login with demo credentials
-      if (isDemoMode) {
-        // Simulate loading time
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Check demo credentials
-        if (email === 'demo@example.com' && password === 'demo123') {
-          router.push('/');
-        } else {
-          setError('Utilisez demo@example.com / demo123 pour la démonstration');
-        }
-        return;
-      }
-
-      // Real authentication for production
       const { user, error: signInError } = await signInWithEmail(email, password);
       
       if (signInError) {
@@ -72,7 +48,6 @@ export default function LoginPage() {
       }
 
       if (user) {
-        // Redirect to admin dashboard
         router.push('/admin');
       }
     } catch (err) {
@@ -99,18 +74,10 @@ export default function LoginPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-center">
-              {isDemoMode ? 'Mode Démonstration' : 'Se connecter'}
+              Se connecter
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {isDemoMode && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800 font-medium">Mode Démonstration</p>
-                <p className="text-xs text-blue-600 mt-1">
-                  Utilisez: demo@example.com / demo123
-                </p>
-              </div>
-            )}
 
             {/* Error Alert */}
             {error && (
@@ -203,36 +170,6 @@ export default function LoginPage() {
                     Mot de passe oublié ?
                   </button>
                 </div>
-          </CardContent>
-        </Card>
-
-        {/* Demo Credentials */}
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="pt-6">
-            <h3 className="font-medium text-blue-900 mb-2">Accès démo</h3>
-            <p className="text-sm text-blue-800 mb-3">
-              Utilisez ces identifiants pour tester l'application :
-            </p>
-            <div className="space-y-1 text-sm font-mono">
-              <div className="text-blue-900">
-                <span className="font-semibold">Email:</span> demo@example.com
-              </div>
-              <div className="text-blue-900">
-                <span className="font-semibold">Mot de passe:</span> demo123
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3 w-full"
-              onClick={() => {
-                setEmail('demo@example.com');
-                setPassword('demo123');
-              }}
-              disabled={isLoading}
-            >
-              Utiliser les identifiants démo
-            </Button>
           </CardContent>
         </Card>
       </div>

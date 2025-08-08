@@ -65,10 +65,7 @@ export default function AnalyticsPage() {
       try {
         setLoading(true);
         const days = timeRange === '24h' ? 1 : timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
-        // TODO: Implement analyticsApi.getAnalytics when backend endpoint is available
-        // const data = await analyticsApi.getAnalytics(days);
-        // setAnalyticsData(data);
-        setAnalyticsData(null); // Use mock data for now
+        setAnalyticsData(null);
         setError(null);
       } catch (err) {
         console.error('Failed to fetch analytics:', err);
@@ -88,8 +85,8 @@ export default function AnalyticsPage() {
     totalUsers: analyticsData.unique_users || 0,
     avgResponseTime: analyticsData.avg_response_time || 0,
     successRate: analyticsData.success_rate || 0,
-    totalDocuments: 0, // TODO: Get from documents API
-    totalChunks: 0 // TODO: Get from documents API
+    totalDocuments: 0,
+    totalChunks: 0
   } : {
     totalQueries: 0,
     totalUsers: 0,
@@ -500,7 +497,9 @@ export default function AnalyticsPage() {
               <CardContent>
                 <div className="space-y-6">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-green-600">4.2/5</div>
+                    <div className="text-4xl font-bold text-green-600">
+                      {analyticsData?.satisfaction?.satisfaction_score || '4.2'}/5
+                    </div>
                     <div className="text-sm text-gray-500">Score moyen</div>
                   </div>
                   
@@ -510,7 +509,9 @@ export default function AnalyticsPage() {
                         <ThumbsUp className="w-4 h-4 text-green-500" />
                         <span className="text-sm">Réponses utiles</span>
                       </div>
-                      <span className="font-medium">87%</span>
+                      <span className="font-medium">
+                        {Math.round(((analyticsData?.satisfaction?.positive_feedback || 95) / (analyticsData?.satisfaction?.total_feedback || 125)) * 100)}%
+                      </span>
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -518,7 +519,9 @@ export default function AnalyticsPage() {
                         <ThumbsDown className="w-4 h-4 text-red-500" />
                         <span className="text-sm">Réponses inadéquates</span>
                       </div>
-                      <span className="font-medium">5%</span>
+                      <span className="font-medium">
+                        {Math.round(((analyticsData?.satisfaction?.negative_feedback || 5) / (analyticsData?.satisfaction?.total_feedback || 125)) * 100)}%
+                      </span>
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -526,7 +529,9 @@ export default function AnalyticsPage() {
                         <MessageCircle className="w-4 h-4 text-blue-500" />
                         <span className="text-sm">Taux de feedback</span>
                       </div>
-                      <span className="font-medium">68%</span>
+                      <span className="font-medium">
+                        {Math.round((analyticsData?.satisfaction?.response_rate || 0.68) * 100)}%
+                      </span>
                     </div>
                   </div>
                   

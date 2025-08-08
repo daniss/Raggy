@@ -22,6 +22,7 @@ groq>=0.30.0
 PyMuPDF>=1.26.0
 unstructured>=0.16.0
 python-multipart>=0.0.20
+openpyxl>=3.1.0  # Excel file support
 
 # Database and auth
 supabase>=2.17.0

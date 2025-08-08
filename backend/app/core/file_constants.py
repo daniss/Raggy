@@ -10,7 +10,9 @@ ALLOWED_FILE_TYPES = [
     "text/csv",
     "application/csv",
     "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # Excel .xlsx
+    "application/vnd.ms-excel"  # Excel .xls
 ]
 
 # File size limits
@@ -25,7 +27,9 @@ FILE_TYPE_MAP = {
     "text/csv": "CSV",
     "application/csv": "CSV",
     "application/msword": "Word Document",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Word Document"
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Word Document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Excel",
+    "application/vnd.ms-excel": "Excel"
 }
 
 def get_supported_formats_list() -> list:

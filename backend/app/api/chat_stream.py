@@ -33,16 +33,7 @@ async def generate_stream_response(
         # Send initial acknowledgment
         yield f"data: {json.dumps({'type': 'start', 'conversation_id': conversation_id})}\n\n"
         
-        # Check cache first
-        cache_key = f"{question}:{organization_id}" if organization_id else question
-        cached_response = redis_cache.get_chat_response(cache_key)
-        
-        if cached_response:
-            # Stream cached response
-            yield f"data: {json.dumps({'type': 'cached', 'answer': cached_response['answer']})}\n\n"
-            yield f"data: {json.dumps({'type': 'sources', 'sources': cached_response.get('sources', [])})}\n\n"
-            yield f"data: {json.dumps({'type': 'complete', 'response_time': time.time() - start_time})}\n\n"
-            return
+        # Note: Chat response caching disabled for legal consulting to ensure fresh, contextual responses
         
         # Retrieve documents quickly
         yield f"data: {json.dumps({'type': 'status', 'message': 'Recherche de documents...'})}\n\n"
@@ -59,7 +50,9 @@ async def generate_stream_response(
             yield f"data: {json.dumps({'type': 'status', 'message': f'{len(docs)} documents trouvés'})}\n\n"
         
         # Build prompt
-        system_prompt = """Vous êtes un assistant IA pour les PME françaises. Répondez en français de manière concise et professionnelle basé sur le contexte fourni."""
+        # Import optimized streaming prompt
+        from app.rag.prompts import STREAMING_RAG_PROMPT
+        system_prompt = STREAMING_RAG_PROMPT
         
         context = "\n\n".join([
             f"Document {i+1}: {doc.page_content[:500]}"
@@ -103,14 +96,7 @@ async def generate_stream_response(
         
         yield f"data: {json.dumps({'type': 'sources', 'sources': sources})}\n\n"
         
-        # Cache the response
-        cache_data = {
-            "answer": full_answer,
-            "sources": sources,
-            "conversation_id": conversation_id,
-            "response_time": time.time() - start_time
-        }
-        redis_cache.set_chat_response(cache_key, cache_data, expire_minutes=30)
+        # Note: Chat response caching disabled - legal consulting requires fresh, contextual responses
         
         # Send completion
         response_time = time.time() - start_time

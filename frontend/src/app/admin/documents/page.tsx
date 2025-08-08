@@ -62,12 +62,6 @@ interface DocumentInfo {
   error_message?: string;
 }
 
-interface UploadingFile {
-  file: File;
-  progress: number;
-  status: 'uploading' | 'processing' | 'completed' | 'error';
-  error?: string;
-}
 
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
@@ -81,7 +75,7 @@ export default function DocumentsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize] = useState(20);
   
-  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
+  const [optimisticUploads, setOptimisticUploads] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -94,6 +88,19 @@ export default function DocumentsPage() {
   
   // Use retry hook for document fetching
   const { retry: retryFetchDocuments, isRetrying } = useRetry();
+  
+  // Polling for processing documents
+  useEffect(() => {
+    const processingDocs = documents.filter(doc => doc.status === 'processing');
+    if (processingDocs.length === 0) return;
+    
+    // Poll every 5 seconds for processing documents
+    const pollInterval = setInterval(() => {
+      pollDocuments();
+    }, 5000);
+    
+    return () => clearInterval(pollInterval);
+  }, [documents]);
   
   // Debounce search term
   useEffect(() => {
@@ -133,6 +140,30 @@ export default function DocumentsPage() {
     }
   };
 
+  // Polling function that doesn't affect loading state
+  const pollDocuments = async () => {
+    try {
+      const response = await uploadApi.listDocuments({
+        page: currentPage,
+        page_size: pageSize,
+        search: debouncedSearchTerm || undefined,
+        status: statusFilter !== 'all' ? statusFilter : undefined
+      });
+      
+      if (response.documents) {
+        setDocuments(response.documents);
+        setTotalPages(response.pagination.total_pages);
+        setTotalCount(response.pagination.total_count);
+      } else {
+        // Fallback for old API response format
+        setDocuments(response || []);
+      }
+    } catch (err) {
+      // Silent error handling for polling - don't disrupt user experience
+      console.error('Polling failed (silent):', err);
+    }
+  };
+
   useEffect(() => {
     fetchDocuments();
   }, [currentPage, debouncedSearchTerm, statusFilter, pageSize]);
@@ -160,41 +191,71 @@ export default function DocumentsPage() {
     }
 
     validFiles.forEach(file => {
-      const uploadingFile: UploadingFile = {
-        file,
-        progress: 0,
-        status: 'uploading'
+      const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Create optimistic document entry
+      const optimisticDoc: DocumentInfo = {
+        id: tempId,
+        filename: file.name,
+        content_type: file.type,
+        size_bytes: file.size,
+        chunks_count: 0,
+        status: 'processing',
+        upload_date: new Date().toISOString(),
       };
       
-      setUploadingFiles(prev => [...prev, uploadingFile]);
-      uploadFile(uploadingFile);
+      // Add directly to documents list
+      setDocuments(prev => [optimisticDoc, ...prev]);
+      setOptimisticUploads(prev => new Set(prev).add(tempId));
+      
+      uploadFile(file, optimisticDoc);
     });
   }, []);
 
-  const uploadFile = async (uploadingFile: UploadingFile) => {
+  const uploadFile = async (file: File, optimisticDoc: DocumentInfo) => {
     try {
       setUploadError(null);
       
       // Upload using real API (returns immediately with background job queued)
-      const result = await uploadApi.uploadDocuments([uploadingFile.file]);
+      const result = await uploadApi.uploadDocuments([file]);
       
-      // Remove from upload queue immediately
-      setUploadingFiles(prev => prev.filter(f => f.file !== uploadingFile.file));
+      // Update the optimistic entry with processing status (already set)
+      // The real document will appear when fetchDocuments() is called via polling
+      // Remove the optimistic flag after successful upload
+      setOptimisticUploads(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(optimisticDoc.id);
+        return newSet;
+      });
       
-      // Refresh document list to show new document with "processing" status
-      fetchDocuments();
+      // Start polling for the real document to replace the optimistic one
+      setTimeout(() => {
+        fetchDocuments().then(() => {
+          // Remove optimistic document after real one is loaded
+          setDocuments(prev => prev.filter(doc => doc.id !== optimisticDoc.id));
+        });
+      }, 2000);
 
     } catch (error) {
       console.error('Upload failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Upload failed';
       setUploadError(errorMessage);
-      setUploadingFiles(prev => prev.map(f => 
-        f.file === uploadingFile.file ? { 
-          ...f, 
-          status: 'error', 
-          error: errorMessage 
-        } : f
+      
+      // Update the optimistic document to show error
+      setDocuments(prev => prev.map(doc => 
+        doc.id === optimisticDoc.id ? {
+          ...doc,
+          status: 'error',
+          error_message: errorMessage
+        } : doc
       ));
+      
+      // Remove from optimistic set
+      setOptimisticUploads(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(optimisticDoc.id);
+        return newSet;
+      });
     }
   };
 
@@ -269,12 +330,14 @@ export default function DocumentsPage() {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) {
       try {
         await uploadApi.deleteDocument(id);
-        setDocuments(prev => prev.filter(doc => doc.id !== id));
+        // Clear selected documents immediately
         setSelectedDocuments(prev => {
           const newSet = new Set(prev);
           newSet.delete(id);
           return newSet;
         });
+        // Refresh documents list from server to ensure consistency
+        await fetchDocuments();
         setError(null);
       } catch (error) {
         console.error('Failed to delete document:', error);
@@ -303,9 +366,11 @@ export default function DocumentsPage() {
           setError(`Échec de suppression de ${failedDeletes.length} document(s)`);
         }
         
-        // Remove successfully deleted documents
-        setDocuments(prev => prev.filter(doc => !selectedDocuments.has(doc.id) || failedDeletes.includes(doc.id)));
+        // Clear selection first
         setSelectedDocuments(new Set(failedDeletes));
+        
+        // Refresh documents list from server to ensure consistency
+        await fetchDocuments();
         
         if (failedDeletes.length === 0) {
           setError(null);
@@ -439,52 +504,6 @@ export default function DocumentsPage() {
         </CardContent>
       </Card>
 
-      {/* Uploading Files */}
-      {uploadingFiles.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Téléchargements en cours</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {uploadingFiles.map((file, index) => (
-                <div key={index} className="flex items-center space-x-4">
-                  <FileText className={`w-8 h-8 ${
-                    file.status === 'error' ? 'text-red-500' : 
-                    file.status === 'completed' ? 'text-green-500' : 'text-blue-500'
-                  }`} />
-                  <div className="flex-1">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm font-medium">{file.file.name}</span>
-                      <span className={`text-xs ${
-                        file.status === 'error' ? 'text-red-500' : 'text-gray-500'
-                      }`}>
-                        {file.status === 'uploading' ? 'Téléchargement...' : 
-                         file.status === 'error' ? `Erreur: ${file.error}` : 'Terminé'}
-                      </span>
-                    </div>
-                    <Progress 
-                      value={file.status === 'uploading' ? 50 : 100} 
-                      className={`h-2 ${
-                        file.status === 'error' ? '[&>div]:bg-red-500' : ''
-                      }`}
-                    />
-                  </div>
-                  {file.status === 'error' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setUploadingFiles(prev => prev.filter((_, i) => i !== index))}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -643,52 +662,68 @@ export default function DocumentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDocuments.map((doc) => (
-                <TableRow key={doc.id} className={selectedDocuments.has(doc.id) ? 'bg-blue-50' : ''}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedDocuments.has(doc.id)}
-                      onCheckedChange={(checked: boolean) => handleSelectDocument(doc.id, checked)}
-                      aria-label={`Sélectionner ${doc.filename}`}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      {getStatusIcon(doc.status)}
-                      <div>
-                        <div className="font-medium">{doc.filename}</div>
-                        <div className="text-sm text-gray-500">
-                          {doc.content_type.split('/')[1]?.toUpperCase()}
+              {filteredDocuments.map((doc) => {
+                const isOptimistic = optimisticUploads.has(doc.id);
+                return (
+                  <TableRow 
+                    key={doc.id} 
+                    className={`${selectedDocuments.has(doc.id) ? 'bg-blue-50' : ''} ${isOptimistic ? 'opacity-75 animate-pulse' : ''}`}
+                  >
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedDocuments.has(doc.id)}
+                        onCheckedChange={(checked: boolean) => handleSelectDocument(doc.id, checked)}
+                        aria-label={`Sélectionner ${doc.filename}`}
+                        disabled={isOptimistic}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-3">
+                        {getStatusIcon(doc.status)}
+                        <div>
+                          <div className="font-medium">
+                            {doc.filename}
+                            {isOptimistic && (
+                              <span className="ml-2 text-xs text-blue-500">
+                                (téléchargement...)
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {doc.content_type.split('/')[1]?.toUpperCase()}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {getStatusBadge(doc.status)}
-                  </TableCell>
-                  <TableCell>{formatFileSize(doc.size_bytes)}</TableCell>
-                  <TableCell>{doc.chunks_count}</TableCell>
-                  <TableCell>{formatDate(doc.upload_date)}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedDocument(doc)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteDocument(doc.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(doc.status)}
+                    </TableCell>
+                    <TableCell>{formatFileSize(doc.size_bytes)}</TableCell>
+                    <TableCell>{doc.chunks_count}</TableCell>
+                    <TableCell>{formatDate(doc.upload_date)}</TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedDocument(doc)}
+                          disabled={isOptimistic}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteDocument(doc.id)}
+                          disabled={isOptimistic}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
             </Table>
             </div>

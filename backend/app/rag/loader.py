@@ -25,6 +25,8 @@ class DocumentLoader:
             "application/csv": self._load_csv,
             "application/msword": self._load_with_unstructured,
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document": self._load_with_unstructured,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": self._load_excel,
+            "application/vnd.ms-excel": self._load_excel,
         }
     
     def load_from_file(self, file_path: str, content_type: str, metadata: Dict[str, Any] = None) -> List[Document]:
@@ -332,6 +334,83 @@ class DocumentLoader:
             logger.error(f"Failed to load with unstructured: {e}")
             raise
     
+    def _load_excel(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
+        """Load Excel document with sheet-by-sheet processing."""
+        try:
+            documents = []
+            
+            # Load Excel file with pandas
+            excel_file = pd.ExcelFile(file_path)
+            sheet_names = excel_file.sheet_names
+            
+            logger.info(f"Loading Excel file with {len(sheet_names)} sheets: {sheet_names}")
+            
+            for sheet_name in sheet_names:
+                try:
+                    # Read each sheet
+                    df = pd.read_excel(file_path, sheet_name=sheet_name)
+                    
+                    if df.empty:
+                        logger.warning(f"Sheet '{sheet_name}' is empty, skipping")
+                        continue
+                    
+                    # Convert sheet to text
+                    sheet_text = self._convert_dataframe_to_text(df)
+                    
+                    if sheet_text.strip():
+                        sheet_metadata = metadata.copy()
+                        sheet_metadata.update({
+                            "sheet_name": sheet_name,
+                            "file_type": "excel",
+                            "element_type": "spreadsheet",
+                            "rows": len(df),
+                            "columns": len(df.columns)
+                        })
+                        
+                        documents.append(Document(
+                            page_content=sheet_text,
+                            metadata=sheet_metadata
+                        ))
+                        
+                        logger.info(f"Processed Excel sheet '{sheet_name}': {len(df)} rows, {len(df.columns)} columns")
+                
+                except Exception as e:
+                    logger.error(f"Failed to process Excel sheet '{sheet_name}': {e}")
+                    # Create error document for this sheet
+                    error_metadata = metadata.copy()
+                    error_metadata.update({
+                        "sheet_name": sheet_name,
+                        "file_type": "excel",
+                        "element_type": "error",
+                        "error": str(e)
+                    })
+                    documents.append(Document(
+                        page_content=f"Error processing Excel sheet '{sheet_name}': {e}",
+                        metadata=error_metadata
+                    ))
+            
+            if not documents:
+                # Fallback: try to load as unstructured if no sheets processed
+                logger.warning("No Excel sheets processed, trying unstructured fallback")
+                return self._load_with_unstructured(file_path, metadata)
+            
+            logger.info(f"Successfully loaded Excel file: {len(documents)} sheets processed")
+            return documents
+            
+        except Exception as e:
+            logger.error(f"Failed to load Excel file: {e}")
+            # Ultimate fallback: try unstructured
+            try:
+                logger.info("Attempting Excel fallback with unstructured")
+                return self._load_with_unstructured(file_path, metadata)
+            except Exception as fallback_error:
+                logger.error(f"Excel fallback also failed: {fallback_error}")
+                # Create minimal error document
+                return [Document(
+                    page_content=f"Failed to load Excel file: {e}",
+                    metadata={**metadata, "error": True, "file_type": "excel"}
+                )]
+
     def _get_extension(self, content_type: str) -> str:
         """Get file extension from content type."""
         extensions = {
@@ -342,6 +421,8 @@ class DocumentLoader:
             "application/csv": ".csv",
             "application/msword": ".doc",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx",
+            "application/vnd.ms-excel": ".xls",
         }
         return extensions.get(content_type, ".txt")
 

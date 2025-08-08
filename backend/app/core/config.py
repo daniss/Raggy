@@ -75,7 +75,7 @@ class Settings(BaseSettings):
     
     # LLM Configuration
     llm_temperature: float = Field(default=0.0, env="LLM_TEMPERATURE")
-    max_tokens: int = Field(default=1000, env="MAX_TOKENS")
+    max_tokens: int = Field(default=3000, env="MAX_TOKENS")
     
     # Monitoring
     sentry_dsn: str = Field(default="", env="SENTRY_DSN")

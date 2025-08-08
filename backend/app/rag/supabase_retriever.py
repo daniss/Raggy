@@ -97,6 +97,19 @@ class SupabaseRetriever:
             logger.error(f"Supabase {operation} operation failed: {e}")
             raise
     
+    def _sanitize_text(self, text: str) -> str:
+        """Sanitize text by removing null bytes and other problematic characters."""
+        if not text:
+            return ""
+        
+        # Remove null bytes and other problematic Unicode characters
+        sanitized = text.replace('\x00', '').replace('\u0000', '')
+        
+        # Remove other potential problematic characters
+        sanitized = sanitized.replace('\r\n', '\n').replace('\r', '\n')
+        
+        return sanitized
+    
     def _add_document_batch_optimized(self, documents: List[Document]) -> List[str]:
         """Add a batch of documents with optimized embedding generation and timeout protection."""
         try:
@@ -105,8 +118,8 @@ class SupabaseRetriever:
             
             start_time = time.time()
             
-            # Extract all text content for batch embedding
-            texts = [doc.page_content for doc in documents]
+            # Sanitize and extract all text content for batch embedding
+            texts = [self._sanitize_text(doc.page_content) for doc in documents]
             
             # Generate embeddings in batch with timeout tracking
             logger.debug(f"Generating embeddings for {len(texts)} documents")
@@ -125,7 +138,7 @@ class SupabaseRetriever:
                 doc_data = {
                     "document_id": doc.metadata.get("document_id"),
                     "chunk_index": doc.metadata.get("chunk_index", 0),
-                    "content": doc.page_content,
+                    "content": self._sanitize_text(doc.page_content),
                     "embedding": embedding,
                     "metadata": doc.metadata,
                     "organization_id": doc.metadata.get("organization_id")
@@ -169,7 +182,7 @@ class SupabaseRetriever:
                 doc_data = {
                     "document_id": doc.metadata.get("document_id"),
                     "chunk_index": doc.metadata.get("chunk_index", 0),
-                    "content": doc.page_content,
+                    "content": self._sanitize_text(doc.page_content),
                     "embedding": embedding,
                     "metadata": doc.metadata,
                     "organization_id": doc.metadata.get("organization_id")

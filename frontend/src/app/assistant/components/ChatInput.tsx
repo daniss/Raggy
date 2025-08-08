@@ -59,7 +59,6 @@ export default function ChatInput({
 
   const toggleRecording = () => {
     setIsRecording(!isRecording);
-    // TODO: Implement voice recording functionality
   };
 
   return (

@@ -3,16 +3,10 @@ import { Database } from '@/types/supabase';
 
 // Client-side Supabase client
 export const createClient = () => {
-  // Use dummy values for demo mode to prevent URL validation errors
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL === 'your_real_supabase_url_here' 
-    ? 'https://demo.supabase.co' 
-    : process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'your_real_anon_key_here'
-    ? 'demo-key-12345'
-    : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-  return createBrowserClient<Database>(supabaseUrl, supabaseKey);
+  return createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 };
 
 // Type definitions for auth

@@ -288,6 +288,33 @@ class HybridRetriever:
         """Get statistics about the vector collection (delegates to dense retriever)."""
         return self.dense_retriever.get_collection_stats()
 
+    def delete_documents_by_filename(self, filename: str) -> bool:
+        """Delete documents by filename (delegates to dense retriever)."""
+        try:
+            logger.info(f"Deleting documents with filename: {filename}")
+            return self.dense_retriever.delete_documents_by_filename(filename)
+        except Exception as e:
+            logger.error(f"Failed to delete documents by filename {filename}: {e}")
+            return False
+
+    def delete_document_by_id(self, document_id: str) -> bool:
+        """Delete document by ID (delegates to dense retriever)."""
+        try:
+            logger.info(f"Deleting document with ID: {document_id}")
+            return self.dense_retriever.delete_document_by_id(document_id)
+        except Exception as e:
+            logger.error(f"Failed to delete document by ID {document_id}: {e}")
+            return False
+
+    def reset_collection(self) -> bool:
+        """Reset the entire collection (delegates to dense retriever)."""
+        try:
+            logger.info("Resetting hybrid retriever collection")
+            return self.dense_retriever.reset_collection()
+        except Exception as e:
+            logger.error(f"Failed to reset collection: {e}")
+            return False
+
 
 # Global hybrid retriever instance
 hybrid_retriever = HybridRetriever()
