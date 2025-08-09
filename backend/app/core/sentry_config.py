@@ -3,8 +3,14 @@
 import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
-from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 import logging
+
+# Optional SQLAlchemy integration
+try:
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+    SQLALCHEMY_AVAILABLE = True
+except ImportError:
+    SQLALCHEMY_AVAILABLE = False
 
 from app.core.config import settings
 
@@ -33,8 +39,7 @@ def init_sentry():
                     level=logging.INFO,  # Capture info and above as breadcrumbs
                     event_level=logging.ERROR  # Send errors as events
                 ),
-                SqlalchemyIntegration(),
-            ],
+            ] + ([SqlalchemyIntegration()] if SQLALCHEMY_AVAILABLE else []),
             
             # Performance monitoring
             traces_sample_rate=0.1 if settings.environment == "production" else 1.0,

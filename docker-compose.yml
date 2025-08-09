@@ -8,8 +8,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - ENVIRONMENT=development
-      - DEBUG=true
+      - ENVIRONMENT=production
+      - DEBUG=false
       - GROQ_API_KEY=${GROQ_API_KEY}
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
@@ -17,13 +17,9 @@ services:
       - EMBEDDING_MODEL=${EMBEDDING_MODEL}
       - CORS_ORIGINS=["http://localhost:3000"]
       - REDIS_URL=redis://redis:6379/0
-    volumes:
-      - ./backend:/app
-      - ./backend/requirements.txt:/app/requirements.txt:ro
     networks:
       - support-bot-network
     restart: unless-stopped
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -40,22 +36,18 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
       - BACKEND_URL=http://backend:8000
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       - NEXT_PUBLIC_APP_NAME=Support Chatbot
       - NEXT_PUBLIC_ENVIRONMENT=development
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     networks:
       - support-bot-network
     depends_on:
       - backend
     restart: unless-stopped
-    command: ["npm", "run", "dev"]
 
   # Redis for caching (optional)
   redis:

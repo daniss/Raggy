@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import '@/styles/globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -50,11 +51,13 @@ export default function RootLayout({
       )}>
         <div className="relative flex h-screen flex-col">
           <div className="flex-1 flex flex-col overflow-hidden">
-            <AuthProvider>
-              <ErrorBoundary>
-                {children}
-              </ErrorBoundary>
-            </AuthProvider>
+            <ThemeProvider>
+              <AuthProvider>
+                <ErrorBoundary>
+                  {children}
+                </ErrorBoundary>
+              </AuthProvider>
+            </ThemeProvider>
           </div>
         </div>
       </body>
