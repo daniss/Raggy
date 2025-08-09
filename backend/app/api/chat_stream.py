@@ -9,9 +9,9 @@ from fastapi.responses import StreamingResponse
 from app.models.schemas import ChatRequest
 from app.core.deps import get_current_user, get_current_organization
 from app.core.sentry_config import capture_exception, add_breadcrumb
-from app.core.redis_cache import redis_cache
-from app.rag.fast_retriever import fast_retriever
-from groq import Groq
+# redis_cache removed - not used in streaming endpoint
+from app.rag.supabase_retriever import supabase_retriever
+from app.core.llm_providers import LLMManager, LLMMessage
 from app.core.config import settings
 import logging
 
@@ -38,7 +38,7 @@ async def generate_stream_response(
         # Retrieve documents quickly
         yield f"data: {json.dumps({'type': 'status', 'message': 'Recherche de documents...'})}\n\n"
         
-        docs = fast_retriever.similarity_search(
+        docs = supabase_retriever.similarity_search(
             question, 
             k=5,  # Reduced for speed
             organization_id=organization_id
@@ -64,25 +64,38 @@ async def generate_stream_response(
         # Stream LLM response
         yield f"data: {json.dumps({'type': 'status', 'message': 'Génération de la réponse...'})}\n\n"
         
-        client = Groq(api_key=settings.groq_api_key)
+        # Initialize LLM Manager with primary provider (Groq) and fallbacks
+        primary_config = {
+            "provider": "groq",
+            "api_key": settings.groq_api_key,
+            "model": settings.groq_model,
+            "timeout": 30
+        }
         
-        stream = client.chat.completions.create(
-            model=settings.groq_model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.0,
-            max_tokens=settings.max_tokens,
-            stream=True
-        )
+        fallback_configs = []
+        if hasattr(settings, 'openai_api_key') and settings.openai_api_key:
+            fallback_configs.append({
+                "provider": "openai",
+                "api_key": settings.openai_api_key,
+                "model": "gpt-4-turbo-preview"
+            })
+        
+        llm_manager = LLMManager(primary_config, fallback_configs)
+        
+        # Prepare messages
+        messages = [
+            LLMMessage(role="system", content=system_prompt),
+            LLMMessage(role="user", content=user_prompt)
+        ]
         
         full_answer = ""
-        for chunk in stream:
-            if chunk.choices[0].delta.content:
-                content = chunk.choices[0].delta.content
-                full_answer += content
-                yield f"data: {json.dumps({'type': 'token', 'content': content})}\n\n"
+        async for content in llm_manager.stream(
+            messages, 
+            temperature=0.0, 
+            max_tokens=settings.max_tokens
+        ):
+            full_answer += content
+            yield f"data: {json.dumps({'type': 'token', 'content': content})}\n\n"
         
         # Send sources
         sources = [

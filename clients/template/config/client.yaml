@@ -1,0 +1,288 @@
+# Client Configuration Template
+# This is the main configuration file for client-specific settings
+# Copy this template to clients/{client-id}/config/client.yaml
+
+client:
+  id: "template"  # Unique client identifier
+  name: "Template Client"  # Display name
+  domain: "template.example.com"  # Client domain
+  environment: "production"  # production, staging, development
+  
+# Organization settings
+organization:
+  type: "enterprise"  # enterprise, sme, startup, government
+  industry: "general"  # legal, accounting, healthcare, manufacturing, government
+  country: "FR"  # ISO country code
+  language: "fr"  # Primary language (fr, en, de, es, etc.)
+  secondary_languages: ["en"]  # Additional supported languages
+  timezone: "Europe/Paris"
+  currency: "EUR"
+
+# Feature flags - Enable/disable features per client
+features:
+  # Core features
+  document_upload: true
+  chat_interface: true
+  search: true
+  analytics: true
+  
+  # Advanced features
+  admin_panel: true
+  user_management: true
+  api_access: true
+  export_data: true
+  audit_logs: true
+  
+  # Optional modules
+  collaboration: false  # Multi-user document collaboration
+  workflow_automation: false  # Custom workflows
+  integrations: false  # Third-party integrations
+  mobile_app: false  # Mobile application support
+  offline_mode: false  # Offline capability
+  
+  # AI features
+  query_enhancement: true
+  hybrid_search: true
+  reranking: true
+  multilingual: true
+  document_summarization: false
+  entity_extraction: false
+  sentiment_analysis: false
+
+# Plan limits and quotas
+limits:
+  # User limits
+  max_users: 100
+  max_concurrent_sessions: 50
+  max_organizations: 1  # For multi-org clients
+  
+  # Document limits
+  max_documents: 10000
+  max_document_size_mb: 50
+  max_total_storage_gb: 100
+  supported_formats: ["pdf", "docx", "xlsx", "csv", "txt", "pptx"]
+  
+  # Usage limits
+  max_queries_per_day: 10000
+  max_api_calls_per_minute: 100
+  max_upload_rate_mb_per_second: 10
+  
+  # Retention policies
+  chat_history_days: 90
+  audit_log_days: 365
+  deleted_documents_retention_days: 30
+
+# Security settings
+security:
+  # Authentication methods
+  auth_methods:
+    - type: "supabase"  # supabase, oauth, saml, ldap
+      enabled: true
+    - type: "saml"
+      enabled: false
+      config:
+        idp_url: ""
+        entity_id: ""
+    - type: "oauth"
+      enabled: false
+      providers: ["google", "microsoft"]
+  
+  # Security policies
+  password_policy:
+    min_length: 12
+    require_uppercase: true
+    require_lowercase: true
+    require_numbers: true
+    require_special_chars: true
+    max_age_days: 90
+    history_count: 5
+  
+  session_policy:
+    timeout_minutes: 30
+    max_sessions_per_user: 3
+    require_mfa: false
+  
+  # Data protection
+  encryption_at_rest: true
+  encryption_in_transit: true
+  ip_whitelist: []  # Empty means all IPs allowed
+  allowed_domains: []  # Email domains for registration
+
+# Branding and UI customization
+branding:
+  # Company branding
+  company_name: "Template Company"
+  logo_path: "assets/logo.svg"
+  favicon_path: "assets/favicon.ico"
+  
+  # Color scheme
+  colors:
+    primary: "#0066CC"
+    secondary: "#6B7280"
+    accent: "#10B981"
+    background: "#FFFFFF"
+    foreground: "#000000"
+    muted: "#F3F4F6"
+    border: "#E5E7EB"
+    error: "#EF4444"
+    warning: "#F59E0B"
+    success: "#10B981"
+    info: "#3B82F6"
+  
+  # Typography
+  fonts:
+    heading: "Inter"
+    body: "Inter"
+    mono: "JetBrains Mono"
+  
+  # UI preferences
+  theme: "light"  # light, dark, auto
+  layout: "modern"  # modern, classic, compact
+  sidebar_position: "left"  # left, right
+  show_logo_in_chat: true
+  show_powered_by: false
+
+# Email and notifications
+notifications:
+  email:
+    enabled: true
+    smtp_host: "smtp.example.com"
+    smtp_port: 587
+    smtp_user: "notifications@example.com"
+    from_email: "noreply@example.com"
+    from_name: "Template RAG System"
+    
+  templates:
+    welcome: "default"
+    password_reset: "default"
+    document_processed: "default"
+    weekly_report: "custom"
+  
+  alerts:
+    system_errors: ["admin@example.com"]
+    quota_warnings: ["admin@example.com"]
+    security_events: ["security@example.com"]
+
+# Integrations
+integrations:
+  # CRM/ERP systems
+  crm:
+    enabled: false
+    type: "salesforce"  # salesforce, hubspot, pipedrive, custom
+    sync_interval_minutes: 60
+  
+  # Storage systems
+  storage:
+    type: "supabase"  # supabase, s3, azure_blob, local
+    config:
+      bucket: "documents"
+      region: "eu-west-1"
+  
+  # Analytics
+  analytics:
+    enabled: false
+    providers:
+      - type: "google_analytics"
+        tracking_id: ""
+      - type: "mixpanel"
+        project_token: ""
+  
+  # Monitoring
+  monitoring:
+    sentry:
+      enabled: true
+      dsn: ""
+      environment: "production"
+      traces_sample_rate: 0.1
+    
+    custom_metrics:
+      enabled: false
+      endpoint: ""
+
+# Deployment configuration
+deployment:
+  type: "docker"  # docker, kubernetes, vm, serverless
+  
+  # Resource allocation
+  resources:
+    backend:
+      cpu: 2
+      memory_gb: 4
+      replicas: 2
+    
+    frontend:
+      cpu: 1
+      memory_gb: 2
+      replicas: 2
+    
+    database:
+      cpu: 2
+      memory_gb: 8
+      storage_gb: 100
+    
+    redis:
+      cpu: 1
+      memory_gb: 2
+  
+  # Scaling policies
+  autoscaling:
+    enabled: true
+    min_replicas: 1
+    max_replicas: 10
+    target_cpu_percent: 70
+    target_memory_percent: 80
+  
+  # Backup configuration
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 30
+    target: "s3://backups/template"
+
+# Custom extensions
+extensions:
+  # Custom document processors
+  document_processors: []
+  
+  # Custom API endpoints
+  api_endpoints: []
+  
+  # Custom UI components
+  ui_components: []
+  
+  # Custom workflows
+  workflows: []
+
+# Compliance and regulatory
+compliance:
+  gdpr:
+    enabled: true
+    data_retention_days: 730
+    right_to_forget: true
+    data_portability: true
+  
+  hipaa:
+    enabled: false
+    audit_logging: true
+    encryption_required: true
+  
+  sox:
+    enabled: false
+    change_control: true
+    access_reviews: true
+
+# Support and maintenance
+support:
+  contact_email: "support@example.com"
+  contact_phone: "+33 1 23 45 67 89"
+  business_hours: "9:00-18:00 CET"
+  sla_level: "gold"  # bronze, silver, gold, platinum
+  response_time_hours: 4
+  resolution_time_hours: 24
+
+# Metadata
+metadata:
+  created_at: "2024-01-01T00:00:00Z"
+  updated_at: "2024-01-01T00:00:00Z"
+  version: "1.0.0"
+  config_schema_version: "1.0"

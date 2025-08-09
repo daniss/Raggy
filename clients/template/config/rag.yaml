@@ -1,0 +1,334 @@
+# RAG Pipeline Configuration
+# Client-specific RAG settings and customization
+
+# LLM Provider Configuration
+llm:
+  provider: "groq"  # groq, openai, anthropic, azure, local
+  
+  # Model selection
+  model:
+    default: "deepseek-r1-distill-llama-70b"
+    fallback: "llama-3.1-70b-versatile"
+    
+  # Provider-specific settings
+  groq:
+    api_key: "${GROQ_API_KEY}"  # Environment variable
+    temperature: 0.1
+    max_tokens: 2048
+    timeout: 30
+    retry_attempts: 3
+    rate_limit_rpm: 30
+  
+  openai:
+    api_key: "${OPENAI_API_KEY}"
+    model: "gpt-4-turbo-preview"
+    temperature: 0.1
+    max_tokens: 2048
+    organization: ""
+  
+  anthropic:
+    api_key: "${ANTHROPIC_API_KEY}"
+    model: "claude-3-opus-20240229"
+    temperature: 0.1
+    max_tokens: 2048
+  
+  # Model behavior
+  behavior:
+    streaming: true
+    verbose: false
+    cache_responses: true
+    cache_ttl_seconds: 3600
+
+# Embedding Configuration
+embeddings:
+  provider: "local"  # local, openai, cohere, huggingface
+  
+  # Model selection
+  model:
+    name: "intfloat/multilingual-e5-large-instruct"
+    dimensions: 384
+    max_input_length: 512
+  
+  # Provider settings
+  local:
+    device: "cpu"  # cpu, cuda, mps
+    batch_size: 32
+    normalize: true
+    cache_embeddings: true
+  
+  openai:
+    api_key: "${OPENAI_API_KEY}"
+    model: "text-embedding-3-small"
+    dimensions: 1536
+    batch_size: 100
+
+# Document Processing
+document_processing:
+  # Chunking strategy
+  chunking:
+    strategy: "adaptive"  # fixed, adaptive, semantic, sliding_window
+    
+    # Size parameters
+    min_chunk_size: 400
+    max_chunk_size: 800
+    chunk_overlap: 100
+    
+    # Semantic chunking
+    semantic:
+      similarity_threshold: 0.7
+      min_sentences: 3
+      max_sentences: 10
+    
+    # Document-specific settings
+    by_format:
+      pdf:
+        preserve_tables: true
+        extract_images: false
+        ocr_enabled: true
+      
+      docx:
+        preserve_formatting: true
+        extract_comments: false
+      
+      xlsx:
+        process_formulas: false
+        merge_cells: true
+  
+  # Text preprocessing
+  preprocessing:
+    lowercase: false
+    remove_punctuation: false
+    remove_numbers: false
+    remove_stopwords: false
+    lemmatization: false
+    
+    # Language-specific
+    language_detection: true
+    supported_languages: ["fr", "en", "de", "es"]
+    
+    # Cleaning
+    remove_emails: true
+    remove_urls: true
+    remove_special_chars: false
+    normalize_whitespace: true
+  
+  # Metadata extraction
+  metadata:
+    extract_title: true
+    extract_author: true
+    extract_date: true
+    extract_keywords: true
+    extract_summary: false
+    custom_fields: []
+
+# Retrieval Configuration
+retrieval:
+  # Search strategy
+  strategy: "hybrid"  # vector, keyword, hybrid
+  
+  # Vector search
+  vector_search:
+    enabled: true
+    weight: 0.7
+    top_k: 10
+    similarity_metric: "cosine"  # cosine, euclidean, dot_product
+    score_threshold: 0.5
+    
+    # Index optimization
+    index_type: "hnsw"  # hnsw, flat, ivf
+    hnsw_params:
+      m: 16
+      ef_construction: 64
+      ef_search: 40
+  
+  # Keyword search (BM25)
+  keyword_search:
+    enabled: true
+    weight: 0.3
+    top_k: 10
+    k1: 1.2  # Term frequency saturation
+    b: 0.75  # Length normalization
+    
+  # Reranking
+  reranking:
+    enabled: true
+    model: "cross-encoder/ms-marco-multilingual-MiniLM-L12-v2"
+    top_k: 5
+    batch_size: 32
+    score_threshold: 0.5
+  
+  # Query enhancement
+  query_enhancement:
+    enabled: true
+    strategies:
+      - type: "expansion"
+        num_variations: 3
+      - type: "translation"
+        target_languages: ["en"]
+      - type: "reformulation"
+        style: "question"
+    
+    combine_method: "union"  # union, intersection, weighted
+
+# Response Generation
+response_generation:
+  # Answer style
+  style:
+    tone: "professional"  # professional, casual, technical, educational
+    language: "fr"  # Primary response language
+    format: "detailed"  # brief, detailed, bullet_points
+    
+    # Length control
+    min_length: 100
+    max_length: 500
+    target_length: 300
+  
+  # Citation handling
+  citations:
+    enabled: true
+    format: "inline"  # inline, footnote, list
+    include_page_numbers: true
+    include_document_title: true
+    max_citations: 5
+  
+  # Answer enhancement
+  enhancement:
+    add_confidence_score: true
+    add_source_summary: false
+    add_follow_up_questions: false
+    highlight_key_points: true
+    
+  # Fallback behavior
+  fallback:
+    no_results_message: "Je n'ai pas trouvé d'information pertinente dans les documents."
+    low_confidence_message: "Basé sur les documents disponibles, voici ce que j'ai trouvé, mais la confiance est limitée."
+    error_message: "Une erreur s'est produite lors du traitement de votre question."
+
+# Prompt Templates
+prompts:
+  # System prompts
+  system:
+    default: "prompts/system_default.txt"
+    legal: "prompts/system_legal.txt"
+    technical: "prompts/system_technical.txt"
+    educational: "prompts/system_educational.txt"
+  
+  # Query prompts
+  query:
+    enhancement: "prompts/query_enhancement.txt"
+    reformulation: "prompts/query_reformulation.txt"
+    clarification: "prompts/query_clarification.txt"
+  
+  # Answer prompts
+  answer:
+    generation: "prompts/answer_generation.txt"
+    summarization: "prompts/answer_summarization.txt"
+    extraction: "prompts/answer_extraction.txt"
+  
+  # Custom prompts
+  custom: {}
+
+# Caching Configuration
+caching:
+  # Query cache
+  query_cache:
+    enabled: true
+    ttl_seconds: 3600
+    max_entries: 1000
+    
+  # Document cache
+  document_cache:
+    enabled: true
+    ttl_seconds: 86400
+    max_size_mb: 1000
+    
+  # Embedding cache
+  embedding_cache:
+    enabled: true
+    ttl_seconds: 604800  # 1 week
+    storage: "redis"  # redis, disk, memory
+
+# Performance Tuning
+performance:
+  # Concurrency
+  max_concurrent_requests: 10
+  max_concurrent_embeddings: 5
+  max_concurrent_searches: 3
+  
+  # Timeouts
+  query_timeout_seconds: 30
+  embedding_timeout_seconds: 60
+  search_timeout_seconds: 10
+  
+  # Batching
+  embedding_batch_size: 32
+  search_batch_size: 10
+  
+  # Resource limits
+  max_memory_mb: 4096
+  max_cpu_percent: 80
+
+# Monitoring and Logging
+monitoring:
+  # Metrics collection
+  metrics:
+    enabled: true
+    export_interval_seconds: 60
+    
+    track:
+      - query_latency
+      - retrieval_accuracy
+      - response_quality
+      - token_usage
+      - cache_hit_rate
+      - error_rate
+  
+  # Logging
+  logging:
+    level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+    
+    log_queries: true
+    log_responses: false
+    log_embeddings: false
+    log_retrievals: true
+    
+    # Privacy
+    anonymize_queries: false
+    mask_pii: true
+
+# Experimental Features
+experimental:
+  # Advanced RAG techniques
+  graph_rag:
+    enabled: false
+    knowledge_graph_builder: "networkx"
+    entity_extraction_model: ""
+  
+  # Multi-modal
+  multimodal:
+    enabled: false
+    image_embeddings: false
+    table_understanding: false
+  
+  # Active learning
+  active_learning:
+    enabled: false
+    feedback_collection: false
+    model_fine_tuning: false
+
+# Custom Extensions
+extensions:
+  # Custom retrievers
+  custom_retrievers: []
+  
+  # Custom processors
+  custom_processors: []
+  
+  # Custom rankers
+  custom_rankers: []
+
+# Version and metadata
+metadata:
+  version: "1.0.0"
+  schema_version: "1.0"
+  last_updated: "2024-01-01T00:00:00Z"

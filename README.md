@@ -237,6 +237,9 @@ PLAN_LIMITS = {
 - **[Guide de Déploiement SaaS](docs/deployment.md)** : Production setup avec monitoring
 - **[Guide Admin Organisation](docs/admin_guide.md)** : Gestion d'équipe et paramètres
 - **[API Reference](http://localhost:8000/docs)** : Documentation interactive des endpoints
+ - **[Proposition commerciale (FR)](docs/sales/PROPOSITION_COMMERCIALE_FR.md)** : Offre, packs et livrables
+ - **[Scénario de démo (FR)](docs/sales/SCENARIO_DEMO_FR.md)** : Script de démonstration 30 min
+ - **[Checklist d’implémentation (FR)](docs/sales/CHECKLIST_IMPL_FR.md)** : Pas-à-pas mise en production
 
 ## 🧪 Tests
 

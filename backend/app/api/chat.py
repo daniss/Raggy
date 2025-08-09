@@ -8,9 +8,8 @@ from app.core.sentry_config import capture_exception, add_breadcrumb, set_contex
 from app.core.audit_middleware import get_request_info
 from app.services.audit_logger import audit_logger
 from app.core.redis_cache import redis_cache
-from app.rag import retriever
+from app.rag.supabase_retriever import supabase_retriever
 from app.rag.qa_fast import fast_qa_chain as qa_chain
-from app.api.metrics import track_qa_metrics
 from app.db.supabase_client import log_chat_interaction, log_anonymous_interaction
 import logging
 
@@ -71,13 +70,7 @@ async def chat(
             response_time=result["response_time"]
         )
         
-        # Track QA metrics in background
-        background_tasks.add_task(
-            track_qa_metrics,
-            query=request.question,
-            answer=result["answer"],
-            sources=result["sources"]
-        )
+    # Track QA metrics could be added here via background task if a metrics module is available
         
         # Log all interactions for analytics
         # Note: Anonymous users need special handling due to RLS policies
@@ -149,11 +142,11 @@ async def chat_health():
     """
     try:
         # Test Supabase vector store connection
-        stats = retriever.get_collection_stats()
-        
+        stats = supabase_retriever.get_collection_stats()
+
         # Test Groq API connection
         groq_status = qa_chain.test_connection()
-        
+
         return {
             "status": "healthy" if groq_status else "degraded",
             "vector_store": {
@@ -180,7 +173,7 @@ async def chat_stats(current_user: dict = Depends(get_current_user)):
     Get collection statistics (authenticated endpoint).
     """
     try:
-        stats = retriever.get_collection_stats()
+        stats = supabase_retriever.get_collection_stats()
         return stats
     except Exception as e:
         logger.error(f"Failed to get stats: {e}")

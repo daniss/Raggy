@@ -2,6 +2,7 @@ import os
 from typing import List, Optional
 from pydantic_settings import BaseSettings
 from pydantic import Field
+from .client_config import get_client_config, get_current_client_id, ClientConfig
 
 
 class Settings(BaseSettings):
@@ -96,3 +97,78 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+class ClientAwareSettings:
+    """
+    Settings wrapper that integrates client-specific configuration.
+    This allows the application to dynamically adapt based on the current client.
+    """
+    
+    def __init__(self):
+        self._base_settings = settings
+        self._client_config_cache = {}
+    
+    def get_client_settings(self, client_id: Optional[str] = None) -> dict:
+        """Get settings combined with client-specific configuration"""
+        if client_id is None:
+            client_id = get_current_client_id()
+        
+        if client_id not in self._client_config_cache:
+            client_config = get_client_config(client_id)
+            self._client_config_cache[client_id] = self._merge_settings(client_config)
+        
+        return self._client_config_cache[client_id]
+    
+    def _merge_settings(self, client_config: ClientConfig) -> dict:
+        """Merge base settings with client configuration"""
+        merged = self._base_settings.dict()
+        
+        # Override with client-specific values
+        merged.update({
+            # Client info
+            "client_id": client_config.client_id,
+            "client_name": client_config.client_name,
+            "client_language": client_config.language,
+            "client_industry": client_config.industry,
+            
+            # API configuration
+            "api_title": f"{client_config.branding.company_name} - RAG Platform API",
+            "api_description": f"Private RAG platform for {client_config.branding.company_name}",
+            
+            # RAG configuration from client config
+            "groq_model": client_config.rag.model.get("default", merged["groq_model"]),
+            "embedding_model": client_config.rag.embedding_model,
+            "llm_temperature": client_config.rag.temperature,
+            "max_tokens": client_config.rag.max_tokens,
+            "retrieval_k": client_config.rag.top_k,
+            
+            # Hybrid search weights
+            "dense_weight": client_config.rag.vector_weight,
+            "sparse_weight": client_config.rag.keyword_weight,
+            
+            # Feature flags
+            "use_hybrid_search": client_config.rag.retrieval_strategy == "hybrid",
+            "use_reranking": client_config.rag.reranking_enabled,
+            "use_query_enhancement": client_config.rag.query_enhancement_enabled,
+            
+            # Plan limits
+            "max_users_per_org": client_config.limits.max_users,
+            "max_documents_per_org": client_config.limits.max_documents,
+            "max_document_size_mb": client_config.limits.max_document_size_mb,
+            "max_queries_per_day": client_config.limits.max_queries_per_day,
+        })
+        
+        return merged
+    
+    def __getattr__(self, name):
+        """Fallback to base settings for attributes not handled by client config"""
+        return getattr(self._base_settings, name)
+    
+    def get_for_client(self, client_id: str) -> dict:
+        """Get settings for a specific client"""
+        return self.get_client_settings(client_id)
+
+
+# Global client-aware settings instance
+client_settings = ClientAwareSettings()

@@ -1,11 +1,11 @@
 from typing import List, Dict, Any
-from groq import Groq
 from langchain.schema import Document
 import logging
 import time
 from app.core.config import settings
 from app.core.retry_handler import retry_external_api, groq_circuit_breaker
-from app.rag.fast_retriever import fast_retriever as retriever
+from app.rag.supabase_retriever import supabase_retriever as retriever
+from app.core.llm_providers import LLMManager, LLMMessage
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +14,24 @@ class FastGroqQAChain:
     """Optimized question-answering chain for faster response times."""
     
     def __init__(self):
-        """Initialize Fast Groq QA chain."""
-        self.client = Groq(api_key=settings.groq_api_key)
+        """Initialize Fast QA chain with LLMManager."""
+        # Initialize LLM Manager with primary provider (Groq) and fallbacks
+        primary_config = {
+            "provider": "groq",
+            "api_key": settings.groq_api_key,
+            "model": settings.groq_model,
+            "timeout": 30
+        }
+        
+        fallback_configs = []
+        if hasattr(settings, 'openai_api_key') and settings.openai_api_key:
+            fallback_configs.append({
+                "provider": "openai",
+                "api_key": settings.openai_api_key,
+                "model": "gpt-4-turbo-preview"
+            })
+        
+        self.llm_manager = LLMManager(primary_config, fallback_configs)
         self.model = settings.groq_model
         self.temperature = settings.llm_temperature
         self.max_tokens = settings.max_tokens
@@ -23,31 +39,31 @@ class FastGroqQAChain:
         # Cache for query enhancements to avoid repeated LLM calls
         self._query_cache = {}
         
-        logger.info(f"Initialized Fast Groq QA chain with model: {self.model}")
+        logger.info(f"Initialized Fast QA chain with LLMManager, model: {self.model}")
     
     @retry_external_api
-    def _call_groq_api(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
-        """Make API call to Groq with retry logic."""
+    async def _call_llm_api(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
+        """Make API call to LLM with retry logic and fallback support."""
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
+            messages = [
+                LLMMessage(role="system", content=system_prompt),
+                LLMMessage(role="user", content=user_prompt)
+            ]
+            
+            response = await self.llm_manager.generate(
+                messages=messages,
                 temperature=self.temperature,
-                max_tokens=self.max_tokens,
-                top_p=1,
-                stream=False
+                max_tokens=self.max_tokens
             )
             
             return {
-                "content": response.choices[0].message.content,
-                "usage": response.usage.total_tokens if hasattr(response, 'usage') else None
+                "content": response.content,
+                "usage": response.usage.get("total_tokens") if response.usage else None,
+                "model": response.model
             }
             
         except Exception as e:
-            logger.error(f"Groq API call failed: {e}")
+            logger.error(f"LLM API call failed: {e}")
             raise
     
     def _build_prompt(self, question: str, context_docs: List[Document]) -> str:
@@ -134,21 +150,23 @@ Réponse:"""
             total_context_chars = sum(len(doc.page_content[:1500]) for doc in context_docs[:5])
             logger.info(f"Context: {min(len(context_docs), 5)} docs, {total_context_chars} chars total")
             
-            # Call Groq API with retry logic
-            logger.debug(f"Calling Groq API with model: {self.model}")
+            # Call LLM API with retry logic and fallback support
+            logger.debug(f"Calling LLM API with model: {self.model}")
             
             try:
-                groq_response = self._call_groq_api(system_prompt, user_prompt)
-                answer = groq_response["content"]
-                tokens_used = groq_response["usage"]
+                llm_response = await self._call_llm_api(system_prompt, user_prompt)
+                answer = llm_response["content"]
+                tokens_used = llm_response["usage"]
+                model_used = llm_response.get("model", self.model)
                 
             except Exception as e:
-                logger.error(f"Failed to get response from Groq API: {e}")
+                logger.error(f"Failed to get response from LLM API: {e}")
                 if "Circuit breaker is open" in str(e):
                     answer = "Service temporairement indisponible. Notre système de génération de réponses est en cours de récupération. Veuillez réessayer dans quelques instants."
                 else:
                     answer = "Désolé, je rencontre actuellement des difficultés techniques. Veuillez réessayer dans quelques instants."
                 tokens_used = None
+                model_used = self.model
             
             # Calculate response time
             response_time = time.time() - start_time
@@ -170,7 +188,7 @@ Réponse:"""
                 "answer": answer,
                 "sources": sources,
                 "response_time": response_time,
-                "model_used": self.model,
+                "model_used": model_used,
                 "tokens_used": tokens_used,
                 "circuit_breaker_state": groq_circuit_breaker.get_state()
             }
@@ -231,18 +249,15 @@ Réponse:"""
         import asyncio
         return asyncio.run(self.arun(question, organization_id, context_docs))
     
-    def test_connection(self) -> bool:
-        """Test Groq API connection."""
+    async def test_connection(self) -> bool:
+        """Test LLM API connection."""
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": "Test de connexion"}],
-                max_tokens=10
-            )
-            logger.info("Groq API connection successful")
+            messages = [LLMMessage(role="user", content="Test de connexion")]
+            await self.llm_manager.generate(messages, max_tokens=10)
+            logger.info("LLM API connection successful")
             return True
         except Exception as e:
-            logger.error(f"Groq API connection failed: {e}")
+            logger.error(f"LLM API connection failed: {e}")
             return False
 
 

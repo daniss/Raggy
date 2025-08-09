@@ -1,0 +1,101 @@
+# Minimal Client Docker Compose
+# Optimized for consulting platform with reduced resource usage
+# Usage: CLIENT_ID=<client-id> docker-compose -f docker/docker-compose.minimal.yml up
+
+version: '3.8'
+
+services:
+  # Minimal RAG Application
+  rag-app:
+    build:
+      context: ..
+      dockerfile: docker/client.Dockerfile
+      args:
+        CLIENT_ID: ${CLIENT_ID:-template}
+        PYTHON_VERSION: 3.11-slim
+    image: rag-consulting-${CLIENT_ID:-template}:minimal
+    container_name: rag-${CLIENT_ID:-template}
+    environment:
+      - CLIENT_ID=${CLIENT_ID:-template}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      
+      # Database Configuration
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      
+      # LLM Provider (Primary)
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      
+      # Optional LLM Providers (Fallback)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      
+      # Redis (Optional)
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
+      
+      # Minimal Configuration
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - WORKERS=${WORKERS:-1}
+      
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    
+    volumes:
+      # Mount client-specific configurations as read-only
+      - ../clients/${CLIENT_ID:-template}:/app/clients/${CLIENT_ID:-template}:ro
+      
+      # Logs directory for troubleshooting
+      - ./logs/${CLIENT_ID:-template}:/app/logs
+    
+    depends_on:
+      - redis
+    
+    networks:
+      - rag-network
+    
+    restart: unless-stopped
+    
+    # Reduced resource limits
+    deploy:
+      resources:
+        limits:
+          memory: ${MEMORY_LIMIT:-2G}
+          cpus: '${CPU_LIMIT:-1.0}'
+        reservations:
+          memory: ${MEMORY_RESERVATION:-1G}
+          cpus: '${CPU_RESERVATION:-0.5}'
+    
+    # Optimized health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+  
+  # Minimal Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: redis-${CLIENT_ID:-template}
+    command: redis-server --maxmemory ${REDIS_MEMORY:-256mb} --maxmemory-policy allkeys-lru --save ""
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - rag-network
+    restart: unless-stopped
+    
+    # Minimal resource limits
+    deploy:
+      resources:
+        limits:
+          memory: ${REDIS_MEMORY:-256mb}
+          cpus: '0.25'
+
+volumes:
+  logs:
+    name: logs-${CLIENT_ID:-template}
+
+networks:
+  rag-network:
+    name: rag-network-${CLIENT_ID:-template}
+    driver: bridge
