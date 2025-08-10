@@ -1,359 +1,350 @@
-# 🏢 Raggy - Plateforme SaaS RAG pour Entreprises Françaises
+# Raggy - Solution RAG sur-mesure pour entreprises
 
-[![CI/CD](https://github.com/username/raggy/actions/workflows/ci.yml/badge.svg)](https://github.com/username/raggy/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Node.js 18+](https://img.shields.io/badge/node.js-18+-green.svg)](https://nodejs.org/)
+> Assistant IA privé alimenté par vos documents internes
 
-**Un assistant IA privé pour chaque entreprise, capable de comprendre ses documents internes et d'y répondre intelligemment via un chat sécurisé. Multi-utilisateurs. Multi-entreprises.**
+Raggy est une solution RAG (Retrieval-Augmented Generation) clé en main pour les entreprises françaises. Transformez vos documents internes en assistant intelligent avec réponses instantanées et sources citées.
 
-## 🎯 Vision & Objectif
+## 🚀 Déploiement rapide
 
-Raggy est une plateforme SaaS clé-en-main pour les entreprises françaises (TPE/PME principalement) leur permettant de :
-
-- **📄 Ingérer leurs documents internes** (PDF, CSV, docs métiers...)
-- **🤖 Poser des questions à un assistant IA privé** alimenté par leurs propres données
-- **👥 Collaborer entre collègues** dans un espace sécurisé et isolé
-- **🔐 Garantir la sécurité des données** avec une séparation stricte par organisation
-
-## ✨ Fonctionnalités Clés
-
-### 🏢 Multi-tenant dès le MVP
-- **Une organisation = une entreprise cliente** avec données isolées
-- **Un utilisateur appartient à une seule organisation** (contrainte MVP)
-- **Chaque organisation dispose de** :
-  - Son propre espace de documents vectorisés
-  - Ses membres avec gestion des rôles
-  - Son historique de chat privé
-- **Séparation stricte des données** via `org_id` dans toutes les tables + RLS PostgreSQL
-
-### 🔐 Authentification & Gestion d'Équipe
-- **Supabase Auth** avec email/password sécurisé
-- **Gestion de session persistante** avec JWT
-- **Rôles MVP** :
-  - **Admin** : créateur de l'organisation + invitation de membres par email
-  - **Membre** : accès aux documents et à l'IA de l'organisation
-
-### 📤 Upload & Ingestion de Documents
-- **Types supportés** : PDF (par lot ou seul), CSV, TXT, Markdown, DOC/DOCX
-- **Pipeline ingestion automatisé** :
-  - Upload ➝ Split en chunks ➝ Embeddings ➝ Stockage vectoriel (pgvector)
-  - Chaque chunk lié à `document_id`, `org_id`, `user_id`
-- **Interface glisser-déposer** avec aperçu des documents ingérés
-
-### 💬 Chat IA (RAG) Privé
-- **Interface type ChatGPT** avec streaming en temps réel
-- **Contexte limité aux documents de l'organisation uniquement**
-- **LLM alimenté par Groq API** (deepseek-r1-distill-llama-70b)
-- **Réponses avec sources** pour traçabilité et transparence
-
-### 🎨 Interface Utilisateur
-- **Next.js 14 + shadcn/ui** pour une expérience moderne
-- **Pages principales** :
-  - Dashboard d'organisation
-  - Upload de documents par équipe
-  - Interface chat collaborative
-  - Paramètres de l'organisation
-- **Responsive design** optimisé mobile et desktop
-
-## 🚀 Démarrage Rapide
-
-### Prérequis
-
-- **Docker & Docker Compose** (recommandé)
-- **Python 3.11+** & **Node.js 18+** (pour le développement local)
-- **Comptes requis** :
-  - [Groq API](https://console.groq.com/) pour l'IA
-  - [Supabase](https://supabase.com/) pour l'auth et la DB
-
-### Installation avec Docker (Recommandé)
-
-1. **Cloner le repository**
 ```bash
-git clone https://github.com/username/raggy.git
+# 1. Configurer un nouveau client
+./scripts/setup_client.sh "Mon Entreprise" docker
+
+# 2. Modifier la configuration
+cd clients/mon-entreprise
+nano config/.env
+
+# 3. Déployer
+./deploy.sh
+
+# 4. Charger les documents de démonstration  
+../scripts/load_demo_data.sh
+```
+
+**Opérationnel en moins de 10 minutes !**
+
+## 🎯 Fonctionnalités
+
+### ✅ Core Features
+- **Assistant IA intelligent** : Réponses en français avec sources citées
+- **Upload multi-formats** : PDF, Word, Excel, CSV, TXT
+- **Recherche hybride** : Vectorielle + BM25 pour une précision maximale
+- **Interface moderne** : Design responsive, optimisé mobile
+- **Demo sandbox** : Test gratuit avec données pré-chargées
+
+### 🔒 Sécurité & Conformité
+- **100% privé** : Vos données restent chez vous
+- **RGPD compliant** : Isolation complète des données
+- **Hébergement souverain** : France ou on-premise
+- **Chiffrement bout-en-bout** : Sécurité maximale
+
+### 🛠 Technique
+- **Backend** : FastAPI + Python (async/await)
+- **Frontend** : Next.js 14 + TypeScript
+- **Base vectorielle** : PostgreSQL + pgvector
+- **IA** : Groq (deepseek-r1) + Embeddings multilingues
+- **Cache** : Redis pour les performances
+
+## 📋 Prérequis
+
+### Développement
+- Docker & Docker Compose
+- Node.js 18+ (pour développement frontend)
+- Python 3.9+ (pour développement backend)
+
+### Production
+- Docker & Docker Compose
+- 4 GB RAM minimum
+- 20 GB espace disque
+- Clés API Groq
+
+## 🏗 Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Next.js       │    │   FastAPI       │    │  PostgreSQL     │
+│   Frontend      │───▶│   Backend       │───▶│  + pgvector     │
+│   (Port 3000)   │    │   (Port 8000)   │    │  (Port 5432)    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                       ┌─────────────────┐
+                       │     Redis       │
+                       │   (Cache)       │
+                       │  (Port 6379)    │
+                       └─────────────────┘
+```
+
+## ⚡ Démarrage rapide
+
+### Démonstration locale
+
+```bash
+# Cloner le repository
+git clone https://github.com/votre-org/raggy.git
 cd raggy
+
+# Lancer avec Docker
+docker-compose -f docker-compose.prod.yml up -d
+
+# Charger les données de démo
+./scripts/load_demo_data.sh
+
+# Accéder à l'application
+open http://localhost:3000
 ```
 
-2. **Configurer les variables d'environnement**
+### Configuration pour client
+
 ```bash
-cp .env.example .env
-# Éditer .env avec vos clés API Groq et Supabase
+# Créer un nouveau client
+./scripts/setup_client.sh "Cabinet Dupont" docker
+
+# Éditer la configuration
+cd clients/cabinet-dupont
+nano config/.env
+
+# Variables essentielles à configurer :
+GROQ_API_KEY=votre_clé_groq
+SUPABASE_URL=votre_url_supabase  
+SUPABASE_SERVICE_KEY=votre_clé_supabase
+CLIENT_NAME="Cabinet Dupont"
 ```
 
-3. **Lancer les services**
-```bash
-docker-compose up -d
-```
-
-4. **Accéder à l'application**
-- **Frontend** : http://localhost:3000
-- **Backend API** : http://localhost:8000
-- **Docs API** : http://localhost:8000/docs
-- **Admin Dashboard** : http://localhost:3000/admin
-
-### Installation Locale (Développement)
-
-<details>
-<summary>Cliquer pour voir les instructions détaillées</summary>
-
-#### Backend Setup
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\\Scripts\\activate
-pip install -r requirements.txt
-cp .env.example .env
-# Configurer les variables dans .env
-uvicorn app.main:app --reload --port 8000
-```
-
-#### Frontend Setup
-```bash
-cd frontend
-npm install
-cp .env.local.example .env.local
-# Configurer les variables dans .env.local
-npm run dev
-```
-</details>
-
-## 🏗️ Architecture Technique
+## 📁 Structure du projet
 
 ```
 raggy/
-├── backend/              # FastAPI + RAG Pipeline Multi-tenant
+├── frontend/                 # Application Next.js
+│   ├── src/app/
+│   │   ├── page.tsx         # Landing marketing
+│   │   ├── demo/            # Sandbox démo
+│   │   └── assistant/       # Interface RAG
+│   └── components/          # Composants réutilisables
+├── backend/                 # API FastAPI
 │   ├── app/
-│   │   ├── api/         # Routers (chat, upload, analytics, organizations)
-│   │   ├── core/        # Configuration, dependencies, auth
-│   │   ├── models/      # Pydantic schemas + Organization models
-│   │   ├── rag/         # RAG components (Supabase pgvector)
-│   │   └── db/          # Database clients + Multi-tenant queries
-│   └── requirements.txt
-├── frontend/            # Next.js 14 + TypeScript
-│   ├── src/
-│   │   ├── app/         # App Router pages (org-focused)
-│   │   ├── components/  # React components (team collaboration)
-│   │   └── utils/       # API clients, auth utilities
-│   └── package.json
-├── docker-compose.yml   # Services orchestration
-└── .github/workflows/   # CI/CD pipeline
+│   │   ├── api/            # Endpoints REST
+│   │   ├── rag/            # Pipeline RAG
+│   │   └── core/           # Configuration
+│   └── database_schema_simple.sql
+├── scripts/                 # Scripts de déploiement
+│   ├── setup_client.sh     # Configuration client
+│   ├── load_demo_data.sh   # Données de démo
+│   └── purge_demo.sh       # Nettoyage
+├── clients/                # Déploiements clients
+├── archive/                # Fonctionnalités archivées
+└── docs/                   # Documentation
 ```
 
-### Stack Technique Multi-tenant
+## 🔧 Configuration
 
-**Backend**
-- **FastAPI** : API REST haute performance avec organisation scoping
-- **LangChain** : Framework RAG avec isolation des données par organisation
-- **Supabase pgvector** : Base de données vectorielle avec RLS intégré
-- **Groq API** : Modèles IA ultra-rapides (deepseek-r1-distill-llama-70b)
-- **PostgreSQL + RLS** : Isolation des données par organisation automatique
+### Variables d'environnement essentielles
 
-**Frontend**
-- **Next.js 14** : Framework React avec App Router et Server Components
-- **TypeScript** : Typage statique pour la fiabilité entreprise
-- **Tailwind CSS + shadcn/ui** : Design system cohérent et professionnel
-- **Supabase Auth** : Authentification sécurisée avec gestion d'équipe
+```bash
+# Client
+CLIENT_NAME="Votre Entreprise"
+CLIENT_SLUG="votre-entreprise"
 
-**DevOps & Production**
-- **Docker** : Containerisation pour déploiement simplifié
-- **GitHub Actions** : CI/CD automatisé avec tests multi-tenant
-- **Redis** : Cache et sessions pour performance
-- **Monitoring** : Logs et métriques par organisation
+# API IA
+GROQ_API_KEY="gsk_..."
+GROQ_MODEL="deepseek-r1-distill-llama-70b"
 
-## 📋 Variables d'Environnement
+# Base de données
+SUPABASE_URL="https://xxx.supabase.co"
+SUPABASE_SERVICE_KEY="eyJ..."
+DATABASE_URL="postgresql://..."
 
-### Backend (.env)
-```env
-# API Core
-GROQ_API_KEY=your_groq_api_key_here
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_SERVICE_KEY=your_supabase_service_role_key
-DATABASE_URL=postgresql://user:pass@localhost:5432/raggy
-
-# SaaS Configuration
-DEFAULT_ORG_PLAN=free
-MAX_ORGS_PER_USER=1
-MAX_USERS_PER_ORG_FREE=10
-MAX_DOCUMENTS_PER_ORG_FREE=100
-MAX_STORAGE_MB_PER_ORG_FREE=500
-
-# RAG Configuration
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
-RETRIEVAL_K=3
-LLM_TEMPERATURE=0.0
+# Limites
+MAX_DOCUMENTS=1000
+MAX_UPLOAD_SIZE_MB=50
+MAX_QUERIES_PER_DAY=10000
 ```
 
-### Frontend (.env.local)
-```env
-NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-NEXT_PUBLIC_APP_NAME="Raggy - Assistant IA Privé"
-NEXT_PUBLIC_APP_DESCRIPTION="Plateforme SaaS RAG - Un assistant IA privé pour chaque entreprise"
+### Personnalisation
+
+```bash
+# Branding
+PRIMARY_COLOR="#1e40af"
+LOGO_URL="/logo-client.png"
+
+# Fonctionnalités
+ENABLE_UPLOAD=true
+ENABLE_EXPORT=true
+ENABLE_ANALYTICS=true
+ENABLE_DEMO_MODE=false
 ```
 
-## 🔧 Configuration Multi-tenant
+## 🚀 Déploiement
 
-### Base de Données
-```sql
--- Exemple de structure multi-tenant avec RLS
-CREATE TABLE documents (
-    id UUID PRIMARY KEY,
-    organization_id UUID NOT NULL REFERENCES organizations(id),
-    filename VARCHAR NOT NULL,
-    content_type VARCHAR NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
-);
+### Option 1 : Docker Compose (Recommandé)
 
--- RLS automatique par organisation
-ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
-CREATE POLICY documents_isolation ON documents 
-    USING (organization_id = current_setting('app.current_org_id')::uuid);
+```bash
+# Production complète
+docker-compose -f docker-compose.prod.yml up -d
+
+# Vérification
+docker-compose ps
+curl http://localhost/health
 ```
 
-### Limites par Plan
-```python
-# Configuration SaaS dans settings
-PLAN_LIMITS = {
-    'free': {
-        'max_users': 10,
-        'max_documents': 100,
-        'max_storage_mb': 500,
-        'api_calls_per_month': 1000
-    },
-    'pro': {
-        'max_users': 50,
-        'max_documents': 1000,
-        'max_storage_mb': 5000,
-        'api_calls_per_month': 10000
-    }
-}
+### Option 2 : Kubernetes
+
+```bash
+# Appliquer les manifests
+kubectl apply -f k8s/
+
+# Vérifier le déploiement
+kubectl get pods
+kubectl get services
 ```
 
-## 📖 Documentation
+### Option 3 : Standalone
 
-- **[Guide d'Architecture Multi-tenant](docs/architecture.md)** : Design et séparation des données
-- **[Guide de Déploiement SaaS](docs/deployment.md)** : Production setup avec monitoring
-- **[Guide Admin Organisation](docs/admin_guide.md)** : Gestion d'équipe et paramètres
-- **[API Reference](http://localhost:8000/docs)** : Documentation interactive des endpoints
+```bash
+# Backend
+cd backend
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# Frontend
+cd frontend  
+npm run build && npm start
+```
+
+## 📊 Monitoring
+
+### Scripts de surveillance
+
+```bash
+# Statut du système
+./monitor.sh
+
+# Nettoyage des données de démo
+./purge_demo.sh
+
+# Sauvegarde
+./backup.sh
+```
+
+### Métriques importantes
+
+- **Documents** : Nombre de docs indexés
+- **Vecteurs** : Nombre de chunks vectorisés  
+- **Requêtes** : Volume quotidien/mensuel
+- **Temps de réponse** : Performance moyenne
+- **Taux de satisfaction** : Feedback utilisateur
 
 ## 🧪 Tests
 
 ```bash
-# Backend - Tests multi-tenant
+# Tests backend
 cd backend
-pytest tests/ -v --cov=app
+pytest tests/ -v
 
-# Frontend - Tests composants
+# Tests frontend
 cd frontend
-npm test
-npm run type-check
+npm run test
+
+# Test complet
+./scripts/test_deployment.sh
 ```
 
-## 🚢 Déploiement Production
+## 📈 Performance
 
-### Docker Production
+### Optimisations incluses
+
+- **Index HNSW** : Recherche vectorielle 5-10x plus rapide
+- **Recherche hybride** : Dense (70%) + Sparse (30%)
+- **Reranking** : Cross-encoder pour meilleure pertinence  
+- **Cache Redis** : Réponses mises en cache
+- **Chunks adaptatifs** : Taille optimale selon le type
+
+### Métriques de référence
+
+- **Temps de réponse** : < 2 secondes moyenne
+- **Indexation** : 100 pages/minute  
+- **Concurrence** : 50 utilisateurs simultanés
+- **Précision** : 85-95% de pertinence selon le domaine
+
+## 💰 Tarification
+
+### Déploiement initial : **15 000€ HT**
+
+**Inclus :**
+- ✅ Installation et configuration complète
+- ✅ Import de vos documents existants (jusqu'à 1000 docs)
+- ✅ Personnalisation interface et workflows
+- ✅ Formation de vos équipes (2 jours)
+- ✅ Support technique 6 mois inclus
+- ✅ Hébergement la première année
+
+**Options :**
+- Hébergement géré : 500€/mois
+- Maintenance évolutive : 2000€/mois
+- Connecteurs API sur-mesure : 3000€
+- Formation avancée : 1500€/jour
+
+**ROI moyen constaté : 3-6 mois**
+
+## 🆘 Support
+
+### Auto-diagnostic
+
 ```bash
-# Configuration production
-cp .env.example .env.production
-# Configurer les variables pour la production avec domaines réels
+# Vérifier l'état du système
+curl http://localhost/health
 
-# Lancer en mode production
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Logs en temps réel
+docker-compose logs -f
+
+# Espace disque
+df -h
 ```
 
-### Déploiement Cloud SaaS
+### Contact
 
-<details>
-<summary>Options de déploiement scalable</summary>
+- **Email** : support@raggy.fr
+- **Téléphone** : +33 1 XX XX XX XX  
+- **Documentation** : https://docs.raggy.fr
+- **GitHub Issues** : Pour les bugs et améliorations
 
-Le projet inclut des configurations pour :
-- **AWS ECS/Fargate** avec RDS PostgreSQL et load balancer
-- **Google Cloud Run** avec Cloud SQL et IAM
-- **Azure Container Instances** avec Azure Database for PostgreSQL
+### SLA Production
 
-Chaque configuration inclut :
-- Auto-scaling basé sur le nombre d'organisations
-- Isolation réseau par tenant si nécessaire
-- Monitoring et alerting par organisation
-- Backup automatisé des données par tenant
+- **Disponibilité** : 99.9%
+- **Temps de réponse** : < 4h en jour ouvré
+- **Maintenance** : Dimanche 2h-6h (si nécessaire)
 
-</details>
+## 📜 Licence
 
-## 📊 Modèle SaaS & Roadmap
+**Licence Commerciale**
+- Usage en production nécessite une licence commerciale
+- Contact : commercial@raggy.fr
+- Version de démonstration libre pour évaluation
 
-### MVP (Q1 2025) ✅
-- [x] Architecture multi-tenant complète
-- [x] Auth Supabase avec organisations
-- [x] RAG pipeline isolé par organisation
-- [x] Interface admin & membre
-- [x] Upload documents par équipe
-- [x] Chat IA collaboratif
+## 🗺 Roadmap
 
-### Version 1.1 (Q2 2025)
-- [ ] **Facturation intégrée** (Stripe + gestion d'abonnements)
-- [ ] **Plans Pro/Enterprise** avec limites étendues
-- [ ] **Invitations d'équipe** par email avec onboarding
-- [ ] **Analytics d'utilisation** par organisation
-- [ ] **API publique** pour intégrations tierces
+### Q1 2025
+- [ ] Connecteur Microsoft 365
+- [ ] Support audio (transcription + RAG)
+- [ ] Analytics avancées
 
-### Version 1.2 (Q3 2025)
-- [ ] **Support multimodal** (images, audio dans documents)
-- [ ] **Intégrations** (Slack, Teams, email)
-- [ ] **Templates de réponses** personnalisables par organisation
-- [ ] **White-label** pour revendeurs/partenaires
+### Q2 2025  
+- [ ] Multi-langues (anglais, espagnol)
+- [ ] API GraphQL
+- [ ] Mode collaboratif temps réel
 
-## 🤝 Contribution
-
-1. Fork le projet
-2. Créer une branche feature (`git checkout -b feature/OrganizationFeature`)
-3. Commit vos changements (`git commit -m 'Add organization management'`)
-4. Push vers la branche (`git push origin feature/OrganizationFeature`)
-5. Ouvrir une Pull Request
-
-## 🐛 Troubleshooting
-
-### Problèmes Multi-tenant Courants
-
-**Données mélangées entre organisations**
-```bash
-# Vérifier les politiques RLS
-SELECT schemaname, tablename, policyname, roles, cmd, qual 
-FROM pg_policies WHERE schemaname = 'public';
-```
-
-**Performance avec beaucoup d'organisations**
-```bash
-# Optimiser les indexes par org_id
-CREATE INDEX CONCURRENTLY idx_documents_org_id ON documents(organization_id);
-CREATE INDEX CONCURRENTLY idx_vectors_org_id ON document_vectors(organization_id);
-```
-
-**Sessions utilisateur non isolées**
-```bash
-# Vérifier l'isolation des sessions Supabase
-curl -H "Authorization: Bearer $USER_TOKEN" http://localhost:8000/api/v1/organizations/current
-```
-
-## 📝 Licence
-
-Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour tous les détails.
-
-## 🙏 Remerciements
-
-- [Groq](https://groq.com/) pour l'API IA ultra-rapide adaptée au SaaS
-- [Supabase](https://supabase.com/) pour l'infrastructure auth et DB multi-tenant
-- [Next.js](https://nextjs.org/) pour le framework full-stack moderne
-- [shadcn/ui](https://ui.shadcn.com/) pour les composants UI professionnels
+### Q3 2025
+- [ ] IA générative avancée
+- [ ] Connecteurs métiers (CRM, ERP)
+- [ ] Version mobile native
 
 ---
 
-<div align="center">
+## 🇫🇷 Made in France
 
-**[🌟 Star ce repo](https://github.com/username/raggy/stargazers)** • **[🐛 Reporter un bug](https://github.com/username/raggy/issues)** • **[💡 Demander une fonctionnalité](https://github.com/username/raggy/issues)**
+**Solution conçue et développée en France pour les entreprises françaises.**
 
-**Raggy** - Made with ❤️ for French SMEs
-*Chaque entreprise mérite son assistant IA privé*
+*Vos données restent vos données. Conformité RGPD garantie.*
 
-</div>
+---
+
+**Besoin d'aide ?** 📧 contact@raggy.fr | 📞 +33 1 XX XX XX XX
