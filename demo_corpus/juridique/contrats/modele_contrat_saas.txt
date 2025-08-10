@@ -1,0 +1,260 @@
+CONTRAT DE LICENCE SaaS
+=======================
+
+MODÈLE TYPE POUR SOLUTIONS SOFTWARE AS A SERVICE
+
+Entre les soussignés :
+
+La société [FOURNISSEUR], société par actions simplifiée au capital de [CAPITAL] euros, immatriculée au RCS de [VILLE] sous le numéro [SIRET], dont le siège social est situé [ADRESSE], représentée par [REPRÉSENTANT], en qualité de [QUALITÉ],
+
+Ci-après dénommée « le Fournisseur »,
+
+D'une part,
+
+Et
+
+La société [CLIENT], [FORME JURIDIQUE] au capital de [CAPITAL] euros, immatriculée au RCS de [VILLE] sous le numéro [SIRET], dont le siège social est situé [ADRESSE], représentée par [REPRÉSENTANT], en qualité de [QUALITÉ],
+
+Ci-après dénommée « le Client »,
+
+D'autre part,
+
+IL A ÉTÉ CONVENU CE QUI SUIT :
+
+===============================================
+
+ARTICLE 1 - OBJET DU CONTRAT
+
+Le présent contrat a pour objet de définir les conditions dans lesquelles le Fournisseur met à disposition du Client l'accès à la plateforme SaaS [NOM PLATEFORME] (ci-après « la Plateforme ») et les services associés.
+
+La Plateforme permet au Client de :
+• Accéder à des fonctionnalités de [DESCRIPTION FONCTIONNALITÉS]
+• Stocker et traiter ses données de manière sécurisée
+• Bénéficier des mises à jour et évolutions de la solution
+• Accéder au support technique et à la maintenance
+
+===============================================
+
+ARTICLE 2 - DÉFINITIONS
+
+Pour les besoins du présent contrat, les termes suivants ont la signification qui leur est donnée ci-après :
+
+• « Données Client » : ensemble des données, informations et contenus fournis par le Client ou générés par son utilisation de la Plateforme
+
+• « Documentation » : guides utilisateur, manuels techniques et toute documentation mise à disposition par le Fournisseur
+
+• « Incident » : dysfonctionnement de la Plateforme empêchant ou limitant son utilisation normale
+
+• « Maintenance » : ensemble des opérations visant à maintenir la Plateforme en état de fonctionnement optimal
+
+• « Plateforme » : solution logicielle SaaS accessible via internet comprenant l'interface utilisateur, les bases de données et l'infrastructure technique
+
+• « Utilisateur Autorisé » : personne habilitée par le Client à accéder à la Plateforme
+
+===============================================
+
+ARTICLE 3 - DURÉE
+
+Le présent contrat est conclu pour une durée de [DURÉE] à compter de sa signature.
+
+Il se renouvelle automatiquement par tacite reconduction pour des périodes successives d'une année, sauf dénonciation par l'une des parties moyennant un préavis de trois (3) mois avant l'échéance, adressé par lettre recommandée avec accusé de réception.
+
+===============================================
+
+ARTICLE 4 - CONDITIONS D'ACCÈS ET D'UTILISATION
+
+4.1 MISE À DISPOSITION
+Le Fournisseur s'engage à mettre la Plateforme à disposition du Client 24h/24 et 7j/7, sous réserve des opérations de maintenance programmées.
+
+4.2 MODALITÉS D'ACCÈS
+L'accès à la Plateforme s'effectue via internet à l'adresse [URL PLATEFORME] au moyen d'identifiants personnels et confidentiels.
+
+Le Client s'engage à :
+• Maintenir la confidentialité des identifiants de connexion
+• Informer immédiatement le Fournisseur de toute utilisation non autorisée
+• N'autoriser l'accès qu'aux Utilisateurs Autorisés
+• Respecter les limites d'utilisation définies dans l'offre souscrite
+
+4.3 RESTRICTIONS D'USAGE
+Il est formellement interdit au Client de :
+• Copier, reproduire ou distribuer la Plateforme
+• Procéder à de l'ingénierie inverse
+• Utiliser la Plateforme à des fins illégales ou contraires aux bonnes mœurs
+• Dépasser les quotas d'utilisation définis
+• Nuire au fonctionnement de la Plateforme
+
+===============================================
+
+ARTICLE 5 - OBLIGATIONS DU FOURNISSEUR
+
+5.1 FOURNITURE DU SERVICE
+Le Fournisseur s'engage à :
+• Fournir l'accès à la Plateforme conformément aux spécifications techniques
+• Assurer la maintenance corrective et évolutive
+• Garantir la sauvegarde des Données Client
+• Fournir le support technique aux heures ouvrables
+
+5.2 NIVEAU DE SERVICE (SLA)
+Le Fournisseur garantit un taux de disponibilité de la Plateforme de [POURCENTAGE]% sur une base mensuelle, hors maintenance programmée.
+
+En cas de non-respect de ce niveau de service, le Client pourra bénéficier d'un avoir calculé comme suit :
+• Disponibilité < 99,5% : avoir de 5% de l'abonnement mensuel
+• Disponibilité < 99% : avoir de 10% de l'abonnement mensuel
+• Disponibilité < 98% : avoir de 20% de l'abonnement mensuel
+
+5.3 SÉCURITÉ ET CONFIDENTIALITÉ
+Le Fournisseur met en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour :
+• Protéger les Données Client contre tout accès non autorisé
+• Assurer l'intégrité et la confidentialité des données
+• Respecter la réglementation applicable en matière de protection des données
+
+===============================================
+
+ARTICLE 6 - OBLIGATIONS DU CLIENT
+
+Le Client s'engage à :
+• Utiliser la Plateforme conformément à sa destination et aux présentes conditions
+• Respecter les droits de propriété intellectuelle du Fournisseur
+• S'assurer de la licéité des Données Client qu'il traite via la Plateforme
+• Maintenir ses systèmes informatiques à jour et sécurisés
+• Collaborer avec le Fournisseur pour la résolution d'incidents
+• Payer les sommes dues dans les délais convenus
+
+===============================================
+
+ARTICLE 7 - PROTECTION DES DONNÉES PERSONNELLES
+
+7.1 RÔLES ET RESPONSABILITÉS
+Dans le cadre du présent contrat :
+• Le Client agit en qualité de responsable de traitement des données personnelles qu'il traite via la Plateforme
+• Le Fournisseur agit en qualité de sous-traitant pour le traitement de ces données
+
+7.2 OBLIGATIONS DU SOUS-TRAITANT
+Le Fournisseur s'engage à :
+• Traiter les données personnelles uniquement sur instruction du Client
+• Garantir la confidentialité des données
+• Mettre en œuvre des mesures de sécurité appropriées
+• Assister le Client dans l'exercice des droits des personnes concernées
+• Notifier sans délai toute violation de données personnelles
+
+7.3 TRANSFERTS INTERNATIONAUX
+Les données sont hébergées dans l'Union Européenne. Tout transfert hors UE nécessite l'accord préalable du Client et la mise en place de garanties appropriées.
+
+===============================================
+
+ARTICLE 8 - CONDITIONS FINANCIÈRES
+
+8.1 TARIFICATION
+Le Client s'acquitte d'un abonnement [MENSUEL/ANNUEL] d'un montant de [MONTANT] euros HT pour l'offre [NOM OFFRE].
+
+Cette tarification inclut :
+• L'accès à la Plateforme
+• La maintenance et les mises à jour
+• Le support technique standard
+• L'hébergement et la sauvegarde
+
+8.2 MODALITÉS DE PAIEMENT
+Les factures sont émises [FRÉQUENCE] et payables dans un délai de trente (30) jours à compter de leur date d'émission.
+
+Tout retard de paiement entraîne de plein droit :
+• L'application d'intérêts de retard au taux légal majoré de 10 points
+• L'exigibilité d'une indemnité forfaitaire de 40 euros pour frais de recouvrement
+
+8.3 RÉVISION TARIFAIRE
+Les tarifs peuvent être révisés annuellement par le Fournisseur moyennant un préavis de trois (3) mois. L'augmentation ne peut excéder l'évolution de l'indice des prix à la consommation.
+
+===============================================
+
+ARTICLE 9 - PROPRIÉTÉ INTELLECTUELLE
+
+9.1 DROITS DU FOURNISSEUR
+La Plateforme, ses composants logiciels, sa documentation et tous éléments qui la composent sont et demeurent la propriété exclusive du Fournisseur.
+
+Le présent contrat ne transfère aucun droit de propriété intellectuelle au Client, qui bénéficie uniquement d'un droit d'utilisation personnel, non exclusif et non transférable.
+
+9.2 DONNÉES CLIENT
+Le Client conserve tous les droits sur ses Données Client. Il garantit au Fournisseur qu'il dispose des droits nécessaires sur ces données et qu'elles ne portent pas atteinte aux droits de tiers.
+
+===============================================
+
+ARTICLE 10 - RESPONSABILITÉ ET GARANTIES
+
+10.1 GARANTIES
+Le Fournisseur garantit que la Plateforme sera fournie en conformité avec la Documentation et les spécifications convenues.
+
+Cette garantie ne couvre pas les dysfonctionnements résultant :
+• D'une utilisation non conforme de la Plateforme
+• De modifications apportées par le Client
+• D'un cas de force majeure
+• D'une défaillance du réseau internet
+
+10.2 LIMITATION DE RESPONSABILITÉ
+La responsabilité du Fournisseur est limitée aux dommages directs et prévisibles.
+
+En aucun cas, la responsabilité du Fournisseur ne pourra excéder le montant des sommes versées par le Client au titre des douze (12) derniers mois.
+
+Le Fournisseur ne saurait être tenu responsable des dommages indirects tels que perte de chiffre d'affaires, perte de clientèle, perte de chance ou préjudice commercial.
+
+===============================================
+
+ARTICLE 11 - FORCE MAJEURE
+
+Aucune des parties ne sera tenue responsable de l'inexécution de ses obligations si cette inexécution est due à un cas de force majeure tel que défini par la jurisprudence française.
+
+La partie empêchée devra notifier immédiatement l'autre partie et mettre en œuvre tous les moyens raisonnables pour remédier à la situation.
+
+Si l'empêchement persiste au-delà de deux (2) mois, le contrat pourra être résilié de plein droit par la partie non empêchée.
+
+===============================================
+
+ARTICLE 12 - RÉSILIATION
+
+12.1 RÉSILIATION POUR CONVENANCE
+Chaque partie peut résilier le contrat moyennant un préavis de trois (3) mois adressé par lettre recommandée avec accusé de réception.
+
+12.2 RÉSILIATION POUR MANQUEMENT
+En cas de manquement grave par l'une des parties à ses obligations contractuelles, l'autre partie pourra résilier le contrat de plein droit quinze (15) jours après une mise en demeure restée sans effet.
+
+12.3 CONSÉQUENCES DE LA RÉSILIATION
+À l'expiration du contrat :
+• L'accès à la Plateforme est immédiatement suspendu
+• Le Client dispose de trente (30) jours pour récupérer ses données
+• Passé ce délai, les données pourront être définitivement supprimées
+
+===============================================
+
+ARTICLE 13 - DISPOSITIONS GÉNÉRALES
+
+13.1 INTÉGRALITÉ
+Le présent contrat constitue l'intégralité de l'accord entre les parties et annule et remplace tous accords antérieurs.
+
+13.2 MODIFICATION
+Toute modification du contrat doit faire l'objet d'un avenant signé par les parties.
+
+13.3 NULLITÉ
+Si une clause du contrat était déclarée nulle, les autres clauses conserveraient leur pleine validité.
+
+13.4 CESSION
+Le présent contrat ne peut être cédé par le Client sans l'accord préalable écrit du Fournisseur.
+
+13.5 LOI APPLICABLE ET JURIDICTION
+Le présent contrat est soumis au droit français.
+
+En cas de litige, et après recherche d'une solution amiable, les tribunaux de [VILLE] seront seuls compétents.
+
+===============================================
+
+Fait à [VILLE], le [DATE], en deux exemplaires originaux.
+
+Pour le Fournisseur :                    Pour le Client :
+[NOM et QUALITÉ]                         [NOM et QUALITÉ]
+Signature :                              Signature :
+
+===============================================
+
+ANNEXES
+
+Annexe 1 : Spécifications techniques de la Plateforme
+Annexe 2 : Conditions particulières d'utilisation
+Annexe 3 : Procédures de support et de maintenance
+Annexe 4 : Politique de confidentialité et protection des données

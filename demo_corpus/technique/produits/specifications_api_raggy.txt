@@ -1,0 +1,711 @@
+SPÉCIFICATIONS TECHNIQUES API RAGGY
+====================================
+
+Documentation technique complète - Version 2.0.1
+Système RAG (Retrieval-Augmented Generation) SaaS
+
+TABLE DES MATIÈRES
+==================
+
+1. ARCHITECTURE GÉNÉRALE
+2. AUTHENTIFICATION ET SÉCURITÉ
+3. ENDPOINTS API
+4. MODÈLES DE DONNÉES
+5. GESTION DES DOCUMENTS
+6. SYSTÈME RAG
+7. WEBHOOKS ET ÉVÉNEMENTS
+8. LIMITES ET QUOTAS
+9. CODES D'ERREUR
+10. EXEMPLES D'INTÉGRATION
+
+===============================================
+
+1. ARCHITECTURE GÉNÉRALE
+
+1.1 STACK TECHNIQUE
+• Backend : FastAPI (Python 3.11+)
+• Base de données : PostgreSQL 15 + pgvector
+• Cache : Redis 7.0
+• Queue : Redis + RQ
+• ML/AI : LangChain + Groq API
+• Monitoring : Sentry + Prometheus
+
+1.2 INFRASTRUCTURE
+• Hébergement : Cloud OVH (France)
+• CDN : CloudFlare
+• Backup : Quotidien + géo-réplication
+• Conformité : RGPD, HDS, ISO 27001
+
+1.3 PERFORMANCE
+• Latence API : < 100ms (P95)
+• Réponse RAG : < 3 secondes
+• Disponibilité : 99.9% SLA
+• Scalabilité : Auto-scaling horizontal
+
+===============================================
+
+2. AUTHENTIFICATION ET SÉCURITÉ
+
+2.1 AUTHENTIFICATION JWT
+Base URL : https://api.raggy.fr/v1
+
+Headers requis :
+```
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+User-Agent: YourApp/1.0
+```
+
+2.2 OBTENTION DU TOKEN
+```http
+POST /auth/token
+Content-Type: application/json
+
+{
+  "email": "user@company.com",
+  "password": "password123",
+  "organization_id": "org_12345"
+}
+```
+
+Réponse :
+```json
+{
+  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "token_type": "bearer",
+  "expires_in": 3600,
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "organization_id": "org_12345",
+  "user_id": "user_67890",
+  "permissions": ["read", "write", "admin"]
+}
+```
+
+2.3 RAFRAÎCHISSEMENT TOKEN
+```http
+POST /auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+}
+```
+
+2.4 CLÉS API (Alternative)
+Pour les intégrations serveur-à-serveur :
+```http
+GET /documents
+Authorization: Bearer sk_live_abcd1234...
+```
+
+===============================================
+
+3. ENDPOINTS API
+
+3.1 GESTION DES DOCUMENTS
+
+UPLOAD DE DOCUMENT
+```http
+POST /documents/upload
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+
+Form Data:
+- file: <binary_file>
+- category: "legal" (optionnel)
+- tags: ["contract", "2024"] (optionnel)
+- metadata: {"client": "Acme Corp"} (optionnel)
+```
+
+Réponse :
+```json
+{
+  "document_id": "doc_abc123",
+  "filename": "contract_acme.pdf",
+  "status": "processing",
+  "size_bytes": 1048576,
+  "content_type": "application/pdf",
+  "upload_date": "2024-01-15T10:30:00Z",
+  "processing_eta": "2024-01-15T10:32:00Z"
+}
+```
+
+STATUT DE TRAITEMENT
+```http
+GET /documents/{document_id}/status
+Authorization: Bearer <token>
+```
+
+Réponse :
+```json
+{
+  "document_id": "doc_abc123",
+  "status": "completed",
+  "progress": 100,
+  "chunks_count": 45,
+  "processing_time": 87.3,
+  "error_message": null
+}
+```
+
+LISTE DES DOCUMENTS
+```http
+GET /documents?page=1&limit=20&category=legal&status=completed
+Authorization: Bearer <token>
+```
+
+Réponse :
+```json
+{
+  "documents": [
+    {
+      "document_id": "doc_abc123",
+      "filename": "contract_acme.pdf",
+      "category": "legal",
+      "tags": ["contract", "2024"],
+      "status": "completed",
+      "upload_date": "2024-01-15T10:30:00Z",
+      "size_bytes": 1048576,
+      "chunks_count": 45
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 156,
+    "pages": 8,
+    "has_next": true,
+    "has_prev": false
+  }
+}
+```
+
+SUPPRESSION DE DOCUMENT
+```http
+DELETE /documents/{document_id}
+Authorization: Bearer <token>
+```
+
+3.2 CHAT ET RAG
+
+REQUÊTE CHAT SIMPLE
+```http
+POST /chat
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "question": "Quelles sont les clauses de résiliation dans le contrat Acme ?",
+  "conversation_id": "conv_xyz789",
+  "filters": {
+    "categories": ["legal"],
+    "tags": ["contract"],
+    "date_range": {
+      "start": "2024-01-01",
+      "end": "2024-12-31"
+    }
+  },
+  "options": {
+    "max_sources": 5,
+    "temperature": 0.1,
+    "include_metadata": true
+  }
+}
+```
+
+Réponse :
+```json
+{
+  "answer": "D'après le contrat Acme Corp signé en janvier 2024, les clauses de résiliation sont les suivantes:\n\n1. **Résiliation pour convenance** : Chaque partie peut résilier le contrat moyennant un préavis de 3 mois...",
+  "sources": [
+    {
+      "document_id": "doc_abc123",
+      "filename": "contract_acme.pdf",
+      "chunk_id": "chunk_456",
+      "page": 12,
+      "content": "Article 15 - Résiliation\n15.1 Résiliation pour convenance...",
+      "relevance_score": 0.95,
+      "metadata": {
+        "section": "Conditions générales",
+        "article": "15"
+      }
+    }
+  ],
+  "conversation_id": "conv_xyz789",
+  "response_time": 2.34,
+  "usage": {
+    "tokens_input": 245,
+    "tokens_output": 412,
+    "cost_euros": 0.0023
+  }
+}
+```
+
+STREAMING CHAT
+```http
+POST /chat/stream
+Authorization: Bearer <token>
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "question": "Résumez les points clés du contrat",
+  "conversation_id": "conv_xyz789"
+}
+```
+
+Réponse (Server-Sent Events) :
+```
+data: {"type": "start", "conversation_id": "conv_xyz789"}
+
+data: {"type": "token", "content": "Les"}
+
+data: {"type": "token", "content": " points"}
+
+data: {"type": "token", "content": " clés"}
+
+data: {"type": "sources", "sources": [...]}
+
+data: {"type": "complete", "response_time": 2.1}
+```
+
+3.3 RECHERCHE VECTORIELLE
+
+RECHERCHE SÉMANTIQUE
+```http
+POST /search
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "query": "obligations de confidentialité",
+  "limit": 10,
+  "filters": {
+    "document_ids": ["doc_abc123", "doc_def456"],
+    "categories": ["legal", "hr"]
+  },
+  "options": {
+    "include_content": true,
+    "min_score": 0.7
+  }
+}
+```
+
+Réponse :
+```json
+{
+  "results": [
+    {
+      "chunk_id": "chunk_789",
+      "document_id": "doc_abc123",
+      "filename": "contract_acme.pdf",
+      "content": "Article 12 - Confidentialité\nLes parties s'engagent à maintenir...",
+      "score": 0.94,
+      "page": 8,
+      "metadata": {
+        "section": "Obligations légales",
+        "keywords": ["confidentialité", "secret", "disclosure"]
+      }
+    }
+  ],
+  "total_results": 23,
+  "search_time": 0.089
+}
+```
+
+===============================================
+
+4. MODÈLES DE DONNÉES
+
+4.1 DOCUMENT
+```json
+{
+  "document_id": "string",
+  "filename": "string",
+  "content_type": "string",
+  "size_bytes": "integer",
+  "category": "string",
+  "tags": ["string"],
+  "status": "enum[uploading, processing, completed, failed]",
+  "upload_date": "datetime",
+  "processed_date": "datetime",
+  "chunks_count": "integer",
+  "organization_id": "string",
+  "uploaded_by": "string",
+  "metadata": "object",
+  "content_hash": "string",
+  "error_message": "string"
+}
+```
+
+4.2 CHUNK DE DOCUMENT
+```json
+{
+  "chunk_id": "string",
+  "document_id": "string",
+  "content": "string",
+  "page": "integer",
+  "position": "integer",
+  "embedding": "vector",
+  "metadata": {
+    "section": "string",
+    "title": "string",
+    "keywords": ["string"],
+    "entities": ["string"]
+  },
+  "created_at": "datetime"
+}
+```
+
+4.3 CONVERSATION
+```json
+{
+  "conversation_id": "string",
+  "user_id": "string",
+  "organization_id": "string",
+  "title": "string",
+  "created_at": "datetime",
+  "updated_at": "datetime",
+  "message_count": "integer",
+  "metadata": "object"
+}
+```
+
+4.4 MESSAGE
+```json
+{
+  "message_id": "string",
+  "conversation_id": "string",
+  "type": "enum[user, assistant]",
+  "content": "string",
+  "sources": ["object"],
+  "timestamp": "datetime",
+  "tokens_used": "integer",
+  "response_time": "float",
+  "feedback": {
+    "rating": "integer",
+    "comment": "string"
+  }
+}
+```
+
+===============================================
+
+5. GESTION DES DOCUMENTS
+
+5.1 FORMATS SUPPORTÉS
+□ PDF (Adobe PDF 1.4+)
+□ Microsoft Word (.docx, .doc)
+□ Microsoft Excel (.xlsx, .xls)
+□ Texte brut (.txt, .md)
+□ CSV (.csv)
+□ PowerPoint (.pptx, .ppt)
+
+5.2 LIMITES DE TAILLE
+• Fichier unique : 50 MB max
+• Total par organisation : selon plan
+• Starter : 1 GB
+• Pro : 10 GB
+• Enterprise : 100 GB+
+
+5.3 TRAITEMENT ASYNCHRONE
+1. Upload → Status "uploading"
+2. Extraction texte → Status "processing"
+3. Chunking et vectorisation → Status "processing"
+4. Indexation → Status "completed"
+
+Temps de traitement estimé :
+- PDF 10 pages : ~30 secondes
+- Word 50 pages : ~2 minutes
+- Excel complexe : ~5 minutes
+
+5.4 EXTRACTION DE MÉTADONNÉES
+Automatique :
+□ Titre du document
+□ Auteur et créateur
+□ Dates de création/modification
+□ Nombre de pages
+□ Langue détectée
+□ Entités nommées (personnes, lieux, organisations)
+
+===============================================
+
+6. SYSTÈME RAG
+
+6.1 PIPELINE RAG
+1. **Preprocessing** : Nettoyage et normalisation
+2. **Chunking** : Découpage adaptatif (400-800 tokens)
+3. **Embedding** : Modèle multilingue e5-large
+4. **Indexation** : HNSW dans pgvector
+5. **Recherche** : Hybride dense + BM25
+6. **Reranking** : Cross-encoder pour pertinence
+7. **Génération** : Groq DeepSeek-R1-Distill-70B
+
+6.2 PARAMÈTRES CONFIGURABLES
+```json
+{
+  "chunking": {
+    "chunk_size": 600,
+    "chunk_overlap": 100,
+    "adaptive": true
+  },
+  "retrieval": {
+    "top_k": 10,
+    "score_threshold": 0.7,
+    "hybrid_weight": 0.7
+  },
+  "generation": {
+    "temperature": 0.1,
+    "max_tokens": 2000,
+    "stream": true
+  }
+}
+```
+
+6.3 LANGUES SUPPORTÉES
+□ Français (natif)
+□ Anglais
+□ Espagnol
+□ Italien
+□ Allemand
+□ Portugais
+
+6.4 MÉTRIQUES DE QUALITÉ
+• Précision retrieval : 85-95%
+• Temps de réponse : < 3s (P95)
+• Satisfaction utilisateur : 4.2/5
+• Hallucination rate : < 5%
+
+===============================================
+
+7. WEBHOOKS ET ÉVÉNEMENTS
+
+7.1 CONFIGURATION WEBHOOK
+```http
+POST /webhooks
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "url": "https://yourapp.com/webhook",
+  "events": ["document.processed", "chat.completed"],
+  "secret": "your_webhook_secret",
+  "active": true
+}
+```
+
+7.2 ÉVÉNEMENTS DISPONIBLES
+• `document.uploaded` : Document uploadé
+• `document.processing` : Traitement en cours
+• `document.processed` : Traitement terminé
+• `document.failed` : Échec de traitement
+• `chat.completed` : Réponse chat générée
+• `search.performed` : Recherche effectuée
+
+7.3 FORMAT DES WEBHOOKS
+```json
+{
+  "event": "document.processed",
+  "timestamp": "2024-01-15T10:35:00Z",
+  "organization_id": "org_12345",
+  "data": {
+    "document_id": "doc_abc123",
+    "filename": "contract.pdf",
+    "status": "completed",
+    "chunks_count": 45,
+    "processing_time": 87.3
+  },
+  "signature": "sha256=abc123def456..."
+}
+```
+
+===============================================
+
+8. LIMITES ET QUOTAS
+
+8.1 LIMITES PAR PLAN
+
+STARTER (1 200€/an)
+• 1 000 documents max
+• 10 requêtes chat/jour
+• 1 GB stockage
+• 1 utilisateur
+
+PRO (2 000€/an)
+• 10 000 documents max
+• 500 requêtes chat/jour
+• 10 GB stockage
+• 10 utilisateurs
+• API access
+
+ENTERPRISE (3 500€+/an)
+• Documents illimités
+• Requêtes illimitées
+• 100 GB+ stockage
+• Utilisateurs illimités
+• SLA 99.9%
+• Support prioritaire
+
+8.2 RATE LIMITING
+• API générale : 100 req/min
+• Upload : 10 req/min
+• Chat : 20 req/min
+• Recherche : 50 req/min
+
+Headers de réponse :
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 87
+X-RateLimit-Reset: 1642248600
+```
+
+===============================================
+
+9. CODES D'ERREUR
+
+9.1 CODES HTTP STANDARD
+• 200 : Succès
+• 201 : Créé
+• 400 : Requête invalide
+• 401 : Non authentifié
+• 403 : Non autorisé
+• 404 : Non trouvé
+• 429 : Trop de requêtes
+• 500 : Erreur serveur
+
+9.2 ERREURS SPÉCIFIQUES
+```json
+{
+  "error": {
+    "code": "DOCUMENT_TOO_LARGE",
+    "message": "Le fichier dépasse la taille limite de 50MB",
+    "details": {
+      "max_size": 52428800,
+      "file_size": 62914560
+    },
+    "request_id": "req_12345"
+  }
+}
+```
+
+Codes d'erreur métier :
+• `INVALID_FILE_FORMAT` : Format non supporté
+• `PROCESSING_FAILED` : Échec d'extraction
+• `QUOTA_EXCEEDED` : Quota dépassé
+• `ORGANIZATION_SUSPENDED` : Compte suspendu
+
+===============================================
+
+10. EXEMPLES D'INTÉGRATION
+
+10.1 PYTHON SDK
+```python
+import raggy
+
+client = raggy.Client(api_key="sk_live_...")
+
+# Upload document
+document = client.documents.upload(
+    file_path="contract.pdf",
+    category="legal",
+    tags=["contract", "2024"]
+)
+
+# Wait for processing
+document.wait_for_completion()
+
+# Ask question
+response = client.chat.ask(
+    question="Quelles sont les clauses de résiliation ?",
+    filters={"categories": ["legal"]}
+)
+
+print(response.answer)
+for source in response.sources:
+    print(f"Source: {source.filename}, page {source.page}")
+```
+
+10.2 JAVASCRIPT SDK
+```javascript
+import { RaggyClient } from '@raggy/sdk';
+
+const client = new RaggyClient({ apiKey: 'sk_live_...' });
+
+// Upload and process document
+const document = await client.documents.upload({
+  file: fileInput.files[0],
+  category: 'legal',
+  tags: ['contract', '2024']
+});
+
+// Stream chat response
+const stream = client.chat.stream({
+  question: "Résumez les points clés",
+  conversationId: "conv_xyz"
+});
+
+for await (const chunk of stream) {
+  if (chunk.type === 'token') {
+    process.stdout.write(chunk.content);
+  }
+}
+```
+
+10.3 CURL EXAMPLES
+```bash
+# Upload document
+curl -X POST "https://api.raggy.fr/v1/documents/upload" \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@contract.pdf" \
+  -F "category=legal"
+
+# Ask question
+curl -X POST "https://api.raggy.fr/v1/chat" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "Quelles sont les obligations ?",
+    "filters": {"categories": ["legal"]}
+  }'
+```
+
+===============================================
+
+SUPPORT ET RESSOURCES
+======================
+
+Documentation complète : https://docs.raggy.fr
+Status page : https://status.raggy.fr
+Support technique : support@raggy.fr
+Communauté : https://community.raggy.fr
+
+SDKs officiels :
+• Python : pip install raggy
+• JavaScript/Node.js : npm install @raggy/sdk
+• PHP : composer require raggy/sdk
+
+Postman Collection : https://docs.raggy.fr/postman
+
+===============================================
+
+CHANGELOG
+=========
+
+Version 2.0.1 (Janvier 2024)
+• Amélioration des performances RAG
+• Support des webhooks
+• Nouveau système de quotas
+• Optimisation de l'extraction PDF
+
+Version 2.0.0 (Décembre 2023)
+• API v2 avec breaking changes
+• Multi-tenant architecture
+• Recherche hybride
+• Streaming responses
+
+===============================================
+
+Cette documentation est maintenue et mise à jour régulièrement.
+Pour la version la plus récente : https://docs.raggy.fr/api
+
+Dernière mise à jour : 15 janvier 2024

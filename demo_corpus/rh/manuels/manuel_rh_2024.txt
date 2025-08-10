@@ -1,0 +1,474 @@
+MANUEL DES RESSOURCES HUMAINES 2024
+====================================
+
+ENTREPRISE INNOVANTE SAS
+Guide complet des procédures RH - Version 2024.1
+
+TABLE DES MATIÈRES
+==================
+
+PARTIE I   - RECRUTEMENT ET INTÉGRATION
+PARTIE II  - GESTION DES TEMPS ET CONGÉS  
+PARTIE III - FORMATION ET DÉVELOPPEMENT
+PARTIE IV  - ÉVALUATION ET CARRIÈRE
+PARTIE V   - RÉMUNÉRATION ET AVANTAGES
+PARTIE VI  - RELATIONS SOCIALES
+PARTIE VII - DÉPART DE L'ENTREPRISE
+PARTIE VIII- TÉLÉTRAVAIL ET FLEXIBILITÉ
+
+===============================================
+
+PARTIE I - RECRUTEMENT ET INTÉGRATION
+
+CHAPITRE 1 : PROCESSUS DE RECRUTEMENT
+
+1.1 EXPRESSION DU BESOIN
+Le manager identifie un besoin de recrutement et complète le formulaire "Expression de besoin RH" comprenant :
+• Définition du poste et missions principales
+• Compétences techniques et comportementales requises  
+• Niveau d'expérience souhaité
+• Rémunération envisagée
+• Urgence du recrutement
+• Budget formation prévu
+
+Validation requise :
+- Manager N+1 pour validation du besoin
+- Direction RH pour validation du processus
+- Direction générale si création de poste
+
+1.2 RÉDACTION DE L'OFFRE D'EMPLOI
+L'offre doit contenir :
+□ Intitulé du poste précis
+□ Description de l'entreprise
+□ Missions principales (5 maximum)
+□ Profil recherché (formation, expérience, compétences)
+□ Avantages proposés
+□ Lieu de travail et modalités (télétravail possible)
+□ Type de contrat et rémunération (fourchette)
+
+1.3 DIFFUSION DE L'OFFRE
+Ordre de priorité :
+1. Mobilité interne (affichage 5 jours minimum)
+2. Site carrière de l'entreprise
+3. Job boards généralistes (Indeed, LinkedIn)
+4. Job boards spécialisés selon le profil
+5. Réseaux sociaux de l'entreprise
+6. Cabinet de recrutement si profil rare
+
+1.4 PRÉSÉLECTION DES CANDIDATURES
+Critères d'évaluation :
+• Adéquation formation/expérience (40%)
+• Compétences techniques (30%)
+• Cohérence du parcours (20%)
+• Motivation apparente (10%)
+
+Délai de traitement : 5 jours ouvrés maximum
+Accusé de réception automatique à tous les candidats
+
+1.5 ENTRETIENS DE RECRUTEMENT
+
+ENTRETIEN TÉLÉPHONIQUE (30 minutes)
+Objectifs :
+- Vérifier la motivation du candidat
+- Confirmer les éléments du CV
+- Présenter l'entreprise et le poste
+- Évaluer l'expression orale
+
+Grille d'évaluation :
+□ Motivation pour le poste (25%)
+□ Cohérence des réponses (25%)
+□ Qualité de l'expression (25%)
+□ Questions posées par le candidat (25%)
+
+ENTRETIEN PHYSIQUE OU VISIO (1h à 1h30)
+Participants :
+- Manager du poste (obligatoire)
+- RRH (obligatoire)
+- Collaborateur de l'équipe (optionnel)
+
+Déroulement :
+1. Présentation du candidat (10 min)
+2. Questions techniques et comportementales (45 min)
+3. Présentation détaillée du poste (15 min)
+4. Questions du candidat (15 min)
+5. Présentation des étapes suivantes (5 min)
+
+1.6 TESTS ET ÉVALUATIONS
+Selon le poste :
+• Test technique (développeur, comptable, etc.)
+• Test de personnalité (manager, commercial)
+• Mise en situation (service client, formation)
+• Test de langue étrangère si requis
+
+1.7 DÉCISION ET PROPOSITION
+Délai de décision : 5 jours ouvrés après le dernier entretien
+
+Proposition d'embauche écrite comprenant :
+□ Intitulé du poste
+□ Date de prise de poste souhaitée
+□ Type de contrat (CDI/CDD/stage)
+□ Période d'essai
+□ Rémunération brute annuelle
+□ Avantages (mutuelle, tickets restaurant, etc.)
+□ Délai de réponse (48h à 1 semaine)
+
+===============================================
+
+CHAPITRE 2 : INTÉGRATION
+
+2.1 PRÉPARATION DE L'ARRIVÉE (Semaine N-1)
+□ Commande du matériel informatique
+□ Création des accès (email, outils métier)
+□ Préparation de l'espace de travail
+□ Constitution du kit de bienvenue
+□ Planification du programme d'intégration
+□ Information de l'équipe
+
+Kit de bienvenue :
+- Livret d'accueil entreprise
+- Organigramme actualisé
+- Badges et accès
+- Matériel de bureau personnalisé
+- Goodies entreprise
+
+2.2 JOUR J : ACCUEIL (Premier jour)
+Planning type :
+9h00 - Accueil par le RRH
+9h30 - Remise du kit de bienvenue et tour des locaux
+10h00 - Rencontre avec le manager direct
+10h30 - Installation au poste de travail
+11h00 - Présentation à l'équipe
+14h00 - Formation aux outils informatiques
+15h30 - Présentation des processus métier
+16h30 - Point avec le manager
+17h00 - Bilan de la journée avec RRH
+
+2.3 PREMIÈRE SEMAINE
+Objectifs :
+□ Maîtrise des outils de base
+□ Compréhension de l'organisation
+□ Première mission simple
+□ Intégration dans l'équipe
+
+Rendez-vous obligatoires :
+- Point quotidien avec le manager (15 min)
+- Déjeuner d'équipe organisé
+- Formation sécurité et RGPD
+- Entretien RH de mi-parcours
+
+2.4 PREMIER MOIS
+□ Définition d'objectifs court terme
+□ Attribution d'un parrain/mentor
+□ Formation métier approfondie
+□ Participation aux réunions d'équipe
+□ Premier projet en autonomie
+
+2.5 TROISIÈME MOIS - BILAN D'INTÉGRATION
+Entretien tripartite (salarié/manager/RH) :
+□ Adaptation au poste
+□ Intégration dans l'équipe
+□ Maîtrise des missions
+□ Besoins de formation identifiés
+□ Perspective de confirmation
+
+===============================================
+
+PARTIE II - GESTION DES TEMPS ET CONGÉS
+
+CHAPITRE 3 : TEMPS DE TRAVAIL
+
+3.1 DURÉE LÉGALE
+• 35h par semaine pour les non-cadres
+• Forfait jour pour les cadres autonomes
+• Temps de pause : 20 minutes si +6h de travail
+• Temps de repos : 11h minimum entre 2 journées
+
+3.2 HORAIRES DE TRAVAIL
+Horaires de référence :
+- Lundi au jeudi : 9h00 - 18h00 (pause 12h-13h)
+- Vendredi : 9h00 - 17h00 (pause 12h-13h)
+
+Flexibilité autorisée :
+- Arrivée : 8h00 à 10h00
+- Départ : selon les heures d'arrivée
+- Pause déjeuner : 45 minutes minimum
+
+3.3 HEURES SUPPLÉMENTAIRES (Non-cadres)
+• De la 36e à la 43e heure : majoration 25%
+• À partir de la 44e heure : majoration 50%
+• Contingent annuel : 220 heures
+• Récupération possible en temps libre
+
+Demande préalable obligatoire du manager.
+
+===============================================
+
+CHAPITRE 4 : CONGÉS PAYÉS
+
+4.1 ACQUISITION DES DROITS
+• 2,5 jours ouvrables par mois travaillé
+• Soit 30 jours ouvrables (25 jours ouvrés) par an
+• Période de référence : 1er juin N-1 au 31 mai N
+• Acquisition dès le premier jour d'embauche
+
+4.2 PRISE DES CONGÉS
+Période de congés principaux : 1er mai au 31 octobre
+Congés fractionnés autorisés toute l'année.
+
+Demande de congés :
+□ Via l'outil SIRH (demande dématérialisée)
+□ Minimum 30 jours avant pour congés > 5 jours
+□ Minimum 15 jours avant pour congés ≤ 5 jours
+□ Validation automatique si < 5 jours et pas de contrainte
+□ Validation N+1 si > 5 jours consécutifs
+
+4.3 JOURS DE FRACTIONNEMENT
++2 jours si congés principaux < 12 jours consécutifs entre le 1er mai et 31 octobre.
+
+4.4 REPORT DE CONGÉS
+Report possible jusqu'au 31 mai N+1 dans la limite de 6 jours maximum.
+Au-delà : perte des droits (sauf accord individuel).
+
+===============================================
+
+CHAPITRE 5 : RTT ET TEMPS LIBRE
+
+5.1 RÉDUCTION DU TEMPS DE TRAVAIL
+□ Cadres : 12 jours de RTT par an
+□ Non-cadres : selon accord d'entreprise
+□ Attribution mensuelle : 1 jour par mois
+□ Utilisation libre avec accord du manager
+
+5.2 COMPTE ÉPARGNE TEMPS (CET)
+Possibilité d'alimenter le CET avec :
+- Congés payés excédentaires (> 25 jours)
+- RTT non pris
+- Heures supplémentaires (avec accord)
+- Primes de participation/intéressement
+
+Plafond : 20 jours
+Utilisation : congés, formation, retraite
+
+===============================================
+
+PARTIE III - FORMATION ET DÉVELOPPEMENT
+
+CHAPITRE 6 : PLAN DE FORMATION
+
+6.1 BUDGET FORMATION
+2% de la masse salariale consacrée à la formation.
+
+Répartition :
+• 40% formations obligatoires (sécurité, réglementaire)
+• 35% formations métier et technique  
+• 15% formations management et soft skills
+• 10% formations personnelles (CPF abondé)
+
+6.2 PROCESSUS DE DEMANDE
+1. Expression du besoin par le salarié ou manager
+2. Validation hiérarchique
+3. Recherche de prestataire par la RH
+4. Validation budgétaire
+5. Inscription et planification
+6. Bilan post-formation
+
+6.3 FORMATIONS OBLIGATOIRES
+□ Accueil sécurité (nouveaux entrants)
+□ RGPD et protection des données
+□ Prévention des risques psycho-sociaux
+□ Formations métier réglementaires
+□ Mise à jour annuelle des compétences
+
+===============================================
+
+CHAPITRE 7 : ÉVOLUTION PROFESSIONNELLE
+
+7.1 ENTRETIEN PROFESSIONNEL
+Fréquence : tous les 2 ans minimum
+Objectifs :
+- Bilan du parcours professionnel
+- Évaluation des compétences
+- Identification des besoins de formation
+- Définition du projet professionnel
+
+7.2 PARCOURS D'ÉVOLUTION
+□ Évolution verticale (promotion hiérarchique)
+□ Évolution horizontale (changement de métier)
+□ Évolution transversale (projets transverses)
+□ Mobilité géographique (si plusieurs sites)
+
+7.3 PROMOTION INTERNE
+Critères d'évaluation :
+• Performance dans le poste actuel (40%)
+• Compétences techniques et managériales (30%)
+• Potentiel d'évolution (20%)
+• Adéquation aux valeurs de l'entreprise (10%)
+
+===============================================
+
+PARTIE IV - RÉMUNÉRATION ET AVANTAGES
+
+CHAPITRE 8 : POLITIQUE DE RÉMUNÉRATION
+
+8.1 PRINCIPES GÉNÉRAUX
+□ Équité interne (à poste égal, salaire égal)
+□ Compétitivité externe (benchmark marché)
+□ Reconnaissance de la performance
+□ Transparence des critères
+
+8.2 COMPOSANTES DE LA RÉMUNÉRATION
+• Salaire fixe (70-85% selon le poste)
+• Variable individuel (0-30% selon performance)
+• Avantages en nature (voiture, téléphone)
+• Avantages sociaux (mutuelle, prévoyance)
+
+8.3 RÉVISIONS SALARIALES
+Périodicité : annuelle (janvier)
+Critères :
+□ Évolution du poste et des responsabilités
+□ Atteinte des objectifs individuels
+□ Performance de l'entreprise
+□ Évolution du marché
+
+Budget global d'augmentation : 2 à 4% de la masse salariale.
+
+===============================================
+
+CHAPITRE 9 : AVANTAGES SOCIAUX
+
+9.1 MUTUELLE SANTÉ
+• Prise en charge employeur : 60%
+• Prise en charge salarié : 40%
+• Extension famille possible (100% salarié)
+• Niveau de garanties : haut de gamme
+• Tiers payant chez les professionnels de santé
+
+9.2 PRÉVOYANCE
+• Prise en charge employeur : 100%
+• Garanties : décès, invalidité, incapacité
+• Capital décès : 3 fois le salaire annuel brut
+• Rente conjoint : 60% du salaire
+• Rente orphelin : 20% par enfant
+
+9.3 RETRAITE SUPPLÉMENTAIRE
+• Cotisation employeur : 3% du salaire brut
+• Cotisation salarié : 3% du salaire brut (optionnelle)
+• Versement possible à partir de 60 ans
+• Déblocage anticipé possible (achat résidence principale)
+
+9.4 AUTRES AVANTAGES
+□ Tickets restaurant : 9€ (50% employeur)
+□ Participation transport en commun : 50% abonnement
+□ Chèques cadeaux : 170€/an (Noël + anniversaire)
+□ Arbre de Noël pour les enfants < 16 ans
+□ Réductions CE (voyages, spectacles, sport)
+
+===============================================
+
+PARTIE V - TÉLÉTRAVAIL ET FLEXIBILITÉ
+
+CHAPITRE 10 : TÉLÉTRAVAIL
+
+10.1 PRINCIPES GÉNÉRAUX
+Le télétravail est un droit pour tous les salariés ayant 6 mois d'ancienneté, sauf contrainte métier avérée.
+
+10.2 MODALITÉS D'ORGANISATION
+• Maximum 3 jours par semaine
+• Minimum 1 jour de présence en continu
+• Planning fixe défini pour 6 mois
+• Possibilité de télétravail occasionnel (intempéries, grèves)
+
+10.3 DEMANDE DE TÉLÉTRAVAIL
+□ Formulaire de demande complété
+□ Entretien avec le manager
+□ Validation RH
+□ Signature de l'avenant au contrat
+□ Période d'essai de 3 mois
+
+10.4 CONDITIONS MATÉRIELLES
+L'entreprise fournit :
+□ Ordinateur portable
+□ Écran externe et clavier/souris
+□ Casque et webcam
+□ Forfait téléphone/internet augmenté
+
+10.5 INDEMNITÉ TÉLÉTRAVAIL
+2,50€ par jour de télétravail pour compenser :
+- Coûts énergétiques
+- Usure du mobilier
+- Frais de connexion internet
+
+===============================================
+
+CHAPITRE 11 : HORAIRES FLEXIBLES
+
+11.1 PLAGES HORAIRES
+• Plage fixe : 10h00-16h00 (présence obligatoire)
+• Plage mobile matin : 8h00-10h00
+• Plage mobile soir : 16h00-19h00
+• Pause déjeuner : 12h00-14h00 (45 min minimum)
+
+11.2 AMÉNAGEMENTS POSSIBLES
+□ Horaires décalés (8h-16h ou 10h-18h)
+□ Semaine de 4 jours (accord individualisé)
+□ Temps partiel (minimum 24h/semaine)
+□ Congé parental partiel
+
+===============================================
+
+PARTIE VI - DÉPART DE L'ENTREPRISE
+
+CHAPITRE 12 : DÉMISSION
+
+12.1 PRÉAVIS DE DÉMISSION
+• Employés : 1 mois
+• Agents de maîtrise : 2 mois  
+• Cadres : 3 mois
+• Dispense possible d'un commun accord
+
+12.2 PROCÉDURE
+□ Lettre de démission manuscrite ou dématérialisée
+□ Entretien de départ avec la RH
+□ Transfert des dossiers en cours
+□ Restitution du matériel
+□ Solde de tout compte
+
+===============================================
+
+CHAPITRE 13 : LICENCIEMENT
+
+13.1 LICENCIEMENT POUR MOTIF PERSONNEL
+Préavis :
+• Employés : 1 mois si < 2 ans, 2 mois si ≥ 2 ans
+• Cadres : 3 mois
+
+Indemnité légale si > 8 mois d'ancienneté :
+• 1/4 de mois par année jusqu'à 10 ans
+• 1/3 de mois par année au-delà de 10 ans
+
+13.2 LICENCIEMENT ÉCONOMIQUE
+Ordre des licenciements selon :
+1. Charges de famille
+2. Ancienneté
+3. Qualités professionnelles
+4. Difficulté de reclassement
+
+===============================================
+
+ANNEXES
+
+Annexe 1 : Formulaires RH
+Annexe 2 : Organigramme
+Annexe 3 : Contacts utiles
+Annexe 4 : Règlement intérieur
+Annexe 5 : Charte informatique
+Annexe 6 : Grilles salariales
+
+===============================================
+
+Ce manuel est mis à jour annuellement. Pour toute question, contactez :
+Direction des Ressources Humaines
+Email : rh@entreprise.fr
+Tél : 01 XX XX XX XX
+
+Version 2024.1 - Janvier 2024

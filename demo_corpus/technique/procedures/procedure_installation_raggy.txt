@@ -1,0 +1,695 @@
+PROCÉDURE D'INSTALLATION RAGGY
+===============================
+
+Guide technique d'installation et de configuration
+Version 2.0.1 - Janvier 2024
+
+TABLE DES MATIÈRES
+==================
+
+1. PRÉREQUIS SYSTÈME
+2. INSTALLATION BACKEND
+3. CONFIGURATION BASE DE DONNÉES
+4. INSTALLATION FRONTEND
+5. CONFIGURATION PRODUCTION
+6. TESTS ET VALIDATION
+7. MAINTENANCE ET SURVEILLANCE
+8. DÉPANNAGE
+
+===============================================
+
+1. PRÉREQUIS SYSTÈME
+
+1.1 SERVEUR BACKEND
+• OS : Ubuntu 22.04 LTS ou CentOS 8+
+• CPU : 4 vCPUs minimum (8 vCPUs recommandés)
+• RAM : 8 GB minimum (16 GB recommandés)
+• Stockage : 100 GB SSD minimum
+• Python : 3.11 ou supérieur
+• Docker : 24.0+ (optionnel mais recommandé)
+
+1.2 BASE DE DONNÉES
+• PostgreSQL 15.0 ou supérieur
+• Extension pgvector installée
+• RAM : 4 GB dédiés minimum
+• Stockage : 50 GB SSD minimum pour démarrer
+
+1.3 CACHE ET QUEUE
+• Redis 7.0 ou supérieur
+• RAM : 2 GB dédiés minimum
+• Persistance activée
+
+1.4 FRONTEND
+• Node.js 18.0 LTS ou supérieur
+• npm 9.0 ou supérieur
+• Serveur web Nginx 1.22+
+
+1.5 RÉSEAU ET SÉCURITÉ
+• Certificat SSL/TLS valide
+• Domaine configuré avec DNS
+• Ports ouverts : 80, 443, 5432 (PostgreSQL), 6379 (Redis)
+• Firewall configuré
+
+===============================================
+
+2. INSTALLATION BACKEND
+
+2.1 PRÉPARATION DE L'ENVIRONNEMENT
+
+Mise à jour du système :
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y python3.11 python3.11-pip python3.11-venv
+sudo apt install -y git curl wget build-essential
+```
+
+Création de l'utilisateur dédié :
+```bash
+sudo adduser raggy
+sudo usermod -aG sudo raggy
+sudo su - raggy
+```
+
+2.2 CLONAGE DU PROJET
+
+```bash
+cd /home/raggy
+git clone https://github.com/votre-org/raggy.git
+cd raggy
+git checkout main
+```
+
+2.3 INSTALLATION DES DÉPENDANCES
+
+Création de l'environnement virtuel :
+```bash
+cd backend
+python3.11 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip setuptools wheel
+```
+
+Installation des packages :
+```bash
+pip install -r requirements-production.txt
+```
+
+2.4 CONFIGURATION ENVIRONNEMENT
+
+Création du fichier .env :
+```bash
+cp .env.example .env
+nano .env
+```
+
+Variables obligatoires :
+```env
+# Application
+ENVIRONMENT=production
+DEBUG=False
+API_TITLE="Raggy Production API"
+
+# Base de données
+DATABASE_URL=postgresql://raggy_user:secure_password@localhost:5432/raggy_prod
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your_service_key_here
+
+# IA et Embeddings
+GROQ_API_KEY=your_groq_api_key
+EMBEDDING_MODEL=intfloat/multilingual-e5-large-instruct
+
+# Cache
+REDIS_URL=redis://localhost:6379/0
+
+# Sécurité
+SECRET_KEY=your_ultra_secure_secret_key_here
+CORS_ORIGINS=["https://your-domain.com"]
+
+# Monitoring
+SENTRY_DSN=https://your-sentry-dsn@sentry.io/project
+
+# Performance
+FAST_MODE=True
+MAX_CONTEXT_DOCS=5
+USE_HYBRID_SEARCH=True
+```
+
+===============================================
+
+3. CONFIGURATION BASE DE DONNÉES
+
+3.1 INSTALLATION POSTGRESQL
+
+```bash
+sudo apt install -y postgresql postgresql-contrib postgresql-server-dev-15
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+```
+
+3.2 INSTALLATION PGVECTOR
+
+```bash
+cd /tmp
+git clone --branch v0.5.1 https://github.com/pgvector/pgvector.git
+cd pgvector
+make
+sudo make install
+```
+
+3.3 CONFIGURATION DE LA BASE
+
+Connexion en tant que postgres :
+```bash
+sudo -u postgres psql
+```
+
+Création de la base et de l'utilisateur :
+```sql
+CREATE USER raggy_user WITH PASSWORD 'secure_password';
+CREATE DATABASE raggy_prod OWNER raggy_user;
+GRANT ALL PRIVILEGES ON DATABASE raggy_prod TO raggy_user;
+
+-- Connexion à la base raggy_prod
+\c raggy_prod
+
+-- Activation de l'extension pgvector
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Vérification
+SELECT * FROM pg_extension WHERE extname = 'vector';
+\q
+```
+
+3.4 APPLICATION DES MIGRATIONS
+
+```bash
+cd /home/raggy/raggy/backend
+source venv/bin/activate
+
+# Test de la connexion
+python -c "
+from app.db.supabase_client import supabase_client
+print('Connexion DB réussie!')
+"
+
+# Application des migrations
+psql $DATABASE_URL -f migrations/001_initial_schema.sql
+psql $DATABASE_URL -f migrations/002_enhance_document_schema.sql
+psql $DATABASE_URL -f migrations/003_demo_signups.sql
+```
+
+3.5 OPTIMISATION POSTGRESQL
+
+Configuration dans /etc/postgresql/15/main/postgresql.conf :
+```conf
+# Mémoire
+shared_buffers = 2GB
+effective_cache_size = 6GB
+work_mem = 256MB
+maintenance_work_mem = 1GB
+
+# Connexions
+max_connections = 200
+
+# Checkpoint
+checkpoint_completion_target = 0.9
+wal_buffers = 16MB
+
+# Optimisations pgvector
+shared_preload_libraries = 'vector'
+```
+
+Redémarrage :
+```bash
+sudo systemctl restart postgresql
+```
+
+===============================================
+
+4. INSTALLATION FRONTEND
+
+4.1 INSTALLATION NODE.JS
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+node --version
+npm --version
+```
+
+4.2 CONSTRUCTION DU FRONTEND
+
+```bash
+cd /home/raggy/raggy/frontend
+npm ci --production=false
+```
+
+Configuration de l'environnement :
+```bash
+cp .env.example .env.local
+nano .env.local
+```
+
+Variables de production :
+```env
+NODE_ENV=production
+NEXT_PUBLIC_ENVIRONMENT=production
+
+# URLs Backend
+NEXT_PUBLIC_BACKEND_URL=https://api.your-domain.com
+BACKEND_URL=https://api.your-domain.com
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+
+# Application
+NEXT_PUBLIC_APP_NAME="Raggy - Assistant IA Privé"
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+
+# Analytics (optionnel)
+NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
+NEXT_PUBLIC_SENTRY_DSN=https://your-sentry-dsn@sentry.io/project
+```
+
+Construction :
+```bash
+npm run build
+npm run type-check
+```
+
+===============================================
+
+5. CONFIGURATION PRODUCTION
+
+5.1 SERVICE SYSTEMD BACKEND
+
+Création du service :
+```bash
+sudo nano /etc/systemd/system/raggy-backend.service
+```
+
+Contenu :
+```ini
+[Unit]
+Description=Raggy Backend API
+After=network.target postgresql.service redis.service
+Requires=postgresql.service redis.service
+
+[Service]
+Type=exec
+User=raggy
+Group=raggy
+WorkingDirectory=/home/raggy/raggy/backend
+Environment=PATH=/home/raggy/raggy/backend/venv/bin
+ExecStart=/home/raggy/raggy/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+
+# Sécurité
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/raggy/raggy/backend/logs
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Activation :
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable raggy-backend
+sudo systemctl start raggy-backend
+sudo systemctl status raggy-backend
+```
+
+5.2 SERVICE SYSTEMD FRONTEND
+
+```bash
+sudo nano /etc/systemd/system/raggy-frontend.service
+```
+
+```ini
+[Unit]
+Description=Raggy Frontend Next.js
+After=network.target raggy-backend.service
+Requires=raggy-backend.service
+
+[Service]
+Type=exec
+User=raggy
+Group=raggy
+WorkingDirectory=/home/raggy/raggy/frontend
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Activation :
+```bash
+sudo systemctl enable raggy-frontend
+sudo systemctl start raggy-frontend
+sudo systemctl status raggy-frontend
+```
+
+5.3 CONFIGURATION NGINX
+
+Installation :
+```bash
+sudo apt install -y nginx certbot python3-certbot-nginx
+```
+
+Configuration :
+```bash
+sudo nano /etc/nginx/sites-available/raggy
+```
+
+```nginx
+# Redirection HTTP vers HTTPS
+server {
+    listen 80;
+    server_name your-domain.com api.your-domain.com;
+    return 301 https://$server_name$request_uri;
+}
+
+# Frontend
+server {
+    listen 443 ssl http2;
+    server_name your-domain.com;
+
+    ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Sécurité
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Gzip
+    gzip on;
+    gzip_vary on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 75s;
+    }
+}
+
+# Backend API
+server {
+    listen 443 ssl http2;
+    server_name api.your-domain.com;
+
+    ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Taille des uploads
+    client_max_body_size 50M;
+
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    limit_req zone=api burst=20 nodelay;
+
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 75s;
+        
+        # CORS
+        add_header Access-Control-Allow-Origin "https://your-domain.com" always;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Authorization, Content-Type" always;
+    }
+
+    # Health check
+    location /health {
+        proxy_pass http://localhost:8000/health;
+        access_log off;
+    }
+}
+```
+
+Activation :
+```bash
+sudo ln -s /etc/nginx/sites-available/raggy /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+5.4 CERTIFICATS SSL
+
+```bash
+sudo certbot --nginx -d your-domain.com -d api.your-domain.com
+sudo systemctl enable certbot.timer
+```
+
+===============================================
+
+6. TESTS ET VALIDATION
+
+6.1 TESTS FONCTIONNELS
+
+Test de l'API :
+```bash
+curl -X GET https://api.your-domain.com/health
+curl -X GET https://api.your-domain.com/docs
+```
+
+Test du frontend :
+```bash
+curl -I https://your-domain.com
+```
+
+6.2 TESTS DE CHARGE
+
+Installation d'Apache Bench :
+```bash
+sudo apt install -y apache2-utils
+```
+
+Test de base :
+```bash
+ab -n 100 -c 10 https://api.your-domain.com/health
+```
+
+6.3 CHARGEMENT DU CORPUS DE DÉMONSTRATION
+
+```bash
+cd /home/raggy/raggy
+source backend/venv/bin/activate
+python scripts/load_demo_corpus.py --verbose
+```
+
+6.4 TEST COMPLET RAG
+
+```bash
+curl -X POST https://api.your-domain.com/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "question": "Quelles sont les obligations RGPD ?",
+    "organization_id": "demo-org-12345"
+  }'
+```
+
+===============================================
+
+7. MAINTENANCE ET SURVEILLANCE
+
+7.1 LOGS ET MONITORING
+
+Configuration des logs :
+```bash
+sudo mkdir -p /var/log/raggy
+sudo chown raggy:raggy /var/log/raggy
+
+# Logrotate
+sudo nano /etc/logrotate.d/raggy
+```
+
+```
+/var/log/raggy/*.log {
+    daily
+    missingok
+    rotate 30
+    compress
+    notifempty
+    create 644 raggy raggy
+    postrotate
+        systemctl reload raggy-backend raggy-frontend
+    endscript
+}
+```
+
+7.2 SAUVEGARDES
+
+Script de sauvegarde PostgreSQL :
+```bash
+sudo nano /home/raggy/backup_db.sh
+```
+
+```bash
+#!/bin/bash
+BACKUP_DIR="/home/raggy/backups"
+DB_NAME="raggy_prod"
+DATE=$(date +"%Y%m%d_%H%M%S")
+
+mkdir -p $BACKUP_DIR
+
+# Dump de la base
+pg_dump $DB_NAME | gzip > $BACKUP_DIR/raggy_db_$DATE.sql.gz
+
+# Nettoyage (garder 7 jours)
+find $BACKUP_DIR -name "raggy_db_*.sql.gz" -mtime +7 -delete
+
+echo "Sauvegarde terminée : raggy_db_$DATE.sql.gz"
+```
+
+Crontab :
+```bash
+crontab -e
+# Sauvegarde quotidienne à 2h
+0 2 * * * /home/raggy/backup_db.sh >> /var/log/raggy/backup.log 2>&1
+```
+
+7.3 MONITORING SYSTÈME
+
+Installation de htop et iotop :
+```bash
+sudo apt install -y htop iotop nethogs
+```
+
+Surveillance des services :
+```bash
+# Statut des services
+sudo systemctl status raggy-backend raggy-frontend nginx postgresql redis
+
+# Logs en temps réel
+sudo journalctl -f -u raggy-backend
+sudo journalctl -f -u raggy-frontend
+
+# Performances
+htop
+iotop
+nethogs
+```
+
+===============================================
+
+8. DÉPANNAGE
+
+8.1 PROBLÈMES COURANTS
+
+**Service Backend ne démarre pas**
+```bash
+# Vérifier les logs
+sudo journalctl -u raggy-backend -n 50
+
+# Vérifier la configuration
+cd /home/raggy/raggy/backend
+source venv/bin/activate
+python -c "from app.core.config import settings; print('Config OK')"
+
+# Tester la DB
+python -c "from app.db.supabase_client import supabase_client; print('DB OK')"
+```
+
+**Performance dégradée**
+```bash
+# Vérifier les ressources
+free -h
+df -h
+iostat 1 5
+
+# Vérifier PostgreSQL
+sudo -u postgres psql -c "
+SELECT query, state, query_start 
+FROM pg_stat_activity 
+WHERE state != 'idle' 
+ORDER BY query_start;
+"
+
+# Vérifier les connexions Redis
+redis-cli info clients
+```
+
+**Erreurs SSL/TLS**
+```bash
+# Renouvellement certificat
+sudo certbot renew --dry-run
+sudo certbot renew
+
+# Vérifier la configuration Nginx
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+8.2 COMMANDES UTILES
+
+```bash
+# Redémarrage complet
+sudo systemctl restart postgresql redis nginx
+sudo systemctl restart raggy-backend raggy-frontend
+
+# Mise à jour du code
+cd /home/raggy/raggy
+git pull origin main
+cd backend && source venv/bin/activate && pip install -r requirements-production.txt
+cd ../frontend && npm ci && npm run build
+sudo systemctl restart raggy-backend raggy-frontend
+
+# Nettoyage cache Redis
+redis-cli FLUSHDB
+
+# Rebuild des index PostgreSQL
+sudo -u postgres psql raggy_prod -c "REINDEX DATABASE raggy_prod;"
+```
+
+8.3 CONTACTS SUPPORT
+
+• Documentation : https://docs.raggy.fr
+• Support technique : support@raggy.fr
+• Urgence production : +33 X XX XX XX XX
+
+===============================================
+
+ANNEXES
+
+Annexe A : Checklist post-installation
+Annexe B : Scripts de maintenance
+Annexe C : Configuration firewall
+Annexe D : Optimisations avancées
+Annexe E : Procédures de disaster recovery
+
+===============================================
+
+Document mis à jour le : 15 janvier 2024
+Version : 2.0.1
+Responsable : Équipe DevOps Raggy

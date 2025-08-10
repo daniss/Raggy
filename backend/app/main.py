@@ -13,6 +13,8 @@ from app.api.chat import router as chat_router
 from app.api.chat_stream import router as chat_stream_router
 from app.api.upload import router as upload_router
 from app.api.system_health import router as system_health_router
+from app.api.demo import router as demo_router
+from app.api.demo_health import router as demo_health_router
 from app.models.schemas import HealthResponse, ErrorResponse
 from datetime import datetime
 
@@ -97,6 +99,8 @@ app.include_router(chat_router, prefix="/api/v1")
 app.include_router(chat_stream_router, prefix="/api/v1")
 app.include_router(upload_router, prefix="/api/v1")
 app.include_router(system_health_router, prefix="/api/v1")
+app.include_router(demo_router, prefix="/api/v1")
+app.include_router(demo_health_router, prefix="/api/v1")
 
 
 # Root endpoint

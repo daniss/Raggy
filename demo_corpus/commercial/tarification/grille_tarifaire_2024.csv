@@ -1,0 +1,5 @@
+plan,prix_annuel_euros,prix_mensuel_euros,nb_documents_max,nb_utilisateurs_max,stockage_gb,queries_par_jour,support,api_access,webhooks,sla_disponibilite,caracteristiques_principales
+Starter,1200,120,1000,1,1,10,Email,Non,Non,99.0%,"Idéal pour freelances et petites structures. Upload de documents PDF/Word/Excel. Chat intelligent avec sources. Interface simple."
+Pro,2000,200,10000,10,10,500,Email + Chat,Oui,Oui,99.5%,"Parfait pour PME et cabinets. Multi-utilisateurs. API REST complète. Webhooks pour intégrations. Analytics avancées."
+Enterprise,3500,350,100000,50,100,2000,Priority + Phone,Oui,Oui,99.9%,"Solution entreprise. Utilisateurs illimités. Support prioritaire. SLA garantie. Personnalisation UI. Formation équipe."
+Enterprise Plus,Sur devis,Sur devis,Illimité,Illimité,500,Illimité,Dedicated,Oui,Oui,99.95%,"Solution sur-mesure. Infrastructure dédiée. Conformité renforcée. Support 24/7. Intégration personnalisée."

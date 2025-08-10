@@ -8,7 +8,10 @@ import {
   ChevronUp,
   ExternalLink,
   FileSpreadsheet,
-  File
+  File,
+  Eye,
+  Download,
+  Search
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,10 +22,29 @@ import { type Source } from '@/utils/api';
 interface SourceCardProps {
   source: Source;
   index: number;
+  onOpenDocument?: (filename: string, highlightText?: string, citationContext?: any) => void;
 }
 
-export default function SourceCard({ source, index }: SourceCardProps) {
+export default function SourceCard({ source, index, onOpenDocument }: SourceCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleOpenDocument = () => {
+    if (onOpenDocument && source.metadata?.filename) {
+      const highlightText = source.content.substring(0, 50); // First 50 chars as highlight
+      const citationContext = {
+        page: source.metadata.page,
+        confidence: source.score ? Math.round(source.score * 100) : undefined,
+        section: source.metadata.section
+      };
+      onOpenDocument(source.metadata.filename, highlightText, citationContext);
+    }
+  };
+
+  const handleCopyQuote = () => {
+    const quote = `"${source.content}"\n\nSource: ${source.metadata?.filename || 'Document'}${source.metadata?.page ? `, page ${source.metadata.page}` : ''}`;
+    navigator.clipboard.writeText(quote);
+    // You could add a toast notification here
+  };
 
   const getFileIcon = (filename?: string) => {
     if (!filename) return File;
@@ -108,10 +130,61 @@ export default function SourceCard({ source, index }: SourceCardProps) {
           >
             <div className="px-4 pb-4 border-t">
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Extrait du document :</h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium text-gray-700">Extrait du document :</h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopyQuote}
+                    className="text-xs h-6 px-2"
+                  >
+                    Copier citation
+                  </Button>
+                </div>
                 <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
                   {source.content}
                 </p>
+              </div>
+              
+              {/* Action buttons */}
+              <div className="mt-4 flex items-center gap-2">
+                {source.metadata?.filename && onOpenDocument && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleOpenDocument}
+                    className="flex items-center gap-2"
+                  >
+                    <Eye className="w-4 h-4" />
+                    Ouvrir le document
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopyQuote}
+                  className="flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Exporter citation
+                </Button>
+                {source.metadata?.filename && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      // This would open a search in the document
+                      if (onOpenDocument && source.metadata?.filename) {
+                        const searchText = source.content.split(' ').slice(0, 3).join(' ');
+                        onOpenDocument(source.metadata.filename, searchText);
+                      }
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <Search className="w-4 h-4" />
+                    Rechercher dans le doc
+                  </Button>
+                )}
               </div>
               
               {source.metadata && Object.keys(source.metadata).length > 0 && (

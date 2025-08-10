@@ -1,29 +1,94 @@
 services:
-  # Backend API Service
+  # ==============================================
+  # FRONTEND SERVICE - Next.js Development
+  # ==============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: raggy-frontend-dev
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+      - BACKEND_URL=http://backend:8000
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-Raggy - Assistant IA Privé}
+      - NEXT_PUBLIC_ENVIRONMENT=development
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - raggy-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+    command: ["npm", "run", "dev"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ==============================================
+  # BACKEND SERVICE - FastAPI Development
+  # ==============================================
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
-    container_name: support-bot-backend
+      dockerfile: Dockerfile.dev
+    container_name: raggy-backend-dev
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
+      # Application
       - ENVIRONMENT=development
       - DEBUG=true
+      - API_TITLE=${API_TITLE:-Raggy Dev - Assistant IA}
+      - API_DESCRIPTION=${API_DESCRIPTION:-Development environment}
+      - API_VERSION=${API_VERSION:-2.0.0-dev}
+      
+      # AI/LLM
       - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-deepseek-r1-distill-llama-70b}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-intfloat/multilingual-e5-large-instruct}
+      
+      # Database
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
       - DATABASE_URL=${DATABASE_URL}
-      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
-      - CORS_ORIGINS=["http://localhost:3000"]
+      
+      # Cache
       - REDIS_URL=redis://redis:6379/0
+      
+      # Security
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - CORS_ORIGINS=["http://localhost:3000", "http://127.0.0.1:3000"]
+      
+      # Performance (relaxed for dev)
+      - MAX_DOCUMENTS=${MAX_DOCUMENTS:-100}
+      - MAX_UPLOAD_SIZE_MB=${MAX_UPLOAD_SIZE_MB:-10}
+      - FAST_MODE=true
+      - USE_HYBRID_SEARCH=true
+      
+      # Development
+      - LOG_LEVEL=DEBUG
+      - ENABLE_TEST_MODE=true
     volumes:
       - ./backend:/app
       - ./backend/requirements.txt:/app/requirements.txt:ro
     networks:
-      - support-bot-network
+      - raggy-network
+    depends_on:
+      redis:
+        condition: service_healthy
     restart: unless-stopped
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -31,56 +96,67 @@ services:
       retries: 3
       start_period: 40s
 
-  # Frontend Service
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: support-bot-frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
-      - BACKEND_URL=http://backend:8000
-      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      - NEXT_PUBLIC_APP_NAME=Support Chatbot
-      - NEXT_PUBLIC_ENVIRONMENT=development
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    networks:
-      - support-bot-network
-    depends_on:
-      - backend
-    restart: unless-stopped
-    command: ["npm", "run", "dev"]
-
-  # Redis for caching (optional)
+  # ==============================================
+  # REDIS SERVICE - Development Cache
+  # ==============================================
   redis:
     image: redis:7-alpine
-    container_name: support-bot-redis
+    container_name: raggy-redis-dev
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     networks:
-      - support-bot-network
+      - raggy-network
     restart: unless-stopped
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 3
 
+  # ==============================================
+  # DEVELOPMENT DATABASE (OPTIONAL)
+  # ==============================================
+  # Uncomment to use local PostgreSQL instead of Supabase
+  # db-dev:
+  #   image: pgvector/pgvector:pg16
+  #   container_name: raggy-database-dev
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB: ${DB_NAME:-raggy_dev}
+  #     POSTGRES_USER: ${DB_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password}
+  #     POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+  #   volumes:
+  #     - postgres_dev_data:/var/lib/postgresql/data
+  #     - ./backend/database_schema_simple.sql:/docker-entrypoint-initdb.d/01-schema.sql
+  #   ports:
+  #     - "${DB_PORT:-5433}:5432"
+  #   command: |
+  #     postgres 
+  #     -c shared_preload_libraries=vector
+  #     -c max_connections=100
+  #     -c shared_buffers=128MB
+  #     -c effective_cache_size=512MB
+  #   networks:
+  #     - raggy-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-raggy_dev}"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
 volumes:
   redis_data:
     driver: local
 
+  # postgres_dev_data:
+  #   driver: local
+
 networks:
-  support-bot-network:
+  raggy-network:
     driver: bridge
     ipam:
       config:

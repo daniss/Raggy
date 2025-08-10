@@ -1,0 +1,342 @@
+GUIDE DE CONFORMITÉ RGPD 2024
+=============================
+
+VERSION 3.2 - Mise à jour janvier 2024
+Conforme aux dernières recommandations de la CNIL
+
+TABLE DES MATIÈRES
+
+1. PRINCIPES FONDAMENTAUX DU RGPD
+2. DROITS DES PERSONNES CONCERNÉES  
+3. OBLIGATIONS DU RESPONSABLE DE TRAITEMENT
+4. REGISTRE DES TRAITEMENTS
+5. ANALYSES D'IMPACT (AIPD)
+6. VIOLATIONS DE DONNÉES
+7. CONTRÔLES ET SANCTIONS
+8. OUTILS PRATIQUES
+
+===============================================
+
+1. PRINCIPES FONDAMENTAUX DU RGPD
+
+Le Règlement Général sur la Protection des Données (RGPD) repose sur 6 principes clés :
+
+1.1 LICÉITÉ, LOYAUTÉ ET TRANSPARENCE
+- Le traitement doit reposer sur une base légale valide
+- Les personnes doivent être informées clairement
+- Pas de collecte déloyale ou trompeuse
+
+Bases légales disponibles :
+• Consentement de la personne concernée
+• Exécution d'un contrat
+• Respect d'une obligation légale
+• Sauvegarde des intérêts vitaux
+• Mission d'intérêt public
+• Intérêt légitime du responsable de traitement
+
+1.2 LIMITATION DES FINALITÉS
+- Données collectées pour des finalités déterminées, explicites et légitimes
+- Pas de traitement ultérieur incompatible avec ces finalités
+- Principe : "Une finalité = Une collecte"
+
+1.3 MINIMISATION DES DONNÉES
+- Collecter uniquement les données nécessaires
+- "Moins c'est mieux" : éviter la sur-collecte
+- Évaluer régulièrement la pertinence des données
+
+1.4 EXACTITUDE
+- Données exactes et tenues à jour
+- Effacement ou rectification rapide des données inexactes
+- Mise en place de procédures de mise à jour
+
+1.5 LIMITATION DE LA CONSERVATION
+- Durées de conservation proportionnées aux finalités
+- Suppression automatique à l'expiration
+- Archivage possible pour certaines obligations légales
+
+1.6 INTÉGRITÉ ET CONFIDENTIALITÉ
+- Sécurité appropriée des données
+- Protection contre les traitements non autorisés
+- Mesures techniques et organisationnelles
+
+===============================================
+
+2. DROITS DES PERSONNES CONCERNÉES
+
+Toute personne physique dispose de droits renforcés :
+
+2.1 DROIT À L'INFORMATION (art. 13-14)
+Informations obligatoires :
+• Identité du responsable de traitement et du DPO
+• Finalités et bases légales du traitement
+• Destinataires des données
+• Durées de conservation
+• Droits de la personne
+• Droit de porter plainte auprès de la CNIL
+
+Modalités :
+- Au moment de la collecte (information directe)
+- Dans un délai d'1 mois (information indirecte)
+- Langage clair et compréhensible
+
+2.2 DROIT D'ACCÈS (art. 15)
+La personne peut obtenir :
+• Confirmation du traitement de ses données
+• Copie de ses données personnelles
+• Informations sur les traitements
+
+Délai de réponse : 1 mois (prorogeable de 2 mois)
+Modalités : gratuit pour la première demande
+
+2.3 DROIT DE RECTIFICATION (art. 16)
+- Correction des données inexactes
+- Complètement des données incomplètes
+- Obligation de transmettre aux destinataires
+
+2.4 DROIT À L'EFFACEMENT - "Droit à l'oubli" (art. 17)
+Conditions :
+• Données plus nécessaires au regard des finalités
+• Retrait du consentement
+• Données traitées de manière illicite
+• Effacement pour respect d'une obligation légale
+• Collecte de données d'enfants dans le cadre de services de la société de l'information
+
+Exceptions :
+- Liberté d'expression et d'information
+- Obligation légale de conservation
+- Intérêt public
+
+2.5 DROIT À LA LIMITATION (art. 18)
+Suspension temporaire du traitement :
+• Contestation de l'exactitude
+• Traitement illicite mais refus d'effacement
+• Données plus nécessaires mais requises pour un recours
+• Opposition en attente de vérification
+
+2.6 DROIT À LA PORTABILITÉ (art. 20)
+Conditions :
+- Données fournies par la personne
+- Traitement fondé sur le consentement ou l'exécution d'un contrat
+- Traitement automatisé
+
+Format : structuré, couramment utilisé, lisible par machine
+
+2.7 DROIT D'OPPOSITION (art. 21)
+• Opposition pour des raisons tenant à sa situation particulière
+• Opposition absolue au démarchage commercial
+• Information obligatoire sur ce droit
+
+===============================================
+
+3. OBLIGATIONS DU RESPONSABLE DE TRAITEMENT
+
+3.1 DÉSIGNATION D'UN DPO (art. 37-39)
+Obligation si :
+• Autorité publique ou organisme public
+• Activités de base exigeant un suivi régulier et systématique à grande échelle
+• Activités de base portant sur des catégories particulières de données à grande échelle
+
+Missions du DPO :
+- Information et conseil
+- Contrôle du respect du RGPD
+- Coopération avec l'autorité de contrôle
+- Point de contact pour l'autorité de contrôle
+
+3.2 REGISTRE DES TRAITEMENTS (art. 30)
+Contenu obligatoire :
+• Nom et coordonnées du responsable de traitement
+• Finalités du traitement
+• Catégories de personnes concernées
+• Catégories de données personnelles
+• Catégories de destinataires
+• Transferts vers pays tiers
+• Délais d'effacement prévus
+• Mesures de sécurité techniques et organisationnelles
+
+3.3 PRIVACY BY DESIGN ET BY DEFAULT (art. 25)
+- Intégration de la protection des données dès la conception
+- Paramètres de confidentialité par défaut
+- Évaluation d'impact si nécessaire
+
+3.4 SÉCURITÉ DES DONNÉES (art. 32)
+Mesures techniques :
+• Chiffrement des données
+• Contrôles d'accès
+• Sauvegarde et récupération
+• Tests de sécurité réguliers
+
+Mesures organisationnelles :
+• Politique de sécurité
+• Sensibilisation du personnel
+• Procédures d'incident
+• Audit régulier
+
+===============================================
+
+4. ANALYSES D'IMPACT (AIPD) - Article 35
+
+4.1 QUAND RÉALISER UNE AIPD ?
+Obligatoire si le traitement est susceptible d'engendrer un risque élevé :
+• Évaluation systématique et approfondie
+• Traitement à grande échelle de catégories particulières
+• Surveillance systématique d'une zone accessible au public
+
+Liste CNIL des traitements nécessitant une AIPD (délibération 2018-326) :
+- Traitements de données biométriques
+- Traitements de données génétiques
+- Traitements de données de localisation
+- Surveillance des personnes
+- Scores/profils avec décision automatisée
+- Traitements innovants
+- Exclusion du bénéfice d'un droit
+- Croisement de données
+
+4.2 CONTENU DE L'AIPD
+1. Description systématique du traitement
+2. Évaluation de la nécessité et de la proportionnalité
+3. Évaluation des risques pour les droits et libertés
+4. Mesures envisagées pour faire face aux risques
+
+4.3 CONSULTATION PRÉALABLE DE LA CNIL
+Si l'AIPD révèle un risque élevé résiduel, consultation obligatoire avant mise en œuvre.
+
+===============================================
+
+5. VIOLATIONS DE DONNÉES (art. 33-34)
+
+5.1 DÉFINITION
+Violation de sécurité entraînant destruction, perte, altération, divulgation non autorisée ou accès non autorisé à des données personnelles.
+
+5.2 NOTIFICATION À LA CNIL (72h)
+Obligatoire sauf si peu susceptible d'engendrer un risque pour les droits et libertés.
+
+Contenu :
+• Nature de la violation
+• Catégories et nombre approximatif de personnes concernées
+• Conséquences probables
+• Mesures prises ou envisagées
+
+5.3 COMMUNICATION AUX PERSONNES
+Si risque élevé pour les droits et libertés.
+
+Exceptions :
+- Mesures de protection appropriées (ex: chiffrement)
+- Mesures ultérieures pour réduire le risque
+- Communication disproportionnée (information publique)
+
+===============================================
+
+6. CONTRÔLES ET SANCTIONS
+
+6.1 POUVOIRS DE LA CNIL
+• Inspection sur place
+• Accès aux locaux et systèmes
+• Audition des personnes
+• Accès aux documents
+
+6.2 SANCTIONS ADMINISTRATIVES
+Amendes :
+• Catégorie 1 : jusqu'à 10 M€ ou 2% du CA mondial
+• Catégorie 2 : jusqu'à 20 M€ ou 4% du CA mondial
+
+Autres sanctions :
+- Avertissement
+- Mise en demeure
+- Limitation temporaire/définitive du traitement
+- Suspension des flux de données
+- Injonction de satisfaire aux demandes d'exercice des droits
+
+6.3 CRITÈRES DE SANCTIONS
+• Nature, gravité et durée de la violation
+• Intention ou négligence
+• Mesures prises pour atténuer le dommage
+• Degré de responsabilité
+• Coopération avec l'autorité de contrôle
+• Catégories de données personnelles concernées
+• Manière dont l'autorité de contrôle a eu connaissance de la violation
+• Respect des mesures ordonnées précédemment
+• Codes de conduite et mécanismes de certification
+• Facteurs aggravants/atténuants
+
+===============================================
+
+7. TRANSFERTS INTERNATIONAUX (Chapitre V)
+
+7.1 PRINCIPE
+Interdiction de transférer des données vers un pays tiers sauf garanties appropriées.
+
+7.2 DÉCISIONS D'ADÉQUATION
+Pays reconnus comme offrant un niveau de protection adéquat :
+- Andorre, Argentine, Canada (secteur privé), Îles Féroé
+- Guernesey, Israël, Île de Man, Jersey, Nouvelle-Zélande
+- Suisse, Uruguay, Royaume-Uni, Corée du Sud, Japon
+
+7.3 GARANTIES APPROPRIÉES
+• Clauses contractuelles types (CCT)
+• Clauses contractuelles ad hoc approuvées
+• Règles d'entreprise contraignantes (BCR)
+• Codes de conduite approuvés
+• Mécanismes de certification
+
+7.4 DÉROGATIONS (art. 49)
+En l'absence de décision d'adéquation ou de garanties appropriées :
+- Consentement explicite de la personne
+- Exécution d'un contrat
+- Conclusion/exécution d'un contrat dans l'intérêt de la personne
+- Motifs importants d'intérêt public
+- Constatation, exercice ou défense de droits en justice
+- Protection des intérêts vitaux
+- Transfert à partir d'un registre public
+
+===============================================
+
+8. OUTILS PRATIQUES
+
+8.1 CHECK-LIST DE CONFORMITÉ
+
+□ Cartographie des traitements réalisée
+□ Registre des traitements tenu à jour
+□ DPO désigné si obligatoire
+□ Bases légales identifiées pour chaque traitement
+□ Information des personnes assurée
+□ Procédures pour l'exercice des droits mises en place
+□ Durées de conservation définies
+□ Mesures de sécurité implémentées
+□ Procédure de gestion des violations établie
+□ AIPD réalisées si nécessaire
+□ Contrats avec les sous-traitants mis à jour
+□ Transferts internationaux sécurisés
+
+8.2 MODÈLES DE DOCUMENTS
+- Mention d'information
+- Procédure d'exercice des droits
+- Registre des traitements
+- Trame d'AIPD
+- Contrat de sous-traitance
+- Procédure de violation de données
+
+8.3 CONTACTS UTILES
+CNIL - Commission Nationale de l'Informatique et des Libertés
+3 Place de Fontenoy - TSA 80715 - 75334 PARIS CEDEX 07
+Téléphone : 01 53 73 22 22
+Site web : www.cnil.fr
+Formulaire de plainte en ligne
+
+Délégué à la Protection des Données :
+dpo@entreprise.fr
+Téléphone : XX XX XX XX XX
+
+===============================================
+
+ANNEXES
+
+A. Modèle de mention d'information
+B. Procédure d'exercice des droits
+C. Trame de registre des traitements
+D. Grille d'analyse des risques AIPD
+E. Procédure de gestion des violations
+
+Ce guide constitue un document de référence. Pour toute question spécifique, consultez votre DPO ou un conseil juridique spécialisé.
+
+Dernière mise à jour : janvier 2024
+Version : 3.2

@@ -18,6 +18,7 @@ import DocumentSidebar from './components/DocumentSidebar';
 import ChatMessage from './components/ChatMessage';
 import ChatInput from './components/ChatInput';
 import DocumentPreview from '@/components/DocumentPreview';
+import StaticFileViewer from '@/components/StaticFileViewer';
 import { chatApi, organizationApi, handleApiError, type ChatResponse, type Source } from '@/utils/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorAlert } from '@/components/ErrorAlert';
@@ -51,6 +52,17 @@ export default function AssistantPage() {
   const [previewDocument, setPreviewDocument] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [organizationId, setOrganizationId] = useState<string | null>(null);
+  
+  // Static file viewer state
+  const [staticFileViewer, setStaticFileViewer] = useState<{
+    isOpen: boolean;
+    filename: string;
+    highlightText?: string;
+    citationContext?: any;
+  }>({
+    isOpen: false,
+    filename: ''
+  });
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -256,6 +268,22 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
     setPreviewDocument(null);
   };
 
+  const handleOpenStaticDocument = (filename: string, highlightText?: string, citationContext?: any) => {
+    setStaticFileViewer({
+      isOpen: true,
+      filename,
+      highlightText,
+      citationContext
+    });
+  };
+
+  const handleCloseStaticViewer = () => {
+    setStaticFileViewer({
+      isOpen: false,
+      filename: ''
+    });
+  };
+
   if (isInitializing) {
     return (
       <div className="flex h-full items-center justify-center bg-gray-50">
@@ -326,6 +354,7 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
                     key={message.id}
                     message={message}
                     isLatest={index === messages.length - 1}
+                    onOpenDocument={handleOpenStaticDocument}
                   />
                 ))}
               </AnimatePresence>
@@ -369,6 +398,15 @@ Veuillez réessayer ou contacter le support si le problème persiste.`,
         document={previewDocument}
         isOpen={showPreview}
         onClose={handleClosePreview}
+      />
+
+      {/* Static File Viewer Modal */}
+      <StaticFileViewer
+        filename={staticFileViewer.filename}
+        isOpen={staticFileViewer.isOpen}
+        onClose={handleCloseStaticViewer}
+        highlightText={staticFileViewer.highlightText}
+        citationContext={staticFileViewer.citationContext}
       />
     </div>
   );

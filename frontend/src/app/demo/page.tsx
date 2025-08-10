@@ -51,13 +51,51 @@ export default function DemoPage() {
   const handleStartDemo = async () => {
     if (demoStep === 'email' && email && company) {
       setIsLoading(true);
-      // Simulate session creation
-      setTimeout(() => {
-        const token = `demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        setSessionToken(token);
-        setDemoStep('sandbox');
+      
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/v1/demo/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            company_name: company,
+            source: 'landing',
+            utm_source: new URLSearchParams(window.location.search).get('utm_source'),
+            utm_medium: new URLSearchParams(window.location.search).get('utm_medium'),
+            utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign'),
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          setSessionToken(data.session_token);
+          setDemoStep('sandbox');
+          
+          // Store demo session in localStorage for persistence
+          localStorage.setItem('demoSession', JSON.stringify({
+            token: data.session_token,
+            email,
+            company,
+            documents: data.demo_documents,
+            sampleQuestions: data.sample_questions,
+            expiresAt: data.expires_at
+          }));
+        } else {
+          throw new Error(data.message || 'Failed to create demo session');
+        }
+      } catch (error) {
+        console.error('Demo registration failed:', error);
+        alert('Une erreur est survenue lors de la création de votre session de démo. Veuillez réessayer.');
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     }
   };
 
@@ -263,54 +301,129 @@ export default function DemoPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Documents Section */}
+                <Card className="lg:col-span-2">
                   <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <FileText className="w-5 h-5 mr-2 text-blue-600" />
-                      Documents disponibles
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <FileText className="w-5 h-5 mr-2 text-blue-600" />
+                        Documents disponibles
+                      </div>
+                      <Badge variant="secondary">
+                        {demoDocuments.length} fichiers
+                      </Badge>
                     </CardTitle>
                     <CardDescription>
-                      Base documentaire pré-configurée
+                      Base documentaire pré-configurée avec corpus français
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {demoDocuments.map((doc, index) => (
-                        <div key={index} className="flex items-center justify-between p-2 bg-slate-50 rounded">
-                          <div className="flex items-center space-x-2">
-                            <FileText className="w-4 h-4 text-slate-500" />
-                            <span className="text-sm">{doc.name}</span>
+                        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border hover:bg-slate-100 transition-colors">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                              <FileText className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-sm">{doc.name}</div>
+                              <div className="text-xs text-slate-500">{doc.size}</div>
+                            </div>
                           </div>
-                          <Badge variant="outline" className="text-xs">
-                            {doc.type}
-                          </Badge>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className="text-xs">
+                              {doc.type}
+                            </Badge>
+                            <Button variant="ghost" size="sm" className="text-xs">
+                              Aperçu
+                            </Button>
+                          </div>
                         </div>
                       ))}
+                    </div>
+                    
+                    {/* Upload section for demo */}
+                    <div className="mt-6 pt-4 border-t">
+                      <div className="text-center">
+                        <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                        <p className="text-sm text-slate-600 mb-2">
+                          Vous pouvez également ajouter vos propres documents
+                        </p>
+                        <Button variant="outline" size="sm" disabled>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Ajouter des fichiers (max 3 en démo)
+                        </Button>
+                        <p className="text-xs text-slate-500 mt-2">
+                          PDF, DOCX, TXT • Max 10 MB par fichier
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <MessageCircle className="w-5 h-5 mr-2 text-blue-600" />
-                      Questions suggérées
-                    </CardTitle>
-                    <CardDescription>
-                      Exemples pour commencer
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {sampleQuestions.map((question, index) => (
-                        <div key={index} className="p-2 bg-blue-50 rounded text-sm">
-                          "{question}"
+                {/* Questions and Actions */}
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <MessageCircle className="w-5 h-5 mr-2 text-blue-600" />
+                        Questions suggérées
+                      </CardTitle>
+                      <CardDescription>
+                        Cliquez pour tester
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {sampleQuestions.map((question, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              // This would copy the question to clipboard or navigate to assistant with pre-filled question
+                              navigator.clipboard.writeText(question);
+                              alert('Question copiée ! Collez-la dans l\'assistant.');
+                            }}
+                            className="w-full p-2 bg-blue-50 hover:bg-blue-100 rounded text-sm text-left transition-colors"
+                          >
+                            "{question}"
+                          </button>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Demo Stats */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Votre session</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-600">Entreprise:</span>
+                          <span className="font-medium">{company}</span>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-600">Email:</span>
+                          <span className="font-medium text-xs">{email}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-600">Expire dans:</span>
+                          <span className="font-medium text-green-600">23h 45min</span>
+                        </div>
+                        <div className="pt-2 border-t">
+                          <div className="text-xs text-slate-500 space-y-1">
+                            <div>• Questions illimitées</div>
+                            <div>• 5 documents pré-chargés</div>
+                            <div>• Upload limité (3 fichiers max)</div>
+                            <div>• Support chat inclus</div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
 
               <Card className="border-2 border-green-200 bg-green-50/50">

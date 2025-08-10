@@ -1,0 +1,38 @@
+# Demo Corpus Git Ignore
+# Large files that should not be committed to git
+
+# Large PDF files (>10MB)
+*.pdf
+!sample_*.pdf
+!guide_*.pdf
+
+# Large Excel files
+*.xlsx
+*.xls
+!template_*.xlsx
+
+# Large datasets
+*_dataset.csv
+*_dump.csv
+*_export.csv
+
+# Binary documents
+*.docx
+*.doc
+!contrat_type.docx
+!manuel_*.docx
+
+# Compressed archives
+*.zip
+*.tar.gz
+*.7z
+
+# Temporary processing files
+*.tmp
+*.cache
+.processing/
+temp/
+
+# Logs from processing
+processing.log
+errors.log

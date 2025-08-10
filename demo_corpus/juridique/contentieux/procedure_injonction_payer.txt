@@ -1,0 +1,343 @@
+PROCÉDURE D'INJONCTION DE PAYER
+================================
+
+Guide pratique 2024 - Recouvrement de créances commerciales
+
+SOMMAIRE
+========
+
+1. PRÉSENTATION GÉNÉRALE
+2. CONDITIONS D'UTILISATION  
+3. COMPÉTENCE TERRITORIALE
+4. CONSTITUTION DU DOSSIER
+5. DÉPÔT DE LA REQUÊTE
+6. INSTRUCTION ET DÉCISION
+7. SIGNIFICATION ET OPPOSITION
+8. EXÉCUTION FORCÉE
+9. COÛTS ET DÉLAIS
+10. CONSEILS PRATIQUES
+
+===============================================
+
+1. PRÉSENTATION GÉNÉRALE
+
+L'injonction de payer est une procédure judiciaire simplifiée permettant d'obtenir rapidement un titre exécutoire pour recouvrer une créance certaine, liquide et exigible.
+
+1.1 AVANTAGES
+• Procédure rapide (1 à 3 mois en moyenne)
+• Coût réduit (35,21 € de frais de greffe)
+• Pas d'avocat obligatoire devant le tribunal de commerce
+• Procédure écrite (pas d'audience)
+
+1.2 INCONVÉNIENTS  
+• Pas de débat contradictoire initial
+• Risque d'opposition du débiteur
+• Limité aux créances certaines, liquides et exigibles
+
+1.3 ALTERNATIVE
+Référé provision si la créance n'est pas totalement incontestable.
+
+===============================================
+
+2. CONDITIONS D'UTILISATION
+
+2.1 CRÉANCE CERTAINE
+- Existence indiscutable de la créance
+- Preuves écrites (factures, bons de commande, contrats)
+- Pas de contestation sérieuse possible
+
+2.2 CRÉANCE LIQUIDE
+- Montant déterminé ou déterminable
+- Évaluation en euros
+- Calcul des intérêts de retard précis
+
+2.3 CRÉANCE EXIGIBLE
+- Échéance dépassée
+- Aucune condition suspensive en cours
+- Délai de paiement expiré
+
+2.4 CRÉANCES CONCERNÉES
+✓ Factures impayées
+✓ Loyers commerciaux
+✓ Prêts d'argent
+✓ Prestations de services
+✓ Ventes de marchandises
+✓ Intérêts de retard
+✓ Pénalités contractuelles
+
+2.5 CRÉANCES EXCLUES
+✗ Créances alimentaires
+✗ Dommages-intérêts délictuels
+✗ Créances fiscales et sociales
+✗ Réparation d'un préjudice corporel
+
+===============================================
+
+3. COMPÉTENCE TERRITORIALE
+
+3.1 TRIBUNAL COMPÉTENT
+• Tribunal de commerce : créances commerciales
+• Tribunal judiciaire : créances civiles
+• Tribunal de proximité : créances < 10 000 €
+
+3.2 COMPÉTENCE TERRITORIALE
+Choix entre :
+- Domicile du débiteur
+- Lieu d'exécution de l'obligation
+- Lieu de livraison de la chose
+- Lieu de prestation du service
+
+3.3 CAS PARTICULIERS
+• Débiteur domicilié à l'étranger : tribunal du lieu d'exécution
+• Plusieurs débiteurs : tribunal de l'un d'eux au choix
+• Clause attributive de juridiction : tribunal désigné
+
+===============================================
+
+4. CONSTITUTION DU DOSSIER
+
+4.1 PIÈCES OBLIGATOIRES
+□ Requête en injonction de payer (formulaire Cerfa n°12948*02)
+□ Justificatifs de la créance (originaux ou copies certifiées)
+□ Justificatif de mise en demeure ou de relance
+□ Justificatif de la qualité du demandeur
+□ Bordereau de remise de pièces
+
+4.2 JUSTIFICATIFS DE LA CRÉANCE
+• Factures avec accusé de réception
+• Bons de commande signés
+• Bons de livraison signés
+• Contrats signés
+• Lettres de change acceptées
+• Billets à ordre
+
+4.3 MISE EN DEMEURE
+Obligatoire pour faire courir les intérêts de retard.
+
+Mentions requises :
+- Identification précise des parties
+- Description de la créance
+- Montant exact réclamé
+- Délai de paiement accordé
+- Mise en demeure expresse de payer
+- Conséquences du défaut de paiement
+
+Modes d'envoi :
+✓ Lettre recommandée avec accusé de réception
+✓ Acte d'huissier
+✓ Remise en main propre avec récépissé
+✓ Courriel avec accusé de réception (si accepté contractuellement)
+
+4.4 CALCUL DES INTÉRÊTS DE RETARD
+
+Taux légal commercial 2024 : 3,99 %
+Taux contractuel : si prévu et non abusif
+
+Formule de calcul :
+Capital × Taux × Nombre de jours de retard / 365
+
+Exemple :
+Facture de 10 000 € échue depuis 90 jours
+10 000 × 3,99% × 90 / 365 = 98,40 €
+
+===============================================
+
+5. DÉPÔT DE LA REQUÊTE
+
+5.1 MODALITÉS DE DÉPÔT
+• Sur place au greffe du tribunal
+• Par voie postale (recommandé avec accusé de réception)
+• Par voie électronique (si disponible)
+
+5.2 FRAIS DE GREFFE
+35,21 € à régler par :
+- Espèces (limité selon montant)
+- Chèque à l'ordre du régisseur
+- Carte bancaire (si terminal disponible)
+- Timbre fiscal dématérialisé
+
+5.3 VÉRIFICATIONS DU GREFFE
+□ Compétence du tribunal
+□ Complétude du dossier
+□ Paiement des frais de greffe
+□ Respect des formes légales
+
+5.4 RÉCÉPISSÉ DE DÉPÔT
+Le greffe délivre un récépissé avec :
+- Numéro de la requête
+- Date de dépôt
+- Nom du juge chargé du dossier
+
+===============================================
+
+6. INSTRUCTION ET DÉCISION
+
+6.1 EXAMEN DE LA REQUÊTE
+Le juge examine :
+- La compétence du tribunal
+- La recevabilité de la demande
+- Le bien-fondé de la créance
+- La régularité de la procédure
+
+6.2 DÉCISIONS POSSIBLES
+
+ORDONNANCE PORTANT INJONCTION DE PAYER
+- Accueil total de la demande
+- Accueil partiel (montant réduit)
+- Condamnation aux dépens
+
+REJET DE LA REQUÊTE
+Motifs possibles :
+- Incompétence du tribunal
+- Créance non établie
+- Créance contestable
+- Forme irrégulière
+
+6.3 DÉLAIS
+- Instruction : 2 à 8 semaines
+- Notification de la décision : sous 8 jours
+
+===============================================
+
+7. SIGNIFICATION ET OPPOSITION
+
+7.1 SIGNIFICATION OBLIGATOIRE
+L'ordonnance doit être signifiée au débiteur par huissier dans les 6 mois.
+
+7.2 CONTENU DE LA SIGNIFICATION
+• Copie certifiée conforme de l'ordonnance
+• Sommation de payer dans les 30 jours
+• Information sur le droit d'opposition
+• Conséquences de l'absence d'opposition
+
+7.3 DÉLAI D'OPPOSITION
+30 jours à compter de la signification.
+
+7.4 PROCÉDURE D'OPPOSITION
+Déclaration au greffe du tribunal qui a rendu l'ordonnance :
+- Par comparution personnelle
+- Par déclaration remise ou adressée au greffe
+- Par mandataire muni d'un pouvoir spécial
+
+7.5 EFFETS DE L'OPPOSITION
+• Annulation de l'ordonnance d'injonction de payer
+• Transformation en procédure ordinaire contradictoire
+• Assignation du débiteur devant le tribunal
+
+7.6 ABSENCE D'OPPOSITION
+Possibilité de demander l'apposition de la formule exécutoire.
+
+===============================================
+
+8. EXÉCUTION FORCÉE
+
+8.1 FORMULE EXÉCUTOIRE
+Demande au greffe après expiration du délai d'opposition (30 jours).
+
+8.2 VOIES D'EXÉCUTION
+• Saisie-attribution sur comptes bancaires
+• Saisie-vente des biens meubles  
+• Saisie immobilière
+• Saisie des rémunérations
+
+8.3 COMMANDEMENT DE PAYER
+Préalable obligatoire avant saisie :
+- Signifié par acte d'huissier
+- Délai de 8 jours avant saisie
+- Mention des voies de recours
+
+8.4 FRAIS D'EXÉCUTION
+À la charge du débiteur :
+- Frais d'huissier
+- Frais de signification
+- Frais de saisie
+
+===============================================
+
+9. COÛTS ET DÉLAIS
+
+9.1 COÛTS POUR LE CRÉANCIER
+
+FRAIS INCOMPRESSIBLES
+• Frais de greffe : 35,21 €
+• Signification : 50 à 100 €
+• Formule exécutoire : gratuite
+
+FRAIS OPTIONNELS
+• Avocat : 500 à 1 500 €
+• Mise en demeure par huissier : 50 €
+• Recherches d'adresse : 20 à 50 €
+
+9.2 DÉLAIS MOYENS
+
+Phase 1 : Dépôt à ordonnance (4 à 8 semaines)
+Phase 2 : Signification (1 à 2 semaines)
+Phase 3 : Délai d'opposition (30 jours)
+Phase 4 : Formule exécutoire (immédiat)
+
+TOTAL : 3 à 4 mois en l'absence d'opposition
+
+9.3 RÉCUPÉRATION DES FRAIS
+Les dépens sont généralement mis à la charge du débiteur.
+
+===============================================
+
+10. CONSEILS PRATIQUES
+
+10.1 AVANT LA PROCÉDURE
+✓ Vérifier la solvabilité du débiteur
+✓ Effectuer une mise en demeure formelle
+✓ Rassembler tous les justificatifs
+✓ Calculer précisément les intérêts de retard
+✓ Vérifier les coordonnées du débiteur
+
+10.2 CONSTITUTION DU DOSSIER
+✓ Utiliser le formulaire officiel Cerfa
+✓ Joindre les originaux ou copies certifiées
+✓ Numéroter et classer les pièces
+✓ Rédiger un bordereau récapitulatif
+✓ Vérifier la compétence territoriale
+
+10.3 APRÈS L'ORDONNANCE
+✓ Signifier rapidement (dans les 6 mois)
+✓ Surveiller le délai d'opposition
+✓ Demander la formule exécutoire si pas d'opposition
+✓ Engager les voies d'exécution rapidement
+
+10.4 EN CAS D'OPPOSITION
+✓ Évaluer les chances de succès au fond
+✓ Envisager une transaction amiable
+✓ Préparer la procédure contradictoire
+✓ Rassembler les preuves complémentaires
+
+10.5 ERREURS À ÉVITER
+✗ Dépôt sans mise en demeure préalable
+✗ Créance non liquide ou non exigible
+✗ Justificatifs insuffisants
+✗ Défaut de signification dans les délais
+✗ Calcul erroné des intérêts de retard
+
+===============================================
+
+MODÈLES ET ANNEXES
+
+Annexe 1 : Modèle de mise en demeure
+Annexe 2 : Formulaire Cerfa n°12948*02
+Annexe 3 : Modèle de bordereau de pièces
+Annexe 4 : Calcul des intérêts de retard
+Annexe 5 : Tarifs des huissiers
+
+===============================================
+
+RÉFÉRENCES JURIDIQUES
+
+• Code de procédure civile : articles 1405 à 1425
+• Code de commerce : articles L. 441-6 et suivants
+• Décret n° 2012-783 du 30 mai 2012
+
+Pour plus d'informations :
+- Site du ministère de la Justice : www.justice.gouv.fr
+- Tribunal de commerce compétent
+- Conseil en recouvrement de créances
+
+Mise à jour : janvier 2024

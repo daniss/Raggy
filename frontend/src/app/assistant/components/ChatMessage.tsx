@@ -32,9 +32,10 @@ interface Message {
 interface ChatMessageProps {
   message: Message;
   isLatest?: boolean;
+  onOpenDocument?: (filename: string, highlightText?: string, citationContext?: any) => void;
 }
 
-const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ message, isLatest = false }, ref) => {
+const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ message, isLatest = false, onOpenDocument }, ref) => {
   const [copied, setCopied] = useState(false);
   const [showSources, setShowSources] = useState(false);
 
@@ -308,7 +309,12 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
               className="mt-4 space-y-2"
             >
               {message.sources.map((source, index) => (
-                <SourceCard key={index} source={source} index={index} />
+                <SourceCard 
+                  key={index} 
+                  source={source} 
+                  index={index} 
+                  onOpenDocument={onOpenDocument}
+                />
               ))}
             </motion.div>
           )}

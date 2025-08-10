@@ -1,0 +1,405 @@
+CRÉDIT D'IMPÔT RECHERCHE (CIR) 2024
+===================================
+
+Guide pratique pour les entreprises françaises
+Version 2024 - Conforme à la loi de finances 2024
+
+SOMMAIRE
+========
+
+1. PRÉSENTATION GÉNÉRALE DU CIR
+2. CONDITIONS D'ÉLIGIBILITÉ
+3. DÉPENSES ÉLIGIBLES
+4. CALCUL DU CRÉDIT D'IMPÔT
+5. DÉCLARATION ET JUSTIFICATIFS
+6. CONTRÔLES ET RESCRIT
+7. EXEMPLES PRATIQUES
+8. OPTIMISATION FISCALE
+
+===============================================
+
+1. PRÉSENTATION GÉNÉRALE DU CIR
+
+1.1 DÉFINITION
+Le Crédit d'Impôt Recherche (CIR) est un avantage fiscal destiné à encourager les entreprises à développer leurs activités de recherche et développement (R&D).
+
+1.2 TAUX DU CIR 2024
+• 30% des dépenses de R&D jusqu'à 100 millions d'euros
+• 5% au-delà de 100 millions d'euros par entreprise et par an
+
+1.3 AVANTAGES
+□ Réduction d'impôt ou remboursement direct
+□ Pas de plafond de dépenses éligibles
+□ Cumulable avec d'autres dispositifs d'aide
+□ Applicable à toutes les entreprises soumises à l'IS ou à l'IR
+
+1.4 HISTORIQUE DES TAUX
+• 2020-2024 : 30% jusqu'à 100M€, 5% au-delà
+• 2011-2019 : 30% jusqu'à 100M€, 5% au-delà
+• 2008-2010 : 30% jusqu'à 100M€, 5% au-delà
+
+===============================================
+
+2. CONDITIONS D'ÉLIGIBILITÉ
+
+2.1 ENTREPRISES CONCERNÉES
+✓ Toutes les entreprises imposées en France
+✓ Entreprises soumises à l'IS ou à l'IR (BIC/BNC)
+✓ Entreprises individuelles
+✓ Associations et fondations (sous conditions)
+
+2.2 ACTIVITÉS ÉLIGIBLES
+Selon le Manuel de Frascati (OCDE), les activités de R&D comprennent :
+
+RECHERCHE FONDAMENTALE
+- Travaux expérimentaux entrepris pour acquérir de nouvelles connaissances
+- Sans application commerciale immédiate
+- Publications scientifiques valorisées
+
+RECHERCHE APPLIQUÉE
+- Travaux dirigés vers un but pratique déterminé
+- Application des résultats de la recherche fondamentale
+- Développement de nouveaux procédés ou produits
+
+DÉVELOPPEMENT EXPÉRIMENTAL
+- Travaux fondés sur les connaissances existantes
+- Production de matériaux, produits ou dispositifs nouveaux
+- Amélioration substantielle de ce qui existe déjà
+
+2.3 CRITÈRES DE NOUVEAUTÉ
+Les projets doivent présenter des éléments de nouveauté par rapport à l'état de l'art :
+□ Nouveauté scientifique ou technique
+□ Incertitudes techniques à lever
+□ Démarche d'investigation systématique
+□ Moyens humains et techniques qualifiés
+
+2.4 EXCLUSIONS
+✗ Activités de routine ou d'optimisation courante
+✗ Simple changement d'échelle ou transposition
+✗ Contrôles qualité et tests de routine
+✗ Études de marché et prospection commerciale
+✗ Formation professionnelle classique
+
+===============================================
+
+3. DÉPENSES ÉLIGIBLES
+
+3.1 DÉPENSES DE PERSONNEL (Catégorie principale)
+
+PERSONNEL DIRECTEMENT AFFECTÉ À LA R&D
+Base de calcul : salaires + charges patronales × 200%
+
+Personnel éligible :
+• Chercheurs et ingénieurs de recherche
+• Techniciens de recherche
+• Personnel de soutien à la recherche
+
+Temps d'affectation :
+- Déclaration des temps passés obligatoire
+- Tenue d'un décompte précis par projet
+- Validation par le responsable hiérarchique
+
+CALCUL SIMPLIFIÉ POUR LES DOCTEURS
+Entreprises ≤ 250 salariés créées depuis < 5 ans :
+Forfait majoré : salaires + charges × 400%
+
+3.2 AMORTISSEMENTS ET DOTATIONS
+
+BIENS CRÉÉS OU ACQUIS À L'ÉTAT NEUF
+• Matériels et outillages de recherche
+• Logiciels dédiés à la R&D
+• Équipements informatiques spécialisés
+• Installations et aménagements
+
+Amortissement fiscal normal ou linéaire.
+
+LOCAUX AFFECTÉS À LA RECHERCHE
+- Amortissement sur la quote-part R&D
+- Nécessité de justifier l'affectation exclusive
+- Locaux spécialement équipés pour la R&D
+
+3.3 AUTRES DÉPENSES DE FONCTIONNEMENT
+
+FRAIS DE PRISE ET DE MAINTENANCE DE BREVETS
+✓ Frais de dépôt et d'examen
+✓ Taxes annuelles de maintien
+✓ Frais de conseil en propriété industrielle
+✓ Traductions pour dépôts internationaux
+
+FRAIS DE NORMALISATION ET CERTIFICATION
+- Participation aux travaux de normalisation
+- Frais de certification ISO liés à la R&D
+- Contribution aux organismes de normalisation
+
+VEILLE TECHNOLOGIQUE
+Plafond : 60 000 € par an et par entreprise
+- Frais d'abonnement aux bases de données
+- Participation à des congrès scientifiques
+- Acquisition d'études sectorielles
+
+3.4 DÉPENSES DE SOUS-TRAITANCE
+
+CONDITIONS GÉNÉRALES
+• Sous-traitance exclusivement en R&D
+• Contrat précisant les prestations
+• Facturation distincte des autres prestations
+
+SOUS-TRAITANCE AUPRÈS D'ORGANISMES PUBLICS
+Prise en compte : 200% des sommes versées
+Organismes éligibles :
+- Universités et établissements d'enseignement supérieur
+- EPST (CNRS, INRA, INSERM, etc.)
+- EPIC (CEA, CNES, etc.)
+- Fondations de coopération scientifique
+
+SOUS-TRAITANCE AUPRÈS D'ENTREPRISES PRIVÉES
+Prise en compte : 100% des sommes versées
+Plafond : 12 millions d'euros par an
+
+SOUS-TRAITANCE INTERNATIONALE
+- UE et EEE : mêmes conditions que France
+- Hors UE : conditions restrictives
+- Nécessité d'agréement préalable pour certains pays
+
+===============================================
+
+4. CALCUL DU CRÉDIT D'IMPÔT
+
+4.1 FORMULE DE CALCUL
+CIR = 30% × (Dépenses éligibles jusqu'à 100 M€) + 5% × (Dépenses au-delà de 100 M€)
+
+4.2 EXEMPLES DE CALCUL
+
+EXEMPLE 1 - PME
+Dépenses de personnel R&D : 200 000 €
+Base élargie (200%) : 400 000 €
+Amortissements équipements : 50 000 €
+Brevets et veille : 30 000 €
+
+Total des dépenses éligibles : 480 000 €
+CIR = 480 000 × 30% = 144 000 €
+
+EXEMPLE 2 - Grande entreprise
+Dépenses totales éligibles : 120 000 000 €
+Calcul :
+- Première tranche (100 M€) : 100 000 000 × 30% = 30 000 000 €
+- Seconde tranche (20 M€) : 20 000 000 × 5% = 1 000 000 €
+CIR total : 31 000 000 €
+
+4.3 TRAITEMENT FISCAL DU CIR
+• Imputation sur l'IS de l'exercice
+• Si CIR > IS : créance sur l'État
+• Remboursement immédiat pour PME, JEI, entreprises nouvelles
+• Remboursement après 3 ans pour les autres
+
+4.4 CRÉANCES ET REMBOURSEMENTS
+Remboursement immédiat pour :
+□ PME (< 250 salariés et CA < 50 M€)
+□ Jeunes entreprises innovantes (JEI)
+□ Entreprises nouvelles (< 5 ans)
+□ Entreprises en difficultés
+
+===============================================
+
+5. DÉCLARATION ET JUSTIFICATIFS
+
+5.1 DÉCLARATION ANNUELLE
+□ Cerfa n°2069-RCI-SD (déclaration spéciale)
+□ À joindre à la déclaration de résultats
+□ Dépôt au plus tard 2e jour ouvré suivant le 1er mai
+
+5.2 PIÈCES JUSTIFICATIVES OBLIGATOIRES
+
+POUR LES DÉPENSES DE PERSONNEL
+□ État nominatif du personnel de recherche
+□ Décompte des temps par projet et par personne
+□ Justification des qualifications (CV, diplômes)
+□ Description des projets de recherche
+
+POUR LES AMORTISSEMENTS
+□ État des immobilisations éligibles
+□ Justification de l'affectation à la R&D
+□ Plan d'amortissement
+
+POUR LA SOUS-TRAITANCE
+□ Contrats de sous-traitance
+□ Factures détaillées
+□ Description des prestations réalisées
+□ Justification de l'éligibilité du sous-traitant
+
+5.3 DOCUMENTATION TECHNIQUE
+□ Description détaillée des projets
+□ Verrous technologiques identifiés
+□ Méthodologie de recherche employée
+□ Résultats obtenus et valorisation
+
+===============================================
+
+6. CONTRÔLES ET RESCRIT
+
+6.1 CONTRÔLES FISCAUX
+L'administration peut contrôler :
+• Éligibilité des projets et activités
+• Réalité et montant des dépenses
+• Affectation effective à la R&D
+• Respect des conditions d'éligibilité
+
+Délai de reprise : 3 ans (6 ans en cas d'omission)
+
+6.2 RESCRIT CIR
+Procédure permettant d'obtenir l'accord préalable de l'administration sur l'éligibilité d'un projet.
+
+AVANTAGES
+✓ Sécurisation juridique
+✓ Protection contre les redressements
+✓ Validation méthodologique
+
+PROCÉDURE
+- Demande avant le 31 décembre de l'année N
+- Pour les dépenses de l'année N+1
+- Réponse dans les 3 mois (silence = accord)
+
+COÛT
+2 000 € par demande (remboursés si réponse négative)
+
+6.3 COMMISSION DU CIR
+En cas de litige avec l'administration :
+- Saisine possible de la Commission du CIR
+- Expertise technique indépendante
+- Avis consultatif mais très suivi
+
+===============================================
+
+7. EXEMPLES SECTORIELS
+
+7.1 SECTEUR INFORMATIQUE
+PROJETS ÉLIGIBLES
+✓ Développement d'algorithmes innovants
+✓ Intelligence artificielle et machine learning
+✓ Cybersécurité et cryptographie
+✓ Interface homme-machine
+✓ Systèmes embarqués
+
+PROJETS NON ÉLIGIBLES
+✗ Développement d'applications web classiques
+✗ Intégration de solutions existantes
+✗ Maintenance et corrections de bugs
+✗ Interface utilisateur standard
+
+7.2 SECTEUR INDUSTRIEL
+PROJETS ÉLIGIBLES
+✓ Nouveaux matériaux et procédés
+✓ Optimisation énergétique
+✓ Automation et robotique
+✓ Capteurs intelligents
+✓ Procédés de fabrication innovants
+
+PROJETS NON ÉLIGIBLES
+✗ Amélioration continue (Kaizen)
+✗ Mise aux normes réglementaires
+✗ Changement d'échelle industrielle
+✗ Adaptation aux exigences clients
+
+7.3 SECTEUR PHARMACEUTIQUE
+PROJETS ÉLIGIBLES
+✓ Recherche de nouvelles molécules
+✓ Développement de médicaments
+✓ Recherche clinique (phases I, II, III)
+✓ Nouvelles formes galéniques
+✓ Biomarqueurs et diagnostics
+
+PHASES DE DÉVELOPPEMENT
+• Recherche préclinique : 100% éligible
+• Essais cliniques phase I-II : éligible
+• Essais cliniques phase III : éligible si innovation
+• Essais de bio-équivalence : non éligible
+
+===============================================
+
+8. OPTIMISATION FISCALE
+
+8.1 ORGANISATION OPTIMALE
+□ Centralisation des activités R&D
+□ Contractualisation intragroupe
+□ Mutualisation des moyens
+□ Optimisation des coûts
+
+8.2 STRATÉGIES DE GROUPE
+• Société holding de brevets
+• Facturation des prestations R&D
+• Partage des coûts de développement
+• Optimisation des flux financiers
+
+8.3 BONNES PRATIQUES
+□ Tenue rigoureuse des temps
+□ Documentation systématique des projets
+□ Traçabilité des dépenses
+□ Formation des équipes R&D
+□ Veille réglementaire continue
+
+8.4 PIÈGES À ÉVITER
+✗ Mauvaise affectation des temps
+✗ Documentation insuffisante
+✗ Confusion R&D / innovation commerciale
+✗ Sous-évaluation des enjeux de contrôle
+
+===============================================
+
+9. CIR ET AUTRES DISPOSITIFS
+
+9.1 CUMULS POSSIBLES
+Le CIR est cumulable avec :
+□ Crédit d'Impôt Innovation (CII)
+□ Jeune Entreprise Innovante (JEI)
+□ Subventions publiques
+□ Avance remboursable
+□ Financement européen (H2020, Horizon Europe)
+
+9.2 CRÉDIT D'IMPÔT INNOVATION (CII)
+• 20% des dépenses jusqu'à 400 k€
+• Réservé aux PME
+• Frais de conception de prototypes
+• Non cumulable avec le CIR sur mêmes dépenses
+
+9.3 STATUT JEI
+Avantages :
+• Exonération d'IS pendant 2 ans
+• Exonération charges sociales
+• Exonération CFE, CVAE
+• Remboursement immédiat du CIR
+
+===============================================
+
+ANNEXES
+
+Annexe 1 : Formulaire Cerfa n°2069-RCI-SD
+Annexe 2 : Liste des organismes publics agréés
+Annexe 3 : Modèle de décompte des temps
+Annexe 4 : Grille d'analyse projet R&D
+Annexe 5 : Jurisprudence récente
+
+===============================================
+
+CONTACTS UTILES
+
+Direction Générale des Finances Publiques
+Bureau CIR
+139 rue de Bercy - 75012 Paris
+Email : cir@dgfip.finances.gouv.fr
+
+Mission pour la Science et la Technologie (MESRI)
+25 rue de la Montagne Sainte-Geneviève
+75005 Paris
+Téléphone : 01 55 55 90 90
+
+ANRT (Association Nationale Recherche Technologie)
+41 boulevard des Capucines - 75002 Paris
+www.anrt.asso.fr
+
+===============================================
+
+Ce guide est mis à jour régulièrement selon l'évolution de la réglementation fiscale.
+Pour un conseil personnalisé, consultez votre expert-comptable ou conseil fiscal.
+
+Dernière mise à jour : janvier 2024
+Version 2024.1
