@@ -83,12 +83,10 @@ class Settings(BaseSettings):
     # Redis Configuration
     redis_url: Optional[str] = Field(default=None, env="REDIS_URL")
     
-    # Organization & SaaS Configuration
-    default_org_plan: str = Field(default="free", env="DEFAULT_ORG_PLAN")
-    max_orgs_per_user: int = Field(default=1, env="MAX_ORGS_PER_USER")
-    max_users_per_org_free: int = Field(default=10, env="MAX_USERS_PER_ORG_FREE")
-    max_documents_per_org_free: int = Field(default=100, env="MAX_DOCUMENTS_PER_ORG_FREE")
-    max_storage_mb_per_org_free: int = Field(default=500, env="MAX_STORAGE_MB_PER_ORG_FREE")
+    # Demo Configuration (single-client deployment)
+    demo_org_id: str = Field(default="demo-org-12345", env="DEMO_ORG_ID")
+    max_demo_documents: int = Field(default=100, env="MAX_DEMO_DOCUMENTS")
+    demo_session_expire_hours: int = Field(default=24, env="DEMO_SESSION_EXPIRE_HOURS")
     
     class Config:
         env_file = ".env"

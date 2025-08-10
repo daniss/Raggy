@@ -7,7 +7,7 @@ from typing import Optional, AsyncGenerator
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.responses import StreamingResponse
 from app.models.schemas import ChatRequest
-from app.core.deps import get_current_user, get_current_organization
+from app.core.deps import get_current_user, get_demo_org_id
 from app.core.sentry_config import capture_exception, add_breadcrumb
 from app.core.redis_cache import redis_cache
 from app.rag.fast_retriever import fast_retriever
@@ -114,8 +114,7 @@ async def generate_stream_response(
 async def chat_stream(
     request: ChatRequest,
     http_request: Request,
-    current_user: Optional[dict] = Depends(get_current_user),
-    current_org: Optional[dict] = Depends(get_current_organization)
+    current_user: Optional[dict] = Depends(get_current_user)
 ):
     """
     Stream chat responses in real-time for faster perceived response times.
@@ -130,7 +129,7 @@ async def chat_stream(
     """
     
     conversation_id = request.conversation_id or str(uuid.uuid4())
-    organization_id = current_org.get("id") if current_org else None
+    demo_org_id = get_demo_org_id()
     
     add_breadcrumb(
         message="Processing streaming chat request",
@@ -145,7 +144,7 @@ async def chat_stream(
     return StreamingResponse(
         generate_stream_response(
             request.question,
-            organization_id,
+            demo_org_id,
             conversation_id
         ),
         media_type="text/event-stream",

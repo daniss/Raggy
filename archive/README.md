@@ -8,11 +8,13 @@ This folder contains all the multi-tenant and enterprise features that were remo
 
 #### API Endpoints (`/backend/api/`)
 - `advanced_analytics.py` - Complex analytics dashboards
+- `analytics.py` - Organization-scoped analytics and reporting (Phase 1 cleanup)
 - `audit.py` - Audit logging endpoints
 - `jobs.py` - Background job management
 - `metrics.py` - Detailed metrics collection
 - `monitoring.py` - System monitoring endpoints
 - `organizations.py` - Multi-tenant organization management
+- `upload_complex.py` - Complex multi-tenant upload with batch processing (Phase 1 cleanup)
 - `usage.py` - Usage tracking and limits
 
 #### Core Modules (`/backend/core/`)
@@ -45,6 +47,20 @@ This folder contains all the multi-tenant and enterprise features that were remo
 ## Why These Were Archived
 
 These components were designed for a multi-tenant SaaS platform. The new business model focuses on single-client deployments at €15,000 each, making these features unnecessary complexity for individual client installations.
+
+### Phase 1 Cleanup (Additional Archiving)
+
+During Phase 1 cleanup, additional components were archived to further simplify the codebase:
+
+- **analytics.py**: Complex organization-scoped analytics with time-series data, popular topics analysis, and multi-tenant filtering
+- **upload_complex.py**: Original upload endpoint with batch processing, audit logging, organization permissions, and complex validation workflows
+
+### Simplified Replacements
+
+- **analytics.py** → Basic health metrics in system_health.py
+- **upload_complex.py** → Streamlined upload.py with direct processing, demo org scoping, and simplified purge functionality
+
+The simplified versions focus on core functionality without multi-tenant complexity, reducing maintenance burden and deployment complexity by ~90%.
 
 ## Restoration
 

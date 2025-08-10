@@ -3,7 +3,7 @@ import time
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Request
 from app.models.schemas import ChatRequest, ChatResponse, Source
-from app.core.deps import get_current_user, get_current_organization
+from app.core.deps import get_current_user, get_demo_org_id
 from app.core.sentry_config import capture_exception, add_breadcrumb, set_context
 from app.core.audit_middleware import get_request_info
 from app.services.audit_logger import audit_logger
@@ -24,15 +24,14 @@ async def chat(
     http_request: Request,
     request: ChatRequest,
     background_tasks: BackgroundTasks,
-    current_user: Optional[dict] = Depends(get_current_user),
-    current_org: Optional[dict] = Depends(get_current_organization)
+    current_user: Optional[dict] = Depends(get_current_user)
 ):
     """
     Process a chat question and return an AI-generated response with sources.
     """
     start_time = time.time()
     conversation_id = request.conversation_id or str(uuid.uuid4())
-    organization_id = current_org.get("id") if current_org else None
+    demo_org_id = get_demo_org_id()
     
     try:
         logger.info(f"Processing chat request: {request.question[:100]}...")
@@ -79,10 +78,9 @@ async def chat(
             sources=result["sources"]
         )
         
-        # Log all interactions for analytics
-        # Note: Anonymous users need special handling due to RLS policies
-        if current_user and organization_id:
-            # Authenticated users: log normally
+        # Log all interactions for analytics (simplified for demo)
+        if current_user:
+            # Authenticated users: log normally with demo org
             background_tasks.add_task(
                 log_chat_interaction,
                 user_id=current_user.get("id"),
@@ -90,7 +88,7 @@ async def chat(
                 answer=result["answer"],
                 sources=result["sources"],
                 response_time=result["response_time"],
-                organization_id=organization_id
+                organization_id=demo_org_id
             )
         else:
             # Anonymous users: log for metrics but bypass RLS
@@ -99,20 +97,6 @@ async def chat(
                 question=request.question,
                 response_time=result["response_time"],
                 sources_count=len(result["sources"])
-            )
-            
-        # Log audit event for chat interaction (only for authenticated users)
-        if current_user:
-            client_ip, user_agent = get_request_info(http_request)
-            background_tasks.add_task(
-                audit_logger.log_chat_event,
-                organization_id=organization_id,
-                user_id=current_user.get("id"),
-                question=request.question,
-                response_time=result["response_time"],
-                sources_count=len(result["sources"]),
-                ip_address=client_ip,
-                user_agent=user_agent
             )
         
         # Note: Chat response caching disabled - legal consulting requires fresh, contextual responses

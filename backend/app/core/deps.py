@@ -4,7 +4,6 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from supabase import create_client, Client
 from app.core.config import settings
 from app.db.supabase_client import supabase_client
-from app.models.schemas import UserRole
 
 
 security = HTTPBearer(auto_error=False)
@@ -50,53 +49,6 @@ async def require_auth(
     return current_user
 
 
-async def get_current_organization(
-    current_user: dict = Depends(require_auth),
-    supabase: Client = Depends(get_supabase)
-) -> dict:
-    """Get current user's organization."""
-    try:
-        # Get user's organization membership
-        membership_result = supabase.table("organization_members").select(
-            "organization_id, role, status, organizations!inner(*)"
-        ).eq("user_id", current_user["id"]).eq("status", "active").execute()
-        
-        if not membership_result.data:
-            raise HTTPException(
-                status_code=404,
-                detail="User is not a member of any organization"
-            )
-        
-        # Get the first active membership (users can only be in one org in this MVP)
-        membership = membership_result.data[0]
-        organization = membership["organizations"]
-        
-        # Add role information to organization data
-        organization["user_role"] = membership["role"]
-        
-        return organization
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to retrieve organization information"
-        )
-
-
-async def require_admin(
-    current_user: dict = Depends(require_auth),
-    current_org: dict = Depends(get_current_organization)
-) -> dict:
-    """Require admin role within the current organization."""
-    user_role = current_org.get("user_role")
-    if user_role != UserRole.ADMIN.value:  # Compare with enum value
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.warning(f"Unauthorized admin access attempt by user {current_user.get('id')} with role {user_role}")
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required"
-        )
-    return current_user
+def get_demo_org_id() -> str:
+    """Get the hardcoded demo organization ID."""
+    return getattr(settings, 'demo_org_id', 'demo-org-12345')
