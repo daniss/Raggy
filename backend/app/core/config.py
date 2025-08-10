@@ -38,9 +38,23 @@ class Settings(BaseSettings):
         default="intfloat/multilingual-e5-base", 
         env="EMBEDDING_MODEL"
     )
+    embeddings_provider: str = Field(default="local", env="EMBEDDINGS_PROVIDER")  # local/remote
+    
+    # Remote Embeddings Configuration (when provider=remote)
+    remote_embeddings_url: Optional[str] = Field(default=None, env="REMOTE_EMBEDDINGS_URL")
+    remote_embeddings_key: Optional[str] = Field(default=None, env="REMOTE_EMBEDDINGS_KEY")
+    remote_embeddings_model: str = Field(default="text-embedding-3-small", env="REMOTE_EMBEDDINGS_MODEL")
     chunk_size: int = Field(default=1000, env="CHUNK_SIZE")
     chunk_overlap: int = Field(default=200, env="CHUNK_OVERLAP")
     retrieval_k: int = Field(default=8, env="RETRIEVAL_K")
+    
+    # LLM Provider Configuration
+    llm_provider: str = Field(default="groq", env="LLM_PROVIDER")  # groq/local
+    llm_base_url: Optional[str] = Field(default=None, env="LLM_BASE_URL")  # For local LLM servers
+    
+    # Local LLM Configuration (when provider=local)
+    local_llm_model: str = Field(default="default", env="LOCAL_LLM_MODEL")
+    local_llm_api_key: Optional[str] = Field(default=None, env="LOCAL_LLM_API_KEY")
     
     # Advanced RAG Configuration
     use_hybrid_search: bool = Field(default=True, env="USE_HYBRID_SEARCH")

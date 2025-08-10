@@ -9,13 +9,22 @@ logger = logging.getLogger(__name__)
 
 
 class ContentAwareDocumentSplitter:
-    """Content-aware document text splitter with semantic boundary detection."""
+    """Content-aware document text splitter with semantic boundary detection and runtime configuration."""
     
-    def __init__(self, chunk_size: int = None, chunk_overlap: int = None, enable_semantic_chunking: bool = True):
-        """Initialize content-aware document splitter."""
+    def __init__(self, chunk_size: int = None, chunk_overlap: int = None, enable_semantic_chunking: bool = None):
+        """Initialize content-aware document splitter with configurable parameters."""
         self.chunk_size = chunk_size or settings.chunk_size
         self.chunk_overlap = chunk_overlap or settings.chunk_overlap
-        self.enable_semantic_chunking = enable_semantic_chunking
+        self.enable_semantic_chunking = enable_semantic_chunking if enable_semantic_chunking is not None else settings.use_semantic_chunking
+        
+        # Validate parameters
+        if self.chunk_size <= 0:
+            raise ValueError("chunk_size must be positive")
+        if self.chunk_overlap < 0:
+            raise ValueError("chunk_overlap cannot be negative")
+        if self.chunk_overlap >= self.chunk_size:
+            logger.warning(f"chunk_overlap ({self.chunk_overlap}) >= chunk_size ({self.chunk_size}), reducing overlap")
+            self.chunk_overlap = max(0, self.chunk_size // 4)  # Limit to 25% of chunk size
         
         # Standard text splitter as fallback
         self.text_splitter = RecursiveCharacterTextSplitter(
@@ -54,7 +63,63 @@ class ContentAwareDocumentSplitter:
             'strong_breaks': re.compile(r'\n\s*[-=]{3,}\s*\n'),  # Horizontal rules
         }
         
-        logger.info(f"Initialized content-aware splitter: chunk_size={self.chunk_size}, overlap={self.chunk_overlap}, semantic={enable_semantic_chunking}")
+        logger.info(f"Initialized content-aware splitter: chunk_size={self.chunk_size}, overlap={self.chunk_overlap}, semantic={self.enable_semantic_chunking}")
+    
+    def reconfigure(self, chunk_size: int = None, chunk_overlap: int = None, enable_semantic_chunking: bool = None):
+        """Reconfigure splitter parameters at runtime."""
+        if chunk_size is not None:
+            if chunk_size <= 0:
+                raise ValueError("chunk_size must be positive")
+            self.chunk_size = chunk_size
+        
+        if chunk_overlap is not None:
+            if chunk_overlap < 0:
+                raise ValueError("chunk_overlap cannot be negative")
+            self.chunk_overlap = chunk_overlap
+        
+        if enable_semantic_chunking is not None:
+            self.enable_semantic_chunking = enable_semantic_chunking
+        
+        # Validate overlap vs chunk size
+        if self.chunk_overlap >= self.chunk_size:
+            logger.warning(f"Reconfigured overlap ({self.chunk_overlap}) >= chunk_size ({self.chunk_size}), reducing")
+            self.chunk_overlap = max(0, self.chunk_size // 4)
+        
+        # Recreate text splitter with new parameters
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=self.chunk_size,
+            chunk_overlap=self.chunk_overlap,
+            length_function=len,
+            separators=[
+                "\n\n\n",  # Multiple newlines (strong paragraph separation)
+                "\n\n",    # Double newlines (paragraph separation)
+                "\n# ",    # Markdown headers
+                "\n## ",   # Markdown subheaders
+                "\n### ",  # Markdown sub-subheaders
+                "\n- ",    # Markdown list items
+                "\n* ",    # Markdown list items (alternative)
+                "\n1. ",   # Numbered lists
+                "\n",      # Single newlines
+                ". ",      # Sentence endings
+                "! ",      # Exclamation sentences
+                "? ",      # Question sentences
+                "; ",      # Semicolons
+                " ",       # Spaces
+                ""         # Character level (last resort)
+            ],
+            keep_separator=True
+        )
+        
+        logger.info(f"Reconfigured splitter: chunk_size={self.chunk_size}, overlap={self.chunk_overlap}, semantic={self.enable_semantic_chunking}")
+    
+    def get_configuration(self) -> Dict[str, Any]:
+        """Get current splitter configuration."""
+        return {
+            "chunk_size": self.chunk_size,
+            "chunk_overlap": self.chunk_overlap,
+            "enable_semantic_chunking": self.enable_semantic_chunking,
+            "overlap_ratio": self.chunk_overlap / self.chunk_size if self.chunk_size > 0 else 0
+        }
     
     def _detect_content_structure(self, text: str) -> Dict[str, List[Tuple[int, int]]]:
         """Detect structural elements in text and their positions."""
@@ -169,13 +234,21 @@ class ContentAwareDocumentSplitter:
         
         return chunks
     
-    def split_documents(self, documents: List[Document]) -> List[Document]:
-        """Split documents into chunks using content-aware splitting."""
+    def split_documents(self, documents: List[Document], adaptive_sizing: bool = False) -> List[Document]:
+        """Split documents into chunks using content-aware splitting with optional adaptive sizing."""
         try:
-            logger.debug(f"Splitting {len(documents)} documents into chunks")
+            logger.debug(f"Splitting {len(documents)} documents into chunks (adaptive={adaptive_sizing})")
             
             chunks = []
             for doc in documents:
+                # Optionally adjust chunk size based on document length
+                original_chunk_size = self.chunk_size
+                if adaptive_sizing:
+                    optimal_size = get_optimal_chunk_size(len(doc.page_content))
+                    if optimal_size != self.chunk_size:
+                        logger.debug(f"Adapting chunk size from {self.chunk_size} to {optimal_size} for document of length {len(doc.page_content)}")
+                        self.reconfigure(chunk_size=optimal_size)
+                
                 if self.enable_semantic_chunking:
                     # Use content-aware splitting
                     chunk_texts = self._smart_split_text(doc.page_content)
@@ -183,6 +256,10 @@ class ContentAwareDocumentSplitter:
                     # Use standard LangChain splitting as fallback
                     doc_chunks = self.text_splitter.split_documents([doc])
                     chunk_texts = [chunk.page_content for chunk in doc_chunks]
+                
+                # Restore original chunk size if it was changed
+                if adaptive_sizing and optimal_size != original_chunk_size:
+                    self.reconfigure(chunk_size=original_chunk_size)
                 
                 # Create Document objects with enhanced metadata
                 for i, chunk_text in enumerate(chunk_texts):
@@ -192,7 +269,12 @@ class ContentAwareDocumentSplitter:
                         "total_chunks": len(chunk_texts),
                         "chunk_size": len(chunk_text),
                         "splitting_method": "content_aware" if self.enable_semantic_chunking else "standard",
-                        "has_semantic_overlap": self.enable_semantic_chunking and i > 0
+                        "has_semantic_overlap": self.enable_semantic_chunking and i > 0,
+                        "splitter_config": {
+                            "chunk_size": self.chunk_size,
+                            "chunk_overlap": self.chunk_overlap,
+                            "semantic_chunking": self.enable_semantic_chunking
+                        }
                     })
                     
                     chunk_doc = Document(
@@ -201,7 +283,7 @@ class ContentAwareDocumentSplitter:
                     )
                     chunks.append(chunk_doc)
             
-            logger.info(f"Created {len(chunks)} chunks from {len(documents)} documents using {'content-aware' if self.enable_semantic_chunking else 'standard'} splitting")
+            logger.info(f"Created {len(chunks)} chunks from {len(documents)} documents using {'content-aware' if self.enable_semantic_chunking else 'standard'} splitting{'with adaptive sizing' if adaptive_sizing else ''}")
             return chunks
             
         except Exception as e:
@@ -317,3 +399,32 @@ class DocumentSplitter(ContentAwareDocumentSplitter):
 
 # Global splitter instance with content-aware chunking
 document_splitter = ContentAwareDocumentSplitter()
+
+
+def create_custom_splitter(chunk_size: int, chunk_overlap: int, enable_semantic_chunking: bool = True) -> ContentAwareDocumentSplitter:
+    """Create a custom splitter with specific configuration."""
+    return ContentAwareDocumentSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        enable_semantic_chunking=enable_semantic_chunking
+    )
+
+
+def get_optimal_chunk_size(content_length: int, target_chunks: int = None) -> int:
+    """Calculate optimal chunk size based on content length and target chunk count."""
+    if target_chunks:
+        # Calculate chunk size to achieve target number of chunks
+        base_chunk_size = content_length // target_chunks
+        # Round to nearest hundred for consistency
+        optimal_size = max(200, round(base_chunk_size / 100) * 100)
+        return min(optimal_size, 2000)  # Cap at 2000 chars
+    else:
+        # Use adaptive sizing based on content length
+        if content_length < 1000:
+            return content_length  # Single chunk for very short content
+        elif content_length < 5000:
+            return 800  # Smaller chunks for medium content
+        elif content_length < 20000:
+            return 1200  # Standard chunks for larger content
+        else:
+            return 1600  # Larger chunks for very large content

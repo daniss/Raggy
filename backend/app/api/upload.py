@@ -85,7 +85,7 @@ async def upload_documents(
                 
                 try:
                     # Process document directly for simplified demo
-                    # Load document content
+                    # Load document content with enhanced metadata and hashing
                     documents = await document_loader.load_from_content(
                         content=file_content,
                         filename=safe_filename,
@@ -269,77 +269,171 @@ async def purge_demo_data(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Purge all demo data and return proof of deletion.
+    Purge all demo data and return cryptographically verifiable proof of deletion.
     Essential for demo cleanup and client handover.
     """
     try:
-        logger.info("Starting demo data purge...")
+        logger.info("Starting enhanced demo data purge with cryptographic verification...")
         
         demo_org_id = get_demo_org_id()
+        purge_timestamp = datetime.now(timezone.utc)
+        purge_id = str(uuid.uuid4())
         
-        # Get count before purge
-        pre_stats = retriever.get_collection_stats()
-        pre_count = pre_stats.get("total_vectors", 0)
-        logger.info(f"Vector store has {pre_count} documents before purge")
-        
-        # Get document count from database
+        # Phase 1: Collect pre-purge state for hash calculation
+        logger.info("Phase 1: Collecting pre-purge state...")
         from app.db.supabase_client import supabase_client
-        db_result = supabase_client.table("documents").select("id", count="exact").eq("organization_id", demo_org_id).execute()
-        db_doc_count = db_result.count or 0
         
-        # Reset vector store collection
-        reset_success = retriever.reset_collection()
+        # Get detailed pre-purge counts
+        doc_result = supabase_client.table("documents").select("id", count="exact").eq("organization_id", demo_org_id).execute()
+        vector_result = supabase_client.table("document_vectors").select("id", count="exact").eq("organization_id", demo_org_id).execute()
         
-        # Delete all documents from database for demo org
-        delete_result = supabase_client.table("documents").delete().eq("organization_id", demo_org_id).execute()
+        pre_doc_count = doc_result.count or 0
+        pre_vector_count = vector_result.count or 0
         
-        # Delete all document vectors for demo org
-        vectors_delete_result = supabase_client.table("document_vectors").delete().eq("organization_id", demo_org_id).execute()
-        
-        # Clear all cached responses
-        redis_cache.invalidate_all_cache()
-        
-        # Verify purge worked
-        post_stats = retriever.get_collection_stats()
-        post_count = post_stats.get("total_vectors", 0)
-        logger.info(f"Vector store has {post_count} documents after purge")
-        
-        # Generate purge proof
-        purge_timestamp = datetime.now(timezone.utc).isoformat()
-        purge_proof = {
-            "purge_timestamp": purge_timestamp,
-            "demo_org_id": demo_org_id,
-            "documents_purged": {
-                "vector_store": pre_count - post_count,
-                "database_documents": db_doc_count,
-                "database_vectors": len(vectors_delete_result.data) if vectors_delete_result.data else 0
-            },
-            "verification": {
-                "vector_store_empty": post_count == 0,
-                "reset_success": reset_success
-            },
-            "user_id": current_user.get("id") if current_user else "anonymous",
-            "purge_id": str(uuid.uuid4())
+        # Calculate pre-purge state hash
+        pre_state = {
+            "timestamp": purge_timestamp.isoformat(),
+            "org_id": demo_org_id,
+            "document_count": pre_doc_count,
+            "vector_count": pre_vector_count,
+            "purge_id": purge_id
         }
         
-        if reset_success and post_count == 0:
-            logger.info(f"Successfully purged all demo data (removed {pre_count} documents)")
+        import hashlib
+        import json
+        pre_state_json = json.dumps(pre_state, sort_keys=True)
+        pre_state_hash = hashlib.sha256(pre_state_json.encode()).hexdigest()
+        
+        logger.info(f"Pre-purge state: {pre_doc_count} docs, {pre_vector_count} vectors")
+        
+        # Phase 2: Execute atomic deletion
+        logger.info("Phase 2: Executing atomic deletion...")
+        
+        try:
+            # Start transaction-like operations
+            # Delete all document vectors for demo org first (to maintain referential integrity)
+            vectors_delete_result = supabase_client.table("document_vectors").delete().eq("organization_id", demo_org_id).execute()
+            vectors_deleted = len(vectors_delete_result.data) if vectors_delete_result.data else 0
+            
+            # Delete all documents from database for demo org
+            docs_delete_result = supabase_client.table("documents").delete().eq("organization_id", demo_org_id).execute()
+            docs_deleted = len(docs_delete_result.data) if docs_delete_result.data else 0
+            
+            # Delete any chat logs for demo org
+            chat_delete_result = supabase_client.table("chat_logs").delete().eq("organization_id", demo_org_id).execute()
+            chats_deleted = len(chat_delete_result.data) if chat_delete_result.data else 0
+            
+            # Clear all cached responses
+            redis_cache.invalidate_all_cache()
+            
+            logger.info(f"Deleted: {docs_deleted} docs, {vectors_deleted} vectors, {chats_deleted} chat logs")
+            
+        except Exception as deletion_error:
+            logger.error(f"Deletion phase failed: {deletion_error}")
+            raise HTTPException(status_code=500, detail=f"Deletion failed: {deletion_error}")
+        
+        # Phase 3: Verify deletion and calculate post-state hash
+        logger.info("Phase 3: Verifying deletion and generating proof...")
+        
+        # Verify deletion by recounting
+        post_doc_result = supabase_client.table("documents").select("id", count="exact").eq("organization_id", demo_org_id).execute()
+        post_vector_result = supabase_client.table("document_vectors").select("id", count="exact").eq("organization_id", demo_org_id).execute()
+        post_chat_result = supabase_client.table("chat_logs").select("id", count="exact").eq("organization_id", demo_org_id).execute()
+        
+        post_doc_count = post_doc_result.count or 0
+        post_vector_count = post_vector_result.count or 0
+        post_chat_count = post_chat_result.count or 0
+        
+        # Calculate post-purge state hash
+        post_state = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "org_id": demo_org_id,
+            "document_count": post_doc_count,
+            "vector_count": post_vector_count,
+            "chat_count": post_chat_count,
+            "purge_id": purge_id
+        }
+        
+        post_state_json = json.dumps(post_state, sort_keys=True)
+        post_state_hash = hashlib.sha256(post_state_json.encode()).hexdigest()
+        
+        # Generate verification hash (combines pre and post states)
+        verification_data = {
+            "pre_state_hash": pre_state_hash,
+            "post_state_hash": post_state_hash,
+            "operation": "purge",
+            "purge_id": purge_id,
+            "user_id": current_user.get("id") if current_user else "anonymous"
+        }
+        
+        verification_json = json.dumps(verification_data, sort_keys=True)
+        verification_hash = hashlib.sha256(verification_json.encode()).hexdigest()
+        
+        # Determine success
+        deletion_successful = (
+            post_doc_count == 0 and 
+            post_vector_count == 0 and
+            docs_deleted == pre_doc_count and
+            vectors_deleted == pre_vector_count
+        )
+        
+        # Generate comprehensive purge proof
+        purge_proof = {
+            "version": "2.0",
+            "purge_id": purge_id,
+            "timestamp": purge_timestamp.isoformat(),
+            "organization_id": demo_org_id,
+            "operation_summary": {
+                "documents_before": pre_doc_count,
+                "documents_after": post_doc_count,
+                "documents_deleted": docs_deleted,
+                "vectors_before": pre_vector_count,
+                "vectors_after": post_vector_count,
+                "vectors_deleted": vectors_deleted,
+                "chat_logs_deleted": chats_deleted
+            },
+            "cryptographic_verification": {
+                "pre_state_hash": pre_state_hash,
+                "post_state_hash": post_state_hash,
+                "verification_hash": verification_hash,
+                "hash_algorithm": "SHA256"
+            },
+            "verification_details": {
+                "pre_state": pre_state,
+                "post_state": post_state,
+                "verification_data": verification_data
+            },
+            "success": deletion_successful,
+            "user_info": {
+                "user_id": current_user.get("id") if current_user else "anonymous",
+                "user_email": current_user.get("email") if current_user else None
+            },
+            "system_info": {
+                "api_version": "2.0",
+                "environment": settings.environment
+            }
+        }
+        
+        if deletion_successful:
+            logger.info(f"✓ Purge completed successfully - Verification hash: {verification_hash[:16]}...")
             return {
                 "success": True,
-                "message": "Demo data purged successfully",
-                "proof": purge_proof
+                "message": f"Demo data purged successfully. Deleted {docs_deleted} documents and {vectors_deleted} vectors.",
+                "proof": purge_proof,
+                "verification_hash": verification_hash
             }
         else:
-            logger.error("Purge verification failed")
+            logger.error(f"✗ Purge verification failed - Expected vs Actual: docs({pre_doc_count}/{docs_deleted}), vectors({pre_vector_count}/{vectors_deleted})")
             return {
                 "success": False,
-                "message": "Purge completed but verification failed",
-                "proof": purge_proof
+                "message": "Purge completed but verification failed - some data may remain",
+                "proof": purge_proof,
+                "verification_hash": verification_hash
             }
             
     except Exception as e:
-        logger.error(f"Failed to purge demo data: {e}")
-        raise HTTPException(status_code=500, detail="Purge operation failed")
+        logger.error(f"Enhanced purge failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Enhanced purge operation failed: {str(e)}")
 
 
 @router.get("/stats")

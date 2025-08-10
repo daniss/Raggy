@@ -1,6 +1,7 @@
 import os
 import tempfile
-from typing import List, Dict, Any
+import hashlib
+from typing import List, Dict, Any, Optional
 import fitz  # PyMuPDF
 from unstructured.partition.auto import partition
 from langchain.schema import Document
@@ -8,37 +9,122 @@ import logging
 import pandas as pd
 import csv
 from io import StringIO
+from datetime import datetime
+
+# Optional fallback imports
+try:
+    import pdfplumber
+    PDFPLUMBER_AVAILABLE = True
+except ImportError:
+    PDFPLUMBER_AVAILABLE = False
+    pdfplumber = None
+
+try:
+    from docx import Document as DocxDocument
+    PYTHON_DOCX_AVAILABLE = True
+except ImportError:
+    PYTHON_DOCX_AVAILABLE = False
+    DocxDocument = None
 
 logger = logging.getLogger(__name__)
 
 
 class DocumentLoader:
-    """Document loader for various file formats."""
+    """Enhanced document loader with fallback processing and content hashing."""
     
     def __init__(self):
-        """Initialize document loader."""
+        """Initialize document loader with enhanced processing capabilities."""
         self.supported_formats = {
             "application/pdf": self._load_pdf,
             "text/plain": self._load_text,
             "text/markdown": self._load_text,
             "text/csv": self._load_csv,
             "application/csv": self._load_csv,
-            "application/msword": self._load_with_unstructured,
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": self._load_with_unstructured,
+            "application/msword": self._load_word_doc,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document": self._load_docx,
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": self._load_excel,
             "application/vnd.ms-excel": self._load_excel,
         }
+        
+        # Log available fallback processors
+        if PDFPLUMBER_AVAILABLE:
+            logger.info("pdfplumber available for PDF fallback processing")
+        if PYTHON_DOCX_AVAILABLE:
+            logger.info("python-docx available for DOCX fallback processing")
+    
+    def _calculate_content_hash(self, content: bytes) -> str:
+        """Calculate SHA256 hash of document content for idempotency."""
+        return hashlib.sha256(content).hexdigest()
+    
+    def _extract_document_metadata(self, file_path: str, content_type: str, content: bytes = None) -> Dict[str, Any]:
+        """Extract enhanced metadata from document."""
+        metadata = {
+            "content_type": content_type,
+            "file_size": len(content) if content else os.path.getsize(file_path),
+            "processed_at": datetime.utcnow().isoformat(),
+            "loader_version": "2.0"
+        }
+        
+        # Add content hash for idempotency
+        if content:
+            metadata["content_hash"] = self._calculate_content_hash(content)
+        
+        # Extract file stats
+        try:
+            stat = os.stat(file_path)
+            metadata.update({
+                "created_time": datetime.fromtimestamp(stat.st_ctime).isoformat(),
+                "modified_time": datetime.fromtimestamp(stat.st_mtime).isoformat(),
+            })
+        except Exception as e:
+            logger.debug(f"Could not extract file stats: {e}")
+        
+        # Try to extract document-specific metadata
+        try:
+            if content_type == "application/pdf":
+                metadata.update(self._extract_pdf_metadata(file_path))
+        except Exception as e:
+            logger.debug(f"Could not extract document-specific metadata: {e}")
+        
+        return metadata
+    
+    def _extract_pdf_metadata(self, file_path: str) -> Dict[str, Any]:
+        """Extract PDF-specific metadata."""
+        metadata = {}
+        try:
+            doc = fitz.open(file_path)
+            pdf_meta = doc.metadata
+            if pdf_meta:
+                metadata.update({
+                    "title": pdf_meta.get("title", ""),
+                    "author": pdf_meta.get("author", ""),
+                    "subject": pdf_meta.get("subject", ""),
+                    "creator": pdf_meta.get("creator", ""),
+                    "producer": pdf_meta.get("producer", ""),
+                    "creation_date": pdf_meta.get("creationDate", ""),
+                    "modification_date": pdf_meta.get("modDate", "")
+                })
+            metadata["total_pages"] = len(doc)
+            doc.close()
+        except Exception as e:
+            logger.debug(f"Failed to extract PDF metadata: {e}")
+        return metadata
     
     def load_from_file(self, file_path: str, content_type: str, metadata: Dict[str, Any] = None) -> List[Document]:
-        """Load documents from file."""
+        """Load documents from file with enhanced metadata extraction."""
         try:
             if content_type not in self.supported_formats:
                 raise ValueError(f"Unsupported file type: {content_type}")
             
-            loader_func = self.supported_formats[content_type]
-            documents = loader_func(file_path, metadata or {})
+            # Extract enhanced metadata
+            enhanced_metadata = self._extract_document_metadata(file_path, content_type)
+            if metadata:
+                enhanced_metadata.update(metadata)
             
-            logger.info(f"Loaded {len(documents)} documents from {file_path}")
+            loader_func = self.supported_formats[content_type]
+            documents = loader_func(file_path, enhanced_metadata)
+            
+            logger.info(f"Loaded {len(documents)} documents from {file_path} with enhanced metadata")
             return documents
             
         except Exception as e:
@@ -46,7 +132,7 @@ class DocumentLoader:
             raise
     
     def load_from_bytes(self, file_bytes: bytes, content_type: str, filename: str, metadata: Dict[str, Any] = None) -> List[Document]:
-        """Load documents from bytes."""
+        """Load documents from bytes with content hashing."""
         try:
             # Create temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix=self._get_extension(content_type)) as tmp_file:
@@ -54,15 +140,20 @@ class DocumentLoader:
                 tmp_file_path = tmp_file.name
             
             try:
-                # Add filename to metadata
+                # Enhanced metadata with content hash
                 file_metadata = metadata or {}
                 file_metadata.update({
                     "filename": filename,
                     "content_type": content_type,
-                    "size_bytes": len(file_bytes)
+                    "size_bytes": len(file_bytes),
+                    "content_hash": self._calculate_content_hash(file_bytes)
                 })
                 
-                documents = self.load_from_file(tmp_file_path, content_type, file_metadata)
+                # Extract enhanced metadata
+                enhanced_metadata = self._extract_document_metadata(tmp_file_path, content_type, file_bytes)
+                enhanced_metadata.update(file_metadata)
+                
+                documents = self.load_from_file(tmp_file_path, content_type, enhanced_metadata)
                 return documents
                 
             finally:
@@ -73,32 +164,76 @@ class DocumentLoader:
             logger.error(f"Failed to load document from bytes: {e}")
             raise
     
+    async def load_from_content(self, content: bytes, filename: str, content_type: str, metadata: Dict[str, Any] = None) -> List[Document]:
+        """Async wrapper for load_from_bytes."""
+        return self.load_from_bytes(content, content_type, filename, metadata)
+    
     def _load_pdf(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
-        """Load PDF document using PyMuPDF."""
+        """Load PDF document using PyMuPDF with pdfplumber fallback."""
         try:
-            documents = []
-            pdf_doc = fitz.open(file_path)
+            return self._load_pdf_pymupdf(file_path, metadata)
+        except Exception as e:
+            logger.warning(f"PyMuPDF failed: {e}. Trying pdfplumber fallback...")
+            if PDFPLUMBER_AVAILABLE:
+                try:
+                    return self._load_pdf_pdfplumber(file_path, metadata)
+                except Exception as fallback_error:
+                    logger.error(f"pdfplumber fallback also failed: {fallback_error}")
             
-            for page_num, page in enumerate(pdf_doc):
-                text = page.get_text()
-                if text.strip():  # Skip empty pages
+            # Ultimate fallback: try unstructured
+            logger.warning("Attempting unstructured fallback for PDF")
+            try:
+                return self._load_with_unstructured(file_path, metadata)
+            except Exception as final_error:
+                logger.error(f"All PDF processing methods failed. Final error: {final_error}")
+                raise e  # Raise original error
+    
+    def _load_pdf_pymupdf(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
+        """Load PDF using PyMuPDF (primary method)."""
+        documents = []
+        pdf_doc = fitz.open(file_path)
+        
+        for page_num, page in enumerate(pdf_doc):
+            text = page.get_text()
+            if text.strip():  # Skip empty pages
+                page_metadata = metadata.copy()
+                page_metadata.update({
+                    "page": page_num + 1,
+                    "total_pages": len(pdf_doc),
+                    "extraction_method": "pymupdf"
+                })
+                
+                documents.append(Document(
+                    page_content=text,
+                    metadata=page_metadata
+                ))
+        
+        pdf_doc.close()
+        return documents
+    
+    def _load_pdf_pdfplumber(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
+        """Load PDF using pdfplumber (fallback method)."""
+        if not PDFPLUMBER_AVAILABLE:
+            raise ImportError("pdfplumber not available")
+        
+        documents = []
+        with pdfplumber.open(file_path) as pdf:
+            for page_num, page in enumerate(pdf.pages):
+                text = page.extract_text()
+                if text and text.strip():
                     page_metadata = metadata.copy()
                     page_metadata.update({
                         "page": page_num + 1,
-                        "total_pages": len(pdf_doc)
+                        "total_pages": len(pdf.pages),
+                        "extraction_method": "pdfplumber"
                     })
                     
                     documents.append(Document(
                         page_content=text,
                         metadata=page_metadata
                     ))
-            
-            pdf_doc.close()
-            return documents
-            
-        except Exception as e:
-            logger.error(f"Failed to load PDF: {e}")
-            raise
+        
+        return documents
     
     def _load_text(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
         """Load text document."""
@@ -310,6 +445,76 @@ class DocumentLoader:
             # Fallback to simple string representation
             return str(df.to_string(index=False))
     
+    def _load_word_doc(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
+        """Load legacy Word document (.doc) using unstructured."""
+        try:
+            return self._load_with_unstructured(file_path, metadata)
+        except Exception as e:
+            logger.error(f"Failed to load .doc file: {e}")
+            raise
+    
+    def _load_docx(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
+        """Load DOCX document with python-docx fallback."""
+        try:
+            return self._load_with_unstructured(file_path, metadata)
+        except Exception as e:
+            logger.warning(f"Unstructured failed for DOCX: {e}. Trying python-docx fallback...")
+            if PYTHON_DOCX_AVAILABLE:
+                try:
+                    return self._load_docx_python_docx(file_path, metadata)
+                except Exception as fallback_error:
+                    logger.error(f"python-docx fallback also failed: {fallback_error}")
+            raise e
+    
+    def _load_docx_python_docx(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
+        """Load DOCX using python-docx (fallback method)."""
+        if not PYTHON_DOCX_AVAILABLE:
+            raise ImportError("python-docx not available")
+        
+        try:
+            doc = DocxDocument(file_path)
+            
+            # Extract text from paragraphs
+            paragraphs = []
+            for para in doc.paragraphs:
+                if para.text.strip():
+                    paragraphs.append(para.text)
+            
+            # Extract text from tables
+            tables_text = []
+            for table in doc.tables:
+                table_data = []
+                for row in table.rows:
+                    row_data = [cell.text.strip() for cell in row.cells]
+                    if any(row_data):  # Skip empty rows
+                        table_data.append(" | ".join(row_data))
+                if table_data:
+                    tables_text.append("\n".join(table_data))
+            
+            # Combine all text
+            all_text = "\n\n".join(paragraphs)
+            if tables_text:
+                all_text += "\n\n" + "\n\n".join(tables_text)
+            
+            if all_text.strip():
+                doc_metadata = metadata.copy()
+                doc_metadata.update({
+                    "extraction_method": "python_docx",
+                    "paragraphs_count": len(paragraphs),
+                    "tables_count": len(doc.tables)
+                })
+                
+                return [Document(
+                    page_content=all_text,
+                    metadata=doc_metadata
+                )]
+            else:
+                return []
+            
+        except Exception as e:
+            logger.error(f"Failed to load DOCX with python-docx: {e}")
+            raise
+    
     def _load_with_unstructured(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
         """Load document using unstructured library."""
         try:
@@ -320,7 +525,8 @@ class DocumentLoader:
                 if hasattr(element, 'text') and element.text.strip():
                     element_metadata = metadata.copy()
                     element_metadata.update({
-                        "element_type": element.category if hasattr(element, 'category') else "unknown"
+                        "element_type": element.category if hasattr(element, 'category') else "unknown",
+                        "extraction_method": "unstructured"
                     })
                     
                     documents.append(Document(

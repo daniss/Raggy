@@ -10,8 +10,8 @@ from app.models.schemas import ChatRequest
 from app.core.deps import get_current_user, get_demo_org_id
 from app.core.sentry_config import capture_exception, add_breadcrumb
 from app.core.redis_cache import redis_cache
-from app.rag.fast_retriever import fast_retriever
-from groq import Groq
+from app.rag.enhanced_retriever import enhanced_retriever
+from app.rag.llm_providers import llm_provider
 from app.core.config import settings
 import logging
 
@@ -35,19 +35,23 @@ async def generate_stream_response(
         
         # Note: Chat response caching disabled for legal consulting to ensure fresh, contextual responses
         
-        # Retrieve documents quickly
-        yield f"data: {json.dumps({'type': 'status', 'message': 'Recherche de documents...'})}\n\n"
+        # Enhanced document retrieval with confidence scoring
+        yield f"data: {json.dumps({'type': 'status', 'message': 'Recherche de documents avec scoring de confiance...'})}\n\n"
         
-        docs = fast_retriever.similarity_search(
+        docs_with_confidence = await enhanced_retriever.similarity_search_with_confidence(
             question, 
             k=5,  # Reduced for speed
-            organization_id=organization_id
+            organization_id=organization_id,
+            min_confidence=10.0  # Minimum 10% confidence
         )
         
+        docs = [doc for doc, confidence in docs_with_confidence]
+        
         if not docs:
-            yield f"data: {json.dumps({'type': 'status', 'message': 'Aucun document trouvé'})}\n\n"
+            yield f"data: {json.dumps({'type': 'status', 'message': 'Aucun document trouvé avec confiance suffisante'})}\n\n"
         else:
-            yield f"data: {json.dumps({'type': 'status', 'message': f'{len(docs)} documents trouvés'})}\n\n"
+            avg_confidence = sum(conf for _, conf in docs_with_confidence) / len(docs_with_confidence) if docs_with_confidence else 0
+            yield f"data: {json.dumps({'type': 'status', 'message': f'{len(docs)} documents trouvés (confiance moyenne: {avg_confidence:.1f}%)'})}\n\n"
         
         # Build prompt
         # Import optimized streaming prompt
@@ -61,40 +65,63 @@ async def generate_stream_response(
         
         user_prompt = f"Contexte:\n{context}\n\nQuestion: {question}\n\nRéponse:"
         
-        # Stream LLM response
-        yield f"data: {json.dumps({'type': 'status', 'message': 'Génération de la réponse...'})}\n\n"
+        # Stream LLM response using enhanced provider
+        yield f"data: {json.dumps({'type': 'status', 'message': f'Génération de la réponse via {llm_provider.provider_name}...'})}\n\n"
         
-        client = Groq(api_key=settings.groq_api_key)
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
         
-        stream = client.chat.completions.create(
-            model=settings.groq_model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
+        # Use enhanced LLM provider with streaming
+        full_answer = ""
+        stream = await llm_provider.generate_response(
+            messages=messages,
+            stream=True,
             temperature=0.0,
-            max_tokens=settings.max_tokens,
-            stream=True
+            max_tokens=settings.max_tokens
         )
         
-        full_answer = ""
-        for chunk in stream:
-            if chunk.choices[0].delta.content:
-                content = chunk.choices[0].delta.content
+        async for content in stream:
+            if content:
                 full_answer += content
                 yield f"data: {json.dumps({'type': 'token', 'content': content})}\n\n"
         
-        # Send sources
-        sources = [
-            {
+        # Send enhanced sources with confidence scores
+        sources = []
+        for i, (doc, confidence) in enumerate(docs_with_confidence[:3]):
+            source_data = {
                 "content": doc.page_content[:300] + "..." if len(doc.page_content) > 300 else doc.page_content,
                 "metadata": doc.metadata,
-                "score": doc.metadata.get("similarity", 0.0)
+                "similarity": doc.metadata.get("similarity", 0.0),
+                "confidence": confidence,
+                "rank": i + 1,
+                "extraction_method": doc.metadata.get("extraction_method", "unknown"),
+                "filename": doc.metadata.get("filename", "unknown"),
+                "chunk_info": {
+                    "index": doc.metadata.get("chunk_index", 0),
+                    "total": doc.metadata.get("total_chunks", 1),
+                    "size": doc.metadata.get("chunk_size", len(doc.page_content))
+                }
             }
-            for doc in docs[:3]
-        ]
+            
+            # Add page info if available
+            if "page" in doc.metadata:
+                source_data["page"] = doc.metadata["page"]
+            
+            sources.append(source_data)
         
-        yield f"data: {json.dumps({'type': 'sources', 'sources': sources})}\n\n"
+        # Send sources with enhanced metadata
+        yield f"data: {json.dumps({'type': 'sources', 'sources': sources, 'total_sources': len(sources), 'avg_confidence': avg_confidence if docs_with_confidence else 0})}\n\n"
+        
+        # Send provider information
+        provider_info = {
+            "llm_provider": llm_provider.provider_name,
+            "llm_model": llm_provider.model_name,
+            "embedding_provider": enhanced_retriever.embedding_provider.__class__.__name__,
+            "embedding_model": enhanced_retriever.embedding_provider.model_name
+        }
+        yield f"data: {json.dumps({'type': 'provider_info', 'providers': provider_info})}\n\n"
         
         # Note: Chat response caching disabled - legal consulting requires fresh, contextual responses
         

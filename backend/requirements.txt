@@ -11,8 +11,8 @@ sentence-transformers>=3.3.0
 transformers>=4.46.0
 torch>=2.7.0
 
-# Advanced RAG components
-aiohttp>=3.8.0
+# Advanced RAG components  
+aiohttp>=3.8.0  # Also used for remote embedding APIs
 nltk>=3.8.0
 
 # Groq API client
@@ -23,6 +23,8 @@ PyMuPDF>=1.26.0
 unstructured>=0.16.0
 python-multipart>=0.0.20
 openpyxl>=3.1.0  # Excel file support
+pdfplumber>=0.11.0  # PDF fallback processing
+python-docx>=1.1.0  # DOCX fallback processing
 
 # Database and auth
 supabase>=2.17.0
@@ -32,6 +34,7 @@ redis>=5.0.0
 # Utilities
 python-dotenv>=1.1.0
 httpx>=0.28.0
+requests>=2.31.0  # For CLI scripts
 pandas>=2.2.0
 numpy>=2.1.0
 
