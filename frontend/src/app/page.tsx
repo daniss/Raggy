@@ -28,6 +28,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import Compliance from '@/components/Compliance';
+import Pricing from '@/components/Pricing';
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -117,49 +119,6 @@ export default function HomePage() {
     }
   ];
 
-  const pricingPlans = [
-    {
-      name: 'Starter',
-      price: '1 200 €',
-      period: '',
-      description: 'Pour PoC rapide',
-      features: [
-        'Upload, RAG, citations',
-        'Déploiement Docker',
-        'Support Email'
-      ],
-      cta: 'Essayer la démo',
-      popular: false
-    },
-    {
-      name: 'Pro', 
-      price: '2 000 €',
-      period: '',
-      description: 'Pour équipes',
-      features: [
-        'Tout Starter +',
-        'Personnalisation des prompts',
-        'Configuration index',
-        'Support Email + 2h onboarding'
-      ],
-      cta: 'Essayer la démo',
-      popular: true
-    },
-    {
-      name: 'Enterprise',
-      price: '3 500+ €',
-      period: '',
-      description: 'Pour déploiements sur-mesure',
-      features: [
-        'Intégration SSO',
-        'Conformité & runbooks',
-        'Support dédié',
-        'SLA et pilotage'
-      ],
-      cta: 'Essayer la démo',
-      popular: false
-    }
-  ];
 
   const faqs = [
     {
@@ -425,6 +384,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Compliance Section */}
+      <Compliance />
+
       {/* Features Section */}
       <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
@@ -529,91 +491,7 @@ export default function HomePage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerChildren}
-            className="text-center mb-16"
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
-              Tarifs
-            </motion.h2>
-            <motion.p variants={fadeInUp} className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Des solutions adaptées à chaque besoin, de la preuve de concept au déploiement enterprise
-            </motion.p>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerChildren}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
-          >
-            {pricingPlans.map((plan, index) => (
-              <motion.div key={index} variants={fadeInUp}>
-                <Card className={`relative h-full hover:shadow-lg transition-shadow ${
-                  plan.popular ? 'border-2 border-blue-500' : ''
-                }`}>
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-blue-600 text-white px-4 py-1">
-                        Populaire
-                      </Badge>
-                    </div>
-                  )}
-                  <CardHeader className="text-center pb-8">
-                    <CardTitle className="text-xl mb-2">{plan.name}</CardTitle>
-                    <div className="mb-4">
-                      <span className="text-3xl font-bold text-slate-900">{plan.price}</span>
-                      <span className="text-slate-600 ml-1">{plan.period}</span>
-                    </div>
-                    <CardDescription className="text-base">
-                      {plan.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <ul className="space-y-3 mb-8">
-                      {plan.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} className="flex items-start">
-                          <CheckCircle className="w-4 h-4 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <Button 
-                      asChild 
-                      className={`w-full ${
-                        plan.popular ? 'bg-blue-600 hover:bg-blue-700' : ''
-                      }`}
-                      variant={plan.popular ? 'default' : 'outline'}
-                    >
-                      <Link href="/demo">
-                        {plan.cta}
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="text-center"
-          >
-            <p className="text-slate-600 mb-4">
-              Tarifs HT. Facturation sur devis pour Enterprise.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <Pricing />
 
       {/* CTA Band */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-indigo-600">
@@ -701,57 +579,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Compliance Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerChildren}
-            className="text-center"
-          >
-            <motion.h2 variants={fadeInUp} className="text-3xl sm:text-4xl font-bold text-slate-900 mb-6">
-              Sécurité & conformité
-            </motion.h2>
-            
-            <motion.div variants={fadeInUp} className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <Card className="p-6">
-                <Shield className="w-12 h-12 text-green-600 mb-4 mx-auto" />
-                <h3 className="font-semibold mb-2">Hébergement UE recommandé</h3>
-                <p className="text-sm text-slate-600">Infrastructure européenne pour la conformité RGPD</p>
-              </Card>
-              
-              <Card className="p-6">
-                <CheckCircle className="w-12 h-12 text-green-600 mb-4 mx-auto" />
-                <h3 className="font-semibold mb-2">Aucune donnée utilisée pour l'entraînement</h3>
-                <p className="text-sm text-slate-600">Vos documents restent confidentiels et privés</p>
-              </Card>
-              
-              <Card className="p-6">
-                <Database className="w-12 h-12 text-green-600 mb-4 mx-auto" />
-                <h3 className="font-semibold mb-2">Suppression sur demande avec preuve</h3>
-                <p className="text-sm text-slate-600">Hash + horodatage pour la traçabilité</p>
-              </Card>
-              
-              <Card className="p-6">
-                <FileText className="w-12 h-12 text-green-600 mb-4 mx-auto" />
-                <h3 className="font-semibold mb-2">DPA disponible à la signature</h3>
-                <p className="text-sm text-slate-600">Contrat de traitement des données conforme</p>
-              </Card>
-            </motion.div>
-
-            <motion.div variants={fadeInUp}>
-              <Button asChild variant="outline" size="lg">
-                <Link href="/docs/DPA_short_fr_EN.md" target="_blank">
-                  <Download className="mr-2 w-4 h-4" />
-                  Télécharger le DPA
-                </Link>
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
 
       {/* FAQ */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50">
