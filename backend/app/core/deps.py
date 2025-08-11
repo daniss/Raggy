@@ -52,3 +52,19 @@ async def require_auth(
 def get_demo_org_id() -> str:
     """Get the hardcoded demo organization ID."""
     return getattr(settings, 'demo_org_id', 'demo-org-12345')
+
+
+async def get_current_organization(
+    current_user: Optional[dict] = Depends(get_current_user)
+) -> str:
+    """Get current organization ID. For demo mode, always return demo org."""
+    # In demo/MVP mode, always return the demo organization
+    return get_demo_org_id()
+
+
+async def require_admin(
+    current_user: dict = Depends(require_auth)
+) -> dict:
+    """Require admin role for protected admin endpoints."""
+    # In demo mode, all authenticated users are considered admins
+    return current_user

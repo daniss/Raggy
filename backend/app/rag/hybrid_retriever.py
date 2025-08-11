@@ -8,7 +8,7 @@ import re
 
 from langchain.schema import Document
 from app.rag.supabase_retriever import SupabaseRetriever
-from app.db.supabase_client import supabase_client
+from app.db.supabase_client import get_supabase_client
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class BM25Retriever:
         """
         self.k1 = k1
         self.b = b
-        self.supabase = supabase_client
+        self.supabase = get_supabase_client()
         
     def _tokenize(self, text: str) -> List[str]:
         """Simple tokenization for French text."""

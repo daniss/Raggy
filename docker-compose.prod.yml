@@ -58,7 +58,7 @@ services:
       - GROQ_MODEL=${GROQ_MODEL:-deepseek-r1-distill-llama-70b}
       - USE_LOCAL_LLM=${USE_LOCAL_LLM:-false}
       - LOCAL_LLM_URL=${LOCAL_LLM_URL:-http://local-llm:8080}
-      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-intfloat/multilingual-e5-large-instruct}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-dangvantuan/sentence-camembert-base}
       
       # Database
       - SUPABASE_URL=${SUPABASE_URL}

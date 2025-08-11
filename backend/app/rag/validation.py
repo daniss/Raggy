@@ -51,7 +51,7 @@ class RAGSystemValidator:
             ))
             
             # Check if it's the optimized model
-            if model_name == "intfloat/multilingual-e5-large-instruct":
+            if model_name == "dangvantuan/sentence-camembert-base":
                 checks.append(ValidationResult(
                     is_valid=True,
                     message="Using optimized instruct model",
@@ -62,7 +62,7 @@ class RAGSystemValidator:
                     is_valid=True,
                     message="Not using latest optimized model",
                     severity="warning",
-                    details={"recommended": "intfloat/multilingual-e5-large-instruct"}
+                    details={"recommended": "dangvantuan/sentence-camembert-base"}
                 ))
             
             # Try to validate embedder functionality
@@ -295,7 +295,7 @@ class RAGSystemValidator:
             ))
             
             # Check model configuration
-            model_check = settings.embedding_model == "intfloat/multilingual-e5-large-instruct"
+            model_check = settings.embedding_model == "dangvantuan/sentence-camembert-base"
             checks.append(ValidationResult(
                 is_valid=model_check,
                 message="Embedding model optimally configured" if model_check else "Using non-optimal embedding model",

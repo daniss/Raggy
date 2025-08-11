@@ -1,11 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+interface HealthData {
+  status: string;
+  timestamp: string;
+  service: string;
+  version: string;
+  environment: string;
+  uptime: number;
+  checks: {
+    basic: string;
+    env_vars: string;
+    backend_connectivity: string;
+  };
+  response_time_ms?: number;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const startTime = Date.now();
     
     // Basic health check data
-    const healthData = {
+    const healthData: HealthData = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       service: 'raggy-frontend',

@@ -8,22 +8,44 @@ import uuid
 logger = logging.getLogger(__name__)
 
 
+# Global Supabase client instance (lazy initialized)
+_supabase_client = None
+
+
+def get_supabase_client() -> Client:
+    """Get the global Supabase client instance (lazy initialization)."""
+    global _supabase_client
+    
+    if _supabase_client is None:
+        try:
+            _supabase_client = create_client(
+                supabase_url=settings.supabase_url,
+                supabase_key=settings.supabase_service_key
+            )
+            logger.info("Supabase client created successfully")
+        except Exception as e:
+            logger.error(f"Failed to create Supabase client: {e}")
+            raise
+    
+    return _supabase_client
+
+
+# For backward compatibility
 def create_supabase_client() -> Client:
-    """Create and configure Supabase client."""
-    try:
-        client = create_client(
-            supabase_url=settings.supabase_url,
-            supabase_key=settings.supabase_service_key
-        )
-        logger.info("Supabase client created successfully")
-        return client
-    except Exception as e:
-        logger.error(f"Failed to create Supabase client: {e}")
-        raise
+    """Create and configure Supabase client (deprecated - use get_supabase_client)."""
+    return get_supabase_client()
 
 
-# Global Supabase client instance
-supabase_client = create_supabase_client()
+# For backward compatibility with existing code
+supabase_client = None
+
+
+def _get_client():
+    """Internal getter that always returns the current client."""
+    global supabase_client
+    if supabase_client is None:
+        supabase_client = get_supabase_client()
+    return supabase_client
 
 
 async def log_chat_interaction(
@@ -46,7 +68,7 @@ async def log_chat_interaction(
             "created_at": "now()"
         }
         
-        result = supabase_client.table("chat_logs").insert(data).execute()
+        result = _get_client().table("chat_logs").insert(data).execute()
         logger.info(f"Logged chat interaction for user {user_id}")
         
     except Exception as e:
@@ -78,7 +100,7 @@ async def get_analytics_data(days: int = 30, organization_id: Optional[str] = No
         start_date = end_date - timedelta(days=days)
         
         # Get chat logs for the period (organization-scoped)
-        query = supabase_client.table("chat_logs").select("*")
+        query = _get_client().table("chat_logs").select("*")
         query = query.gte("created_at", start_date.isoformat())
         query = query.lte("created_at", end_date.isoformat())
         if organization_id:
@@ -113,7 +135,7 @@ async def get_analytics_data(days: int = 30, organization_id: Optional[str] = No
         # Get recent document uploads for activity feed
         recent_docs = []
         try:
-            docs_query = supabase_client.table("documents").select(
+            docs_query = _get_client().table("documents").select(
                 "filename, upload_date, status, uploaded_by"
             ).gte("upload_date", start_date.isoformat()).lte(
                 "upload_date", end_date.isoformat()
@@ -163,7 +185,7 @@ async def get_documents_list(
     """Get paginated list of uploaded documents.""" 
     try:
         # Build query
-        query = supabase_client.table("documents").select(
+        query = _get_client().table("documents").select(
             "id, filename, content_type, size_bytes, chunks_count, status, upload_date, error_message",
             count="exact"  # Get total count for pagination
         )
@@ -220,10 +242,22 @@ async def save_document_info(
     size_bytes: int,
     file_path: str,
     user_id: Optional[str] = None,
-    organization_id: Optional[str] = None
+    organization_id: Optional[str] = None,
+    content_hash: Optional[str] = None
 ) -> str:
-    """Save document information to database."""
+    """Save document information to database with duplicate detection."""
     try:
+        # Check for duplicate if content_hash is provided
+        if content_hash and organization_id:
+            existing = _get_client().table("documents").select("id, filename").eq(
+                "organization_id", organization_id
+            ).eq("content_hash", content_hash).execute()
+            
+            if existing.data:
+                logger.info(f"Duplicate document detected: {filename} matches existing '{existing.data[0]['filename']}'")
+                # Return existing document ID to indicate duplicate
+                return existing.data[0]["id"]
+        
         document_id = str(uuid.uuid4())
         
         data = {
@@ -232,12 +266,13 @@ async def save_document_info(
             "content_type": content_type,
             "size_bytes": size_bytes,
             "file_path": file_path,
+            "content_hash": content_hash,  # Store hash for future duplicate detection
             "status": "processing",
             "uploaded_by": user_id,
             "organization_id": organization_id
         }
         
-        result = supabase_client.table("documents").insert(data).execute()
+        result = _get_client().table("documents").insert(data).execute()
         logger.info(f"Saved document info: {filename}")
         
         return document_id
@@ -262,7 +297,7 @@ async def update_document_status(
         if error_message is not None:
             update_data["error_message"] = error_message
             
-        result = supabase_client.table("documents").update(update_data).eq("id", document_id).execute()
+        result = _get_client().table("documents").update(update_data).eq("id", document_id).execute()
         logger.info(f"Updated document {document_id} status to {status}")
         
     except Exception as e:
@@ -273,11 +308,11 @@ async def delete_document(document_id: str) -> None:
     """Delete document from database."""
     try:
         # Delete the document itself
-        result = supabase_client.table("documents").delete().eq("id", document_id).execute()
+        result = _get_client().table("documents").delete().eq("id", document_id).execute()
         logger.info(f"Deleted document {document_id}, affected rows: {len(result.data) if result.data else 0}")
         
         # Also delete associated document vectors from the vector table
-        vector_result = supabase_client.table("document_vectors").delete().eq("document_id", document_id).execute()
+        vector_result = _get_client().table("document_vectors").delete().eq("document_id", document_id).execute()
         logger.info(f"Deleted {len(vector_result.data) if vector_result.data else 0} vector entries for document {document_id}")
         
     except Exception as e:
@@ -288,7 +323,7 @@ async def delete_document(document_id: str) -> None:
 async def get_system_settings() -> Dict[str, Any]:
     """Get all system settings."""
     try:
-        result = supabase_client.table("system_settings").select("*").execute()
+        result = _get_client().table("system_settings").select("*").execute()
         
         settings_dict = {}
         for setting in result.data:
@@ -316,7 +351,7 @@ async def update_system_setting(category: str, key: str, value: Any) -> None:
             "value": value
         }
         
-        result = supabase_client.table("system_settings").upsert(data).execute()
+        result = _get_client().table("system_settings").upsert(data).execute()
         logger.info(f"Updated setting {category}.{key}")
         
     except Exception as e:

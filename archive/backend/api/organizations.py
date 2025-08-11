@@ -7,7 +7,6 @@ from app.models.schemas import (
     InviteMemberRequest, UpdateMemberRequest, UserRole, MemberStatus
 )
 from app.core.deps import get_current_user, get_current_organization, require_admin
-from app.core.audit_middleware import get_request_info
 from app.services.audit_logger import audit_logger, AuditAction
 from app.db.supabase_client import supabase_client
 import re

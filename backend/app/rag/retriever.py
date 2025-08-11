@@ -4,7 +4,7 @@ from langchain.schema import Document
 import logging
 from app.core.config import settings
 from app.rag.embedder import embedder
-from app.db.supabase_client import supabase_client
+from app.db.supabase_client import get_supabase_client
 
 logger = logging.getLogger(__name__)
 
@@ -14,21 +14,30 @@ class SupabaseVectorRetriever:
     
     def __init__(self):
         """Initialize Supabase vector retriever."""
-        self.client = supabase_client
-        self._initialize_connection()
+        self.client = None
+        self._connected = False
     
-    def _initialize_connection(self):
-        """Initialize Supabase connection and test vector functionality."""
+    def _ensure_connection(self):
+        """Ensure Supabase connection is established (lazy initialization)."""
+        if self._connected:
+            return
+        
         try:
+            # Initialize client
+            self.client = get_supabase_client()
+            
             # Test connection with a simple query
             result = self.client.table("document_vectors").select("id").limit(1).execute()
             logger.info("✓ Supabase vector store connected successfully")
+            self._connected = True
         except Exception as e:
             logger.error(f"Failed to connect to Supabase vector store: {e}")
             raise
     
     def add_documents(self, documents: List[Document]) -> List[str]:
         """Add documents to the vector store."""
+        self._ensure_connection()
+        
         if not documents:
             return []
         
@@ -83,6 +92,8 @@ class SupabaseVectorRetriever:
         similarity_threshold: float = 0.1
     ) -> List[Document]:
         """Search for similar documents using vector similarity."""
+        self._ensure_connection()
+        
         try:
             # Generate query embedding
             query_embedding = embedder.embed_query(query)
@@ -131,6 +142,8 @@ class SupabaseVectorRetriever:
     
     def delete_documents_by_filename(self, filename: str) -> bool:
         """Delete all document vectors for a specific filename."""
+        self._ensure_connection()
+        
         try:
             # Find documents with matching filename in metadata
             result = self.client.table("document_vectors").select("id").contains(
@@ -156,6 +169,8 @@ class SupabaseVectorRetriever:
     
     def delete_documents_by_document_id(self, document_id: str) -> bool:
         """Delete all vectors for a specific document ID."""
+        self._ensure_connection()
+        
         try:
             # Use the helper function
             result = self.client.rpc(
@@ -173,6 +188,8 @@ class SupabaseVectorRetriever:
     
     def get_collection_stats(self) -> Dict[str, Any]:
         """Get statistics about the vector collection."""
+        self._ensure_connection()
+        
         try:
             # Get total count of vectors
             total_result = self.client.table("document_vectors").select(
@@ -211,6 +228,8 @@ class SupabaseVectorRetriever:
     
     def reset_collection(self) -> bool:
         """Reset the entire vector collection (delete all vectors)."""
+        self._ensure_connection()
+        
         try:
             # Delete all vectors
             result = self.client.table("document_vectors").delete().neq("id", "").execute()
@@ -223,6 +242,8 @@ class SupabaseVectorRetriever:
     
     def get_documents_by_organization(self, organization_id: str, limit: int = 100) -> List[Document]:
         """Get all documents for a specific organization."""
+        self._ensure_connection()
+        
         try:
             result = self.client.table("document_vectors").select(
                 "id, document_id, chunk_index, content, metadata"
@@ -253,8 +274,7 @@ class SupabaseVectorRetriever:
     def health_check(self) -> bool:
         """Check if the vector store is healthy."""
         try:
-            # Simple health check query
-            result = self.client.table("document_vectors").select("id").limit(1).execute()
+            self._ensure_connection()
             return True
         except Exception as e:
             logger.error(f"Vector store health check failed: {e}")

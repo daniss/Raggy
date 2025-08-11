@@ -5,7 +5,6 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Backgro
 from app.models.schemas import UploadResponse, DocumentInfo
 from app.core.deps import get_current_user, get_demo_org_id
 from app.core.validation import validate_file_type, validate_file_size, validate_filename, sanitize_filename, validate_search_query, validate_pagination_params
-from app.core.audit_middleware import get_request_info
 from app.services.audit_logger import audit_logger, AuditAction
 from app.core.redis_cache import redis_cache
 from app.rag import document_loader, document_splitter, adaptive_splitter, retriever

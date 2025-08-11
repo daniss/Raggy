@@ -100,7 +100,7 @@ async def get_demo_status() -> Dict[str, Any]:
         demo_status["configuration"] = {
             "max_documents": getattr(settings, 'max_documents', 1000),
             "max_upload_size_mb": getattr(settings, 'max_upload_size_mb', 50),
-            "embedding_model": getattr(settings, 'embedding_model', 'intfloat/multilingual-e5-large-instruct'),
+            "embedding_model": getattr(settings, 'embedding_model', 'dangvantuan/sentence-camembert-base'),
             "llm_model": getattr(settings, 'groq_model', 'deepseek-r1-distill-llama-70b'),
             "demo_org_id": demo_org_id
         }

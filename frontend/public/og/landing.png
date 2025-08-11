@@ -1,0 +1,9 @@
+# This is a placeholder for the Open Graph banner image
+# In a real implementation, this would be a 1200x630 PNG image showing:
+# - Raggy logo and branding
+# - "Assistants RAG privés pour vos documents" headline
+# - Visual elements showing document ingestion, AI processing, and citations
+# - Trust indicators: "Hébergement UE", "DPA disponible", "Citations fiables"
+# 
+# For now, this placeholder file ensures the path exists for the metadata references
+# The actual image should be created by a designer or using tools like Figma/Canva

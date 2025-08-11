@@ -1,19 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Brain,
-  Upload,
-  MessageCircle,
-  FileText,
   ArrowLeft,
   Info,
   Play,
-  Download,
   Clock,
   Shield,
-  Sparkles
+  Sparkles,
+  FileText,
+  Brain,
+  Upload,
+  MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -25,28 +24,51 @@ import { useRouter } from 'next/navigation';
 
 export default function DemoPage() {
   const router = useRouter();
-  const [demoStep, setDemoStep] = useState<'welcome' | 'email' | 'sandbox'>('welcome');
+  const [demoStep, setDemoStep] = useState<'welcome' | 'email'>('welcome');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
-  const [sessionToken, setSessionToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
-  // Pre-loaded demo documents
-  const demoDocuments = [
-    { name: 'Guide_Conformite_RGPD.pdf', size: '2.3 MB', type: 'Juridique' },
-    { name: 'Manuel_Procedures_RH_2024.pdf', size: '1.8 MB', type: 'RH' },
-    { name: 'Contrat_Type_Client.docx', size: '156 KB', type: 'Commercial' },
-    { name: 'Analyse_Fiscale_2024.xlsx', size: '789 KB', type: 'Finance' },
-    { name: 'Documentation_Technique_Produit.pdf', size: '4.2 MB', type: 'Technique' }
-  ];
+  const checkExistingSession = useCallback(async () => {
+    try {
+      const storedSession = localStorage.getItem('demoSession');
+      if (storedSession) {
+        const session = JSON.parse(storedSession);
+        
+        // Check if session is still valid
+        if (Date.now() < session.expiresAt) {
+          // Session is valid, set flag to redirect
+          setShouldRedirect(true);
+          return;
+        } else {
+          // Session expired, remove it
+          localStorage.removeItem('demoSession');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking existing session:', error);
+      localStorage.removeItem('demoSession');
+    } finally {
+      // Use setTimeout to ensure setState happens in next tick
+      setTimeout(() => {
+        setIsCheckingSession(false);
+      }, 0);
+    }
+  }, []);
 
-  const sampleQuestions = [
-    "Quelles sont les obligations RGPD pour le traitement des données clients ?",
-    "Quelle est la procédure de recrutement d'un nouveau collaborateur ?",
-    "Quels sont les délais de paiement dans nos contrats types ?",
-    "Comment calculer le crédit d'impôt recherche ?",
-    "Quelles sont les spécifications techniques de notre produit principal ?"
-  ];
+  // Check for existing demo session on mount
+  useEffect(() => {
+    checkExistingSession();
+  }, [checkExistingSession]);
+
+  // Handle redirect in a separate effect to avoid setState during render
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.push('/demo-assistant');
+    }
+  }, [shouldRedirect, router]);
 
   const handleStartDemo = async () => {
     if (demoStep === 'email' && email && company) {
@@ -75,18 +97,18 @@ export default function DemoPage() {
         const data = await response.json();
         
         if (data.success) {
-          setSessionToken(data.session_token);
-          setDemoStep('sandbox');
-          
-          // Store demo session in localStorage for persistence
+          // Store demo session and redirect to assistant
           localStorage.setItem('demoSession', JSON.stringify({
             token: data.session_token,
             email,
             company,
             documents: data.demo_documents,
             sampleQuestions: data.sample_questions,
-            expiresAt: data.expires_at
+            expiresAt: new Date(data.expires_at).getTime()
           }));
+          
+          // Redirect directly to demo assistant
+          router.push('/demo-assistant');
         } else {
           throw new Error(data.message || 'Failed to create demo session');
         }
@@ -99,17 +121,20 @@ export default function DemoPage() {
     }
   };
 
-  const handleNavigateToAssistant = () => {
-    // Store demo session in localStorage
-    localStorage.setItem('demoSession', JSON.stringify({
-      token: sessionToken,
-      email,
-      company,
-      documents: demoDocuments,
-      expiresAt: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
-    }));
-    router.push('/assistant');
-  };
+
+  // Show loading while checking for existing session or redirecting
+  if (isCheckingSession || shouldRedirect) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">
+            {shouldRedirect ? 'Redirection vers votre démo...' : 'Vérification de votre session...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -122,7 +147,7 @@ export default function DemoPage() {
               <span className="font-medium">Retour</span>
             </Link>
             <div className="flex items-center space-x-4">
-              <Badge variant="secondary">
+              <Badge variant="default" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
                 <Clock className="w-3 h-3 mr-1" />
                 Démo 24h
               </Badge>
@@ -211,7 +236,7 @@ export default function DemoPage() {
                   Commencer la démo gratuite
                 </Button>
                 <p className="text-sm text-slate-500 mt-4">
-                  Aucune carte bancaire requise • Données supprimées après 24h
+                  Aucune carte bancaire • Session 24h • <span className="font-medium text-blue-600">Revenez quand vous voulez</span>
                 </p>
               </div>
             </motion.div>
@@ -280,203 +305,40 @@ export default function DemoPage() {
             </motion.div>
           )}
 
-          {demoStep === 'sandbox' && (
+          {/* Demo Navigation - Only show if user might have a session */}
+          {demoStep === 'welcome' && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-8"
+              transition={{ delay: 0.5 }}
+              className="mt-12 pt-8 border-t"
             >
-              <div className="text-center">
-                <div className="flex items-center justify-center space-x-2 mb-4">
-                  <Badge variant="secondary" className="text-lg px-4 py-2">
-                    <Brain className="w-4 h-4 mr-2" />
-                    Sandbox actif pour {company}
-                  </Badge>
-                </div>
-                <h2 className="text-3xl font-bold mb-4">
-                  Votre environnement de démo est prêt !
-                </h2>
-                <p className="text-lg text-slate-600">
-                  Documents pré-chargés et assistant IA configuré
+              <div className="text-center mb-6">
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  Vous avez déjà une session de démo ?
+                </h3>
+                <p className="text-slate-600">
+                  Accédez directement aux fonctionnalités de votre démo
                 </p>
               </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Documents Section */}
-                <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <FileText className="w-5 h-5 mr-2 text-blue-600" />
-                        Documents disponibles
-                      </div>
-                      <Badge variant="secondary">
-                        {demoDocuments.length} fichiers
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription>
-                      Base documentaire pré-configurée avec corpus français
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {demoDocuments.map((doc, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border hover:bg-slate-100 transition-colors">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                              <FileText className="w-4 h-4 text-blue-600" />
-                            </div>
-                            <div>
-                              <div className="font-medium text-sm">{doc.name}</div>
-                              <div className="text-xs text-slate-500">{doc.size}</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge variant="outline" className="text-xs">
-                              {doc.type}
-                            </Badge>
-                            <Button variant="ghost" size="sm" className="text-xs">
-                              Aperçu
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Upload section for demo */}
-                    <div className="mt-6 pt-4 border-t">
-                      <div className="text-center">
-                        <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                        <p className="text-sm text-slate-600 mb-2">
-                          Vous pouvez également ajouter vos propres documents
-                        </p>
-                        <Button variant="outline" size="sm" disabled>
-                          <Upload className="w-4 h-4 mr-2" />
-                          Ajouter des fichiers (max 3 en démo)
-                        </Button>
-                        <p className="text-xs text-slate-500 mt-2">
-                          PDF, DOCX, TXT • Max 10 MB par fichier
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Questions and Actions */}
-                <div className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <MessageCircle className="w-5 h-5 mr-2 text-blue-600" />
-                        Questions suggérées
-                      </CardTitle>
-                      <CardDescription>
-                        Cliquez pour tester
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {sampleQuestions.map((question, index) => (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              // This would copy the question to clipboard or navigate to assistant with pre-filled question
-                              navigator.clipboard.writeText(question);
-                              alert('Question copiée ! Collez-la dans l\'assistant.');
-                            }}
-                            className="w-full p-2 bg-blue-50 hover:bg-blue-100 rounded text-sm text-left transition-colors"
-                          >
-                            "{question}"
-                          </button>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Demo Stats */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Votre session</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Entreprise:</span>
-                          <span className="font-medium">{company}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Email:</span>
-                          <span className="font-medium text-xs">{email}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Expire dans:</span>
-                          <span className="font-medium text-green-600">23h 45min</span>
-                        </div>
-                        <div className="pt-2 border-t">
-                          <div className="text-xs text-slate-500 space-y-1">
-                            <div>• Questions illimitées</div>
-                            <div>• 5 documents pré-chargés</div>
-                            <div>• Upload limité (3 fichiers max)</div>
-                            <div>• Support chat inclus</div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <Card className="border-2 border-green-200 bg-green-50/50">
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg mb-2">
-                        Tout est prêt pour votre test !
-                      </h3>
-                      <p className="text-slate-600">
-                        Accédez à l'assistant IA et posez vos questions sur les documents
-                      </p>
-                    </div>
-                    <Button 
-                      size="lg"
-                      onClick={handleNavigateToAssistant}
-                      className="bg-gradient-to-r from-green-600 to-emerald-600"
-                    >
-                      <MessageCircle className="mr-2 w-4 h-4" />
-                      Ouvrir l'assistant
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Alert>
-                <Info className="w-4 h-4" />
-                <AlertDescription>
-                  <strong>Limitations de la démo :</strong> Upload limité à 3 fichiers • 
-                  100 questions max • Données supprimées après 24h • 
-                  Pour une version complète, <Link href="/#contact" className="underline">contactez-nous</Link>
-                </AlertDescription>
-              </Alert>
-
-              <div className="text-center pt-8 border-t">
-                <p className="text-slate-600 mb-4">
-                  Convaincu par la démo ?
-                </p>
-                <div className="flex justify-center space-x-4">
-                  <Button variant="outline" onClick={() => window.location.href = 'mailto:contact@raggy.fr?subject=Export démo ' + company}>
-                    <Download className="mr-2 w-4 h-4" />
-                    Exporter la conversation
-                  </Button>
-                  <Button 
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600"
-                    onClick={() => window.location.href = 'mailto:contact@raggy.fr?subject=Devis pour ' + company}
-                  >
-                    Demander un devis
-                  </Button>
-                </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto">
+                <Button variant="outline" asChild>
+                  <Link href="/demo-assistant">
+                    <Play className="mr-2 w-4 h-4" />
+                    Assistant IA
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/demo/upload">
+                    <FileText className="mr-2 w-4 h-4" />
+                    Gérer les documents
+                  </Link>
+                </Button>
               </div>
             </motion.div>
           )}
+
         </div>
       </main>
     </div>

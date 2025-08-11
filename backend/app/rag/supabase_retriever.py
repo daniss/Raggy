@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from langchain.schema import Document
 from langchain.vectorstores.base import VectorStore
-from app.db.supabase_client import supabase_client
+from app.db.supabase_client import get_supabase_client
 from app.rag.embedder import embedder
 from app.core.retry_handler import retry_database, database_circuit_breaker
 
@@ -20,7 +20,7 @@ class SupabaseRetriever:
     """Vector store retriever using Supabase pgvector."""
     
     def __init__(self):
-        self.supabase = supabase_client
+        self.supabase = get_supabase_client()
         self.embedder = embedder
         self.collection_name = "document_vectors"
         

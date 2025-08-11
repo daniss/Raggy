@@ -21,7 +21,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-      - /app/.next
     networks:
       - raggy-network
     depends_on:
@@ -49,14 +48,11 @@ services:
       # Application
       - ENVIRONMENT=development
       - DEBUG=true
-      - API_TITLE=${API_TITLE:-Raggy Dev - Assistant IA}
-      - API_DESCRIPTION=${API_DESCRIPTION:-Development environment}
-      - API_VERSION=${API_VERSION:-2.0.0-dev}
       
       # AI/LLM
       - GROQ_API_KEY=${GROQ_API_KEY}
       - GROQ_MODEL=${GROQ_MODEL:-deepseek-r1-distill-llama-70b}
-      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-intfloat/multilingual-e5-large-instruct}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-dangvantuan/sentence-camembert-base}
       
       # Database
       - SUPABASE_URL=${SUPABASE_URL}
@@ -66,19 +62,12 @@ services:
       # Cache
       - REDIS_URL=redis://redis:6379/0
       
-      # Security
-      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      # CORS
       - CORS_ORIGINS=["http://localhost:3000", "http://127.0.0.1:3000"]
       
-      # Performance (relaxed for dev)
-      - MAX_DOCUMENTS=${MAX_DOCUMENTS:-100}
-      - MAX_UPLOAD_SIZE_MB=${MAX_UPLOAD_SIZE_MB:-10}
+      # Performance
       - FAST_MODE=true
       - USE_HYBRID_SEARCH=true
-      
-      # Development
-      - LOG_LEVEL=DEBUG
-      - ENABLE_TEST_MODE=true
     volumes:
       - ./backend:/app
       - ./backend/requirements.txt:/app/requirements.txt:ro

@@ -1,0 +1,94 @@
+GUIDE DE CONFORMITÉ RGPD - OBLIGATIONS LÉGALES
+================================================
+
+CHAPITRE 1 : PRINCIPES FONDAMENTAUX DU RGPD
+
+Article 5 - Principes relatifs au traitement
+Le traitement des données personnelles doit respecter les principes suivants :
+- Licéité, loyauté et transparence : Les données doivent être traitées de manière licite, loyale et transparente
+- Limitation des finalités : Collectées pour des finalités déterminées, explicites et légitimes
+- Minimisation des données : Adéquates, pertinentes et limitées à ce qui est nécessaire
+- Exactitude : Les données doivent être exactes et tenues à jour
+- Limitation de la conservation : Conservées sous une forme permettant l'identification des personnes concernées pendant une durée n'excédant pas celle nécessaire
+- Intégrité et confidentialité : Traitées de façon à garantir une sécurité appropriée
+
+CHAPITRE 2 : DROITS DES PERSONNES CONCERNÉES
+
+Article 15 - Droit d'accès
+Toute personne a le droit d'obtenir du responsable du traitement la confirmation que des données la concernant sont ou ne sont pas traitées et, lorsqu'elles le sont, l'accès auxdites données ainsi que les informations suivantes :
+- Les finalités du traitement
+- Les catégories de données personnelles concernées
+- Les destinataires ou catégories de destinataires
+- La durée de conservation envisagée
+- L'existence du droit de demander la rectification ou l'effacement
+
+Article 16 - Droit de rectification
+La personne concernée a le droit d'obtenir dans les meilleurs délais la rectification des données inexactes la concernant. Compte tenu des finalités du traitement, elle a le droit d'obtenir que les données incomplètes soient complétées.
+
+Article 17 - Droit à l'effacement (droit à l'oubli)
+La personne concernée a le droit d'obtenir l'effacement de ses données dans les cas suivants :
+- Les données ne sont plus nécessaires au regard des finalités
+- La personne retire son consentement
+- Les données ont fait l'objet d'un traitement illicite
+- Les données doivent être effacées pour respecter une obligation légale
+
+Article 20 - Droit à la portabilité
+La personne concernée a le droit de recevoir les données la concernant qu'elle a fournies au responsable du traitement, dans un format structuré, couramment utilisé et lisible par machine.
+
+CHAPITRE 3 : OBLIGATIONS DU RESPONSABLE DE TRAITEMENT
+
+Registre des activités de traitement (Article 30)
+Chaque responsable du traitement doit tenir un registre des activités de traitement effectuées sous sa responsabilité. Ce registre comporte toutes les informations suivantes :
+- Le nom et les coordonnées du responsable du traitement
+- Les finalités du traitement
+- Une description des catégories de personnes concernées
+- Les catégories de destinataires
+- Les transferts de données vers un pays tiers
+- Les délais prévus pour l'effacement
+- Une description générale des mesures de sécurité
+
+Analyse d'impact (Article 35)
+Une analyse d'impact relative à la protection des données doit être menée lorsqu'un type de traitement est susceptible d'engendrer un risque élevé pour les droits et libertés des personnes physiques.
+
+Délégué à la protection des données - DPO (Articles 37-39)
+La désignation d'un DPO est obligatoire dans les cas suivants :
+- Le traitement est effectué par une autorité publique
+- Les activités de base consistent en des opérations de traitement exigeant un suivi régulier et systématique à grande échelle
+- Les activités de base consistent en un traitement à grande échelle de données sensibles
+
+CHAPITRE 4 : SÉCURITÉ ET VIOLATIONS DE DONNÉES
+
+Sécurité du traitement (Article 32)
+Le responsable du traitement met en œuvre les mesures techniques et organisationnelles appropriées afin de garantir un niveau de sécurité adapté au risque, y compris :
+- La pseudonymisation et le chiffrement des données
+- Des moyens permettant de garantir la confidentialité, l'intégrité, la disponibilité et la résilience constantes
+- Des moyens permettant de rétablir la disponibilité des données en cas d'incident
+- Une procédure visant à tester l'efficacité des mesures
+
+Notification des violations (Articles 33-34)
+En cas de violation de données personnelles, le responsable du traitement doit :
+- Notifier la violation à l'autorité de contrôle dans les 72 heures
+- Communiquer la violation à la personne concernée si elle est susceptible d'engendrer un risque élevé
+
+CHAPITRE 5 : SANCTIONS ET AMENDES
+
+Amendes administratives (Article 83)
+Les violations du RGPD peuvent entraîner des amendes administratives pouvant s'élever jusqu'à :
+- 10 millions d'euros ou 2% du chiffre d'affaires annuel mondial pour les infractions moins graves
+- 20 millions d'euros ou 4% du chiffre d'affaires annuel mondial pour les infractions les plus graves
+
+Les infractions concernées incluent :
+- Le non-respect des droits des personnes concernées
+- Les transferts illégaux de données
+- Le non-respect des injonctions de l'autorité de contrôle
+- L'absence de mesures de sécurité appropriées
+
+CHAPITRE 6 : BASES LÉGALES DU TRAITEMENT
+
+Le traitement n'est licite que si au moins une des conditions suivantes est remplie :
+- Consentement : La personne a consenti au traitement pour une ou plusieurs finalités spécifiques
+- Contrat : Le traitement est nécessaire à l'exécution d'un contrat
+- Obligation légale : Le traitement est nécessaire au respect d'une obligation légale
+- Intérêts vitaux : Le traitement est nécessaire à la sauvegarde des intérêts vitaux
+- Mission d'intérêt public : Le traitement est nécessaire à l'exécution d'une mission d'intérêt public
+- Intérêts légitimes : Le traitement est nécessaire aux fins des intérêts légitimes poursuivis

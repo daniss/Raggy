@@ -3,16 +3,13 @@ import time
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Request
 from app.models.schemas import ChatRequest, ChatResponse, Source
-from app.core.deps import get_current_user, get_demo_org_id
+from app.core.deps import get_current_user, get_current_organization
 from app.core.sentry_config import capture_exception, add_breadcrumb, set_context
-from app.core.audit_middleware import get_request_info
 from app.services.audit_logger import audit_logger
 from app.core.redis_cache import redis_cache
-from app.rag.enhanced_retriever import enhanced_retriever
-from app.rag.llm_providers import llm_provider
-from app.api.metrics import track_qa_metrics
+from app.rag import retriever
+from app.rag.qa_fast import fast_qa_chain as qa_chain
 from app.db.supabase_client import log_chat_interaction, log_anonymous_interaction
-from app.core.config import settings
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,14 +22,15 @@ async def chat(
     http_request: Request,
     request: ChatRequest,
     background_tasks: BackgroundTasks,
-    current_user: Optional[dict] = Depends(get_current_user)
+    current_user: Optional[dict] = Depends(get_current_user),
+    current_org: Optional[dict] = Depends(get_current_organization)
 ):
     """
     Process a chat question and return an AI-generated response with sources.
     """
     start_time = time.time()
     conversation_id = request.conversation_id or str(uuid.uuid4())
-    demo_org_id = get_demo_org_id()
+    organization_id = current_org.get("id") if current_org else None
     
     try:
         logger.info(f"Processing chat request: {request.question[:100]}...")
@@ -50,74 +48,9 @@ async def chat(
         
         # Note: Chat response caching disabled for legal consulting to ensure fresh, contextual responses
         
-        # Generate response using enhanced RAG pipeline (organization-scoped)
-        demo_org_id = get_demo_org_id()
-        
-        # Get documents with confidence scoring
-        docs_with_confidence = await enhanced_retriever.similarity_search_with_confidence(
-            request.question,
-            k=settings.retrieval_k,
-            organization_id=demo_org_id,
-            min_confidence=10.0
-        )
-        
-        if not docs_with_confidence:
-            result = {
-                "answer": "Désolé, je n'ai trouvé aucun document pertinent pour répondre à votre question.",
-                "sources": [],
-                "response_time": time.time() - start_time
-            }
-        else:
-            # Build context from retrieved documents
-            from app.rag.prompts import ENTERPRISE_RAG_SYSTEM_PROMPT
-            system_prompt = ENTERPRISE_RAG_SYSTEM_PROMPT
-            
-            context_parts = []
-            for i, (doc, confidence) in enumerate(docs_with_confidence[:5], 1):
-                source_info = ""
-                if "filename" in doc.metadata:
-                    source_info = f" (Source: {doc.metadata['filename']}"
-                    if "page" in doc.metadata:
-                        source_info += f", page {doc.metadata['page']}"
-                    source_info += f", confiance: {confidence:.1f}%)"
-                
-                content = doc.page_content[:1500] if len(doc.page_content) > 1500 else doc.page_content
-                context_parts.append(f"Document {i}{source_info}:\n{content}\n")
-            
-            context = "\n".join(context_parts)
-            user_prompt = f"""Contexte documentaire:
-{context}
-
-Question de l'utilisateur: {request.question}
-
-Réponse:"""
-            
-            # Generate response using enhanced LLM provider
-            messages = [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ]
-            
-            answer = await llm_provider.generate_response(
-                messages=messages,
-                stream=False,
-                temperature=settings.llm_temperature,
-                max_tokens=settings.max_tokens
-            )
-            
-            result = {
-                "answer": answer,
-                "sources": [
-                    {
-                        "content": doc.page_content,
-                        "metadata": doc.metadata,
-                        "score": doc.metadata.get("similarity", 0.0),
-                        "confidence": confidence
-                    }
-                    for doc, confidence in docs_with_confidence
-                ],
-                "response_time": time.time() - start_time
-            }
+        # Generate response using RAG pipeline (organization-scoped)
+        organization_id = current_org["id"] if current_org else None
+        result = await qa_chain.arun(request.question, organization_id=organization_id)
         
         # Prepare response
         sources = [
@@ -144,9 +77,10 @@ Réponse:"""
             sources=result["sources"]
         )
         
-        # Log all interactions for analytics (simplified for demo)
-        if current_user:
-            # Authenticated users: log normally with demo org
+        # Log all interactions for analytics
+        # Note: Anonymous users need special handling due to RLS policies
+        if current_user and organization_id:
+            # Authenticated users: log normally
             background_tasks.add_task(
                 log_chat_interaction,
                 user_id=current_user.get("id"),
@@ -154,7 +88,7 @@ Réponse:"""
                 answer=result["answer"],
                 sources=result["sources"],
                 response_time=result["response_time"],
-                organization_id=demo_org_id
+                organization_id=organization_id
             )
         else:
             # Anonymous users: log for metrics but bypass RLS
@@ -163,6 +97,20 @@ Réponse:"""
                 question=request.question,
                 response_time=result["response_time"],
                 sources_count=len(result["sources"])
+            )
+            
+        # Log audit event for chat interaction (only for authenticated users)
+        if current_user:
+            client_ip, user_agent = get_request_info(http_request)
+            background_tasks.add_task(
+                audit_logger.log_chat_event,
+                organization_id=organization_id,
+                user_id=current_user.get("id"),
+                question=request.question,
+                response_time=result["response_time"],
+                sources_count=len(result["sources"]),
+                ip_address=client_ip,
+                user_agent=user_agent
             )
         
         # Note: Chat response caching disabled - legal consulting requires fresh, contextual responses
@@ -198,28 +146,23 @@ async def chat_health():
     Check the health of chat-related services.
     """
     try:
-        # Test enhanced vector store connection
-        stats = enhanced_retriever.get_collection_stats()
+        # Test Supabase vector store connection
+        stats = retriever.get_collection_stats()
         
-        # Test LLM provider connection
-        llm_status = llm_provider.test_connection()
+        # Test Groq API connection
+        groq_status = qa_chain.test_connection()
         
         return {
-            "status": "healthy" if llm_status else "degraded",
+            "status": "healthy" if groq_status else "degraded",
             "vector_store": {
                 "status": "connected",
-                "documents": stats.get("total_documents", 0),
-                "vectors": stats.get("total_vectors", 0)
+                "documents": stats.get("total_documents", 0)
             },
-            "llm_provider": {
-                "status": "connected" if llm_status else "disconnected",
-                "provider": llm_provider.provider_name,
-                "model": llm_provider.model_name
+            "groq_api": {
+                "status": "connected" if groq_status else "disconnected"
             },
-            "embedding_provider": {
+            "embedding_model": {
                 "status": "loaded",
-                "provider": enhanced_retriever.embedding_provider.__class__.__name__,
-                "model": enhanced_retriever.embedding_provider.model_name,
                 "dimension": stats.get("embedding_dimension", 0)
             }
         }
@@ -235,7 +178,7 @@ async def chat_stats(current_user: dict = Depends(get_current_user)):
     Get collection statistics (authenticated endpoint).
     """
     try:
-        stats = enhanced_retriever.get_collection_stats()
+        stats = retriever.get_collection_stats()
         return stats
     except Exception as e:
         logger.error(f"Failed to get stats: {e}")

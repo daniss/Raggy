@@ -69,7 +69,7 @@ GROQ_TEMPERATURE=0.3
 GROQ_MAX_TOKENS=2000
 
 # Embedding Configuration
-EMBEDDING_MODEL=intfloat/multilingual-e5-large-instruct
+EMBEDDING_MODEL=dangvantuan/sentence-camembert-base
 EMBEDDING_DIMENSION=384
 USE_HYBRID_SEARCH=true
 USE_RERANKING=true

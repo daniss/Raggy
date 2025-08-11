@@ -8,23 +8,33 @@ import '@/styles/globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Raggy - Assistant IA Privé pour Entreprises',
-  description: 'Plateforme SaaS RAG - Chaque entreprise a son assistant IA privé alimenté par ses documents internes. Multi-tenant, sécurisé, collaboratif.',
-  keywords: ['SaaS', 'RAG', 'IA', 'assistant privé', 'entreprise', 'multi-tenant', 'documents internes', 'PME', 'TPE', 'collaboration'],
-  authors: [{ name: 'Raggy Team' }],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  title: 'Assistants RAG privés pour vos documents | Raggy',
+  description: 'Assistant RAG privé pour vos documents. Ingestion multi-format, citations fiables, démo sandbox, déploiement sécurisé (FastAPI + pgvector). DPA disponible.',
+  keywords: ['RAG', 'assistant IA privé', 'développement RAG', 'ingestion documents', 'citations sources', 'PDF DOCX', 'déploiement sécurisé', 'PME France', 'FastAPI', 'pgvector', 'DPA', 'RGPD'],
+  authors: [{ name: 'Raggy Solutions' }],
   robots: 'index, follow',
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
     url: process.env.NEXT_PUBLIC_APP_URL,
-    title: 'Raggy - Assistant IA Privé pour Entreprises',
-    description: 'Plateforme SaaS RAG - Un assistant IA privé pour chaque entreprise, alimenté par leurs documents internes',
+    title: 'Assistants RAG privés pour vos documents | Raggy',
+    description: 'Ingestion robuste. Citations fiables. Déploiement sécurisé. Démo prête. Nous développons des assistants RAG personnalisés pour les entreprises françaises.',
     siteName: 'Raggy',
+    images: [
+      {
+        url: '/og/landing.png',
+        width: 1200,
+        height: 630,
+        alt: 'Raggy - Assistants RAG privés pour vos documents'
+      }
+    ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Raggy - Assistant IA Privé pour Entreprises',
-    description: 'Plateforme SaaS RAG - Un assistant IA privé pour chaque entreprise',
+    title: 'Assistants RAG privés pour vos documents | Raggy',
+    description: 'Ingestion robuste. Citations fiables. Déploiement sécurisé. Démo prête.',
+    images: ['/og/landing.png']
   },
 }
 
@@ -48,14 +58,12 @@ export default function RootLayout({
         'min-h-screen bg-background font-sans antialiased',
         inter.className
       )}>
-        <div className="relative flex h-screen flex-col">
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <AuthProvider>
-              <ErrorBoundary>
-                {children}
-              </ErrorBoundary>
-            </AuthProvider>
-          </div>
+        <div className="relative min-h-screen">
+          <AuthProvider>
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+          </AuthProvider>
         </div>
       </body>
     </html>

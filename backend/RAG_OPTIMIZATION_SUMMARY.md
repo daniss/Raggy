@@ -84,7 +84,7 @@ USE_QUERY_ENHANCEMENT=true
 USE_SEMANTIC_CHUNKING=true
 
 # Model configuration
-EMBEDDING_MODEL=intfloat/multilingual-e5-large-instruct
+EMBEDDING_MODEL=dangvantuan/sentence-camembert-base
 
 # Performance tuning
 DENSE_WEIGHT=0.7

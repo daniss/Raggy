@@ -63,7 +63,7 @@ DEMO_CORPUS_PATH = "demo_corpus/"
 
 ### 2. Embedding Model Selection
 
-**Decision**: `intfloat/multilingual-e5-large-instruct` (384 dimensions)  
+**Decision**: `dangvantuan/sentence-camembert-base` (384 dimensions)  
 **Rationale**:
 - Optimized for French language understanding
 - Balance between performance and resource usage
@@ -72,7 +72,7 @@ DEMO_CORPUS_PATH = "demo_corpus/"
 
 **Technical Specifications**:
 ```yaml
-Model: intfloat/multilingual-e5-large-instruct
+Model: dangvantuan/sentence-camembert-base
 Dimensions: 384
 Languages: French (primary), English, 100+ others
 Size: 1.34GB
@@ -85,7 +85,7 @@ Hardware Requirements: 4GB RAM minimum
 |-------|------------|----------------|----------------|----------|
 | sentence-transformers/all-MiniLM-L6-v2 | 384 | ⭐⭐⭐ | Low | ❌ Poor French |
 | sentence-transformers/paraphrase-multilingual-mpnet-base-v2 | 768 | ⭐⭐⭐⭐ | High | ❌ Too resource-heavy |
-| intfloat/multilingual-e5-large-instruct | 384 | ⭐⭐⭐⭐⭐ | Medium | ✅ **Selected** |
+| dangvantuan/sentence-camembert-base | 384 | ⭐⭐⭐⭐⭐ | Medium | ✅ **Selected** |
 
 ### 3. Streaming Response Implementation
 

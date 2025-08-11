@@ -7,7 +7,7 @@ from uuid import UUID
 import json
 
 from langchain.schema import Document
-from app.db.supabase_client import supabase_client
+from app.db.supabase_client import get_supabase_client
 from app.rag.embedding_providers import embedding_provider
 from app.core.retry_handler import retry_database
 from app.core.config import settings
@@ -19,7 +19,7 @@ class EnhancedSupabaseRetriever:
     """Enhanced vector store retriever with confidence scoring and metadata filtering."""
     
     def __init__(self):
-        self.supabase = supabase_client
+        self.supabase = get_supabase_client()
         self.embedding_provider = embedding_provider
         self.collection_name = "document_vectors"
         
@@ -28,8 +28,9 @@ class EnhancedSupabaseRetriever:
     def _calculate_confidence_score(self, similarity: float, source_metadata: Dict[str, Any] = None) -> float:
         """Calculate confidence score from similarity score and metadata."""
         # Base confidence from similarity score
-        # Cosine similarity ranges from -1 to 1, normalize to 0-100%
-        base_confidence = max(0, (similarity + 1) / 2 * 100)
+        # With normalized embeddings, cosine similarity ranges from 0 to 1
+        # Convert directly to percentage (0-100%)
+        base_confidence = max(0, similarity * 100)
         
         # Apply confidence boosters based on metadata
         confidence_multiplier = 1.0
@@ -130,7 +131,7 @@ class EnhancedSupabaseRetriever:
                     "query_embedding": embedding_str,
                     "match_threshold": 0.1,  # Lower threshold to get more candidates
                     "match_count": k * 2,    # Get more candidates for filtering
-                    "org_id": organization_id
+                    "organization_id": organization_id
                 }
             )
             
@@ -251,7 +252,7 @@ class EnhancedSupabaseRetriever:
                     "query_embedding": embedding_str,
                     "match_threshold": 0.1,
                     "match_count": k,
-                    "org_id": organization_id
+                    "organization_id": organization_id
                 }
             ).execute()
             
@@ -262,7 +263,8 @@ class EnhancedSupabaseRetriever:
             documents_with_confidence = []
             for item in result.data:
                 similarity = float(item.get('similarity', 0))
-                basic_confidence = max(0, (similarity + 1) / 2 * 100)
+                # With normalized embeddings, similarity is 0-1, convert to percentage
+                basic_confidence = max(0, similarity * 100)
                 
                 metadata = item.get('metadata', {})
                 if isinstance(metadata, str):

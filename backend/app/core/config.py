@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     
     # RAG Configuration
     embedding_model: str = Field(
-        default="intfloat/multilingual-e5-base", 
+        default="dangvantuan/sentence-camembert-base", 
         env="EMBEDDING_MODEL"
     )
     embeddings_provider: str = Field(default="local", env="EMBEDDINGS_PROVIDER")  # local/remote
