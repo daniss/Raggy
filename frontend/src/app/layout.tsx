@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 import '@/styles/globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -55,15 +56,17 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/favicon.png" />
       </head>
       <body className={cn(
-        'min-h-screen bg-background font-sans antialiased',
+        'min-h-screen bg-background font-sans antialiased transition-colors duration-300',
         inter.className
       )}>
         <div className="relative min-h-screen">
-          <AuthProvider>
-            <ErrorBoundary>
-              {children}
-            </ErrorBoundary>
-          </AuthProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <ErrorBoundary>
+                {children}
+              </ErrorBoundary>
+            </AuthProvider>
+          </ThemeProvider>
         </div>
       </body>
     </html>

@@ -18,6 +18,8 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { type Source } from '@/utils/api';
 import SourceCard from '../../assistant/components/SourceCard';
+import { renderTextWithCitations } from './CitationBubble';
+import ThinkingIndicator from './ThinkingIndicator';
 
 interface Message {
   id: string;
@@ -33,9 +35,21 @@ interface ChatMessageProps {
   message: Message;
   isLatest?: boolean;
   onOpenDocument?: (filename: string, highlightText?: string, citationContext?: any) => void;
+  onCitationClick?: (source: Source, citation: number) => void;
+  onCitationHover?: (citation: number) => void;
+  onCitationLeave?: () => void;
+  activeCitation?: number;
 }
 
-const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ message, isLatest = false, onOpenDocument }, ref) => {
+const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ 
+  message, 
+  isLatest = false, 
+  onOpenDocument,
+  onCitationClick,
+  onCitationHover,
+  onCitationLeave,
+  activeCitation
+}, ref) => {
   const [copied, setCopied] = useState(false);
   const [showSources, setShowSources] = useState(false);
 
@@ -88,7 +102,7 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
             "relative px-4 py-3 rounded-2xl shadow-sm border",
             isUser 
               ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-200 rounded-br-md" 
-              : "bg-white text-gray-900 border-gray-200 rounded-bl-md",
+              : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-600 rounded-bl-md",
             "max-w-3xl"
           )}>
             {/* Header */}
@@ -98,13 +112,13 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
             )}>
               <span className={cn(
                 "font-medium text-sm",
-                isUser ? "text-blue-100" : "text-gray-900"
+                isUser ? "text-blue-100" : "text-gray-900 dark:text-gray-100"
               )}>
                 {isUser ? 'Vous' : 'Assistant IA'}
               </span>
               <span className={cn(
                 "text-xs",
-                isUser ? "text-blue-200" : "text-gray-500"
+                isUser ? "text-blue-200" : "text-gray-500 dark:text-gray-400"
               )}>
                 {message.timestamp.toLocaleTimeString('fr-FR', {
                   hour: '2-digit',
@@ -126,20 +140,7 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
 
             {/* Message content */}
             {message.isLoading ? (
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Sparkles className="w-4 h-4" />
-                  </motion.div>
-                  <span className="text-sm">Recherche dans vos documents...</span>
-                </div>
-                <div className="text-xs text-gray-500">
-                  Analyse des documents • Génération de la réponse
-                </div>
-              </div>
+              <ThinkingIndicator isVisible={true} />
             ) : (
               <div className={cn(
                 "prose prose-sm max-w-none",
@@ -151,27 +152,48 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
                     h1: ({ children }) => (
                       <h1 className={cn(
                         "text-xl font-bold mt-4 mb-3",
-                        isUser ? "text-white" : "text-gray-900"
+                        isUser ? "text-white" : "text-gray-900 dark:text-gray-100"
                       )}>{children}</h1>
                     ),
                     h2: ({ children }) => (
                       <h2 className={cn(
                         "text-lg font-semibold mt-4 mb-2",
-                        isUser ? "text-white" : "text-gray-900"
+                        isUser ? "text-white" : "text-gray-900 dark:text-gray-100"
                       )}>{children}</h2>
                     ),
                     h3: ({ children }) => (
                       <h3 className={cn(
                         "text-base font-semibold mt-3 mb-2",
-                        isUser ? "text-white" : "text-gray-900"
+                        isUser ? "text-white" : "text-gray-900 dark:text-gray-100"
                       )}>{children}</h3>
                     ),
-                    p: ({ children }) => (
-                      <p className={cn(
-                        "leading-relaxed mb-3",
-                        isUser ? "text-white" : "text-gray-700"
-                      )}>{children}</p>
-                    ),
+                    p: ({ children }) => {
+                      // Handle citations in paragraphs
+                      if (typeof children === 'string' && message.sources && !isUser) {
+                        const elementsWithCitations = renderTextWithCitations(
+                          children,
+                          message.sources,
+                          onCitationClick,
+                          onCitationHover,
+                          onCitationLeave,
+                          activeCitation
+                        );
+                        return (
+                          <p className={cn(
+                            "leading-relaxed mb-3",
+                            isUser ? "text-white" : "text-gray-700 dark:text-gray-300"
+                          )}>
+                            {elementsWithCitations}
+                          </p>
+                        );
+                      }
+                      return (
+                        <p className={cn(
+                          "leading-relaxed mb-3",
+                          isUser ? "text-white" : "text-gray-700 dark:text-gray-300"
+                        )}>{children}</p>
+                      );
+                    },
                     ul: ({ children }) => (
                       <ul className="list-disc list-inside ml-4 mb-3 space-y-1">{children}</ul>
                     ),
@@ -180,7 +202,7 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
                     ),
                     li: ({ children }) => (
                       <li className={cn(
-                        isUser ? "text-white" : "text-gray-700"
+                        isUser ? "text-white" : "text-gray-700 dark:text-gray-300"
                       )}>{children}</li>
                     ),
                     code: ({ children, className }) => {
@@ -190,7 +212,7 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
                           "px-1.5 py-0.5 rounded text-sm font-mono",
                           isUser 
                             ? "bg-blue-400/30 text-blue-100" 
-                            : "bg-gray-100 text-gray-800"
+                            : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
                         )}>
                           {children}
                         </code>
@@ -203,7 +225,7 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
                     strong: ({ children }) => (
                       <strong className={cn(
                         "font-semibold",
-                        isUser ? "text-white" : "text-gray-900"
+                        isUser ? "text-white" : "text-gray-900 dark:text-gray-100"
                       )}>{children}</strong>
                     ),
                   }}
@@ -221,7 +243,7 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
                 variant="ghost"
                 size="sm"
                 onClick={handleCopy}
-                className="h-7 text-xs hover:bg-gray-100"
+                className="h-7 text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 {copied ? (
                   <>
@@ -241,7 +263,7 @@ const ChatMessage = React.forwardRef<HTMLDivElement, ChatMessageProps>(({ messag
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowSources(!showSources)}
-                  className="h-7 text-xs hover:bg-gray-100"
+                  className="h-7 text-xs hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <FileText className="w-3 h-3 mr-1" />
                   {showSources ? 'Masquer' : 'Voir'} les sources

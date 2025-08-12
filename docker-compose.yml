@@ -52,7 +52,7 @@ services:
       # AI/LLM
       - GROQ_API_KEY=${GROQ_API_KEY}
       - GROQ_MODEL=${GROQ_MODEL:-deepseek-r1-distill-llama-70b}
-      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-dangvantuan/sentence-camembert-base}
+      - EMBEDDING_MODEL=intfloat/multilingual-e5-large-instruct
       
       # Database
       - SUPABASE_URL=${SUPABASE_URL}
@@ -71,6 +71,7 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/requirements.txt:/app/requirements.txt:ro
+      - /tmp/professional_docs:/tmp/professional_docs:ro
     networks:
       - raggy-network
     depends_on:

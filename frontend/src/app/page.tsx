@@ -53,7 +53,7 @@ export default function HomePage() {
     {
       icon: Lock,
       title: 'Sécurisé',
-      description: 'Données privées, séparation par organisation, DPA signé, hébergement UE.',
+      description: 'Données privées, isolation logique, DPA signable, hébergement UE disponible.',
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
@@ -67,7 +67,7 @@ export default function HomePage() {
     {
       icon: Clock,
       title: 'Rapide',
-      description: 'Réponses en streaming, interface simple, prêt pour un pilote.',
+      description: 'Réponses en streaming, interface simple, ready to use.',
       color: 'text-orange-600',
       bgColor: 'bg-orange-50'
     }
@@ -122,20 +122,24 @@ export default function HomePage() {
 
   const faqs = [
     {
-      question: 'Où sont stockées mes données ?',
-      answer: 'Dans Postgres (pgvector), hébergé dans l\'UE pour la démo. Déploiement dédié possible pour la production.'
+      question: 'Comment fonctionne l\'essai gratuit ?',
+      answer: 'Essai gratuit de 14 jours sur le plan Starter sans carte bancaire requise. Accès complet à toutes les fonctionnalités. Convertissez quand vous êtes convaincu.'
     },
     {
-      question: 'Est-ce multi-tenant ?',
-      answer: 'La démo utilise une organisation de démonstration unique. Déploiement dédié possible avec isolation complète.'
+      question: 'Quelles sont les limites de chaque forfait ?',
+      answer: 'Starter: 2 utilisateurs, 100 docs/2Go, 50k tokens/mois. Team: 5 utilisateurs, 500 docs/10Go, 200k tokens/mois. Business: 15 utilisateurs, 2000 docs/50Go, 500k tokens/mois.'
     },
     {
-      question: 'Puis-je utiliser mon propre LLM ?',
-      answer: 'Oui, branchement LLM local (vLLM/TGI) ou Groq selon vos besoins de conformité.'
+      question: 'Que se passe-t-il si je dépasse mes limites ?',
+      answer: 'Les tokens dépassés passent automatiquement au plan supérieur. Stockage supplémentaire disponible à +50€/mois pour +50Go. Simple et transparent.'
     },
     {
-      question: 'Quelles limites de format ?',
-      answer: 'PDF, DOCX, MD, TXT, CSV (limites liées à la taille de fichier dans la démo).'
+      question: 'Quel type de support proposez-vous ?',
+      answer: 'Support par email uniquement : 72h pour Starter, 48h pour Team, prioritaire pour Business avec possibilité de call booking. Pas de SLA contractuel, mais réponses rapides et efficaces.'
+    },
+    {
+      question: 'Comment puis-je annuler mon abonnement ?',
+      answer: 'Résiliation possible à tout moment depuis votre tableau de bord. Paiements mensuels via Stripe. Annuel avec -10% de remise. Aucun engagement long terme.'
     }
   ];
 
@@ -167,8 +171,8 @@ export default function HomePage() {
                 DPA
               </Link>
               <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
-                <Link href="mailto:contact@raggy.fr?subject=Demande de pilote">
-                  Demander un pilote
+                <Link href="/demo">
+                  Essai gratuit 14 jours
                 </Link>
               </Button>
             </nav>
@@ -199,8 +203,8 @@ export default function HomePage() {
                   DPA
                 </Link>
                 <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white w-fit">
-                  <Link href="mailto:contact@raggy.fr?subject=Demande de pilote">
-                    Demander un pilote
+                  <Link href="/demo">
+                    Essai gratuit 14 jours
                   </Link>
                 </Button>
               </nav>
@@ -218,19 +222,29 @@ export default function HomePage() {
               animate="visible"
               variants={staggerChildren}
             >
+              {/* A/B Test Headlines - Current: Option A */}
               <motion.h1 
                 variants={fadeInUp}
                 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-6"
               >
-                Assistants RAG privés pour vos{' '}
-                <span className="text-blue-600">documents</span>
+                {/* Option A (Current): */}
+                Vos documents deviennent{' '}
+                <span className="text-blue-600">intelligents</span>
+                
+                {/* Option B (A/B Test): Le ChatGPT qui connaît VOS documents */}
+                {/* Le <span className="text-blue-600">ChatGPT</span> qui connaît{' '}
+                <span className="text-blue-600">VOS</span> documents */}
+                
+                {/* Option C (Alternative): Posez des questions à vos 1000 PDFs comme si c'était ChatGPT */}
+                {/* Posez des questions à vos{' '}
+                <span className="text-blue-600">1000 PDFs</span> comme si c'était ChatGPT */}
               </motion.h1>
 
               <motion.p 
                 variants={fadeInUp}
                 className="text-xl text-slate-600 mb-8"
               >
-                Ingestion robuste. Citations fiables. Déploiement sécurisé. <span className="font-semibold text-blue-700">Testez en 2 minutes.</span>
+                <span className="font-semibold text-blue-700">Assistant IA privé en 5 minutes.</span> Commencez gratuitement, payez quand vous êtes convaincu.
               </motion.p>
 
               <motion.div 
@@ -239,30 +253,38 @@ export default function HomePage() {
               >
                 <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
                   <Link href="/demo">
-                    <Play className="mr-2 w-4 h-4" />
-                    Accéder à la démo
+                    <Star className="mr-2 w-4 h-4" />
+                    Essai gratuit 14 jours
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link href="mailto:contact@raggy.fr?subject=Demande de pilote">
+                  <a href="mailto:hello@raggy.fr?subject=Demo%20Enterprise%20-%20Demande%20commerciale">
                     <Mail className="mr-2 w-4 h-4" />
-                    Demander un pilote
-                  </Link>
+                    Contact commercial (Enterprise)
+                  </a>
                 </Button>
               </motion.div>
 
               <motion.div variants={fadeInUp} className="flex flex-wrap gap-4 text-sm text-slate-600">
-                <div className="flex items-center">
-                  <Shield className="w-4 h-4 mr-2 text-green-600" />
-                  Hébergement UE
+                <div className="flex items-center bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-full">
+                  <div className="w-3 h-3 mr-2 text-green-600">🇫🇷</div>
+                  <span className="font-medium">Hébergé en France</span>
                 </div>
-                <div className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-green-600" />
-                  Aucune donnée utilisée pour l'entraînement
+                <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full">
+                  <Shield className="w-4 h-4 mr-2 text-blue-600" />
+                  <span className="font-medium">RGPD Compliant</span>
                 </div>
-                <div className="flex items-center">
-                  <FileText className="w-4 h-4 mr-2 text-green-600" />
-                  DPA disponible
+                <div className="flex items-center bg-purple-50 dark:bg-purple-900/20 px-3 py-1 rounded-full">
+                  <CheckCircle className="w-4 h-4 mr-2 text-purple-600" />
+                  <span className="font-medium">Vos données restent vôtres</span>
+                </div>
+                <div className="flex items-center bg-gray-50 dark:bg-gray-800 px-3 py-1 rounded-full">
+                  <FileText className="w-4 h-4 mr-2 text-gray-600" />
+                  <span className="font-medium">DPA signable</span>
+                </div>
+                <div className="flex items-center bg-orange-50 dark:bg-orange-900/20 px-3 py-1 rounded-full">
+                  <Database className="w-4 h-4 mr-2 text-orange-600" />
+                  <span className="font-medium">Option HDS</span>
                 </div>
               </motion.div>
             </motion.div>
@@ -435,7 +457,7 @@ export default function HomePage() {
             <Button asChild variant="outline" size="lg">
               <Link href="/demo">
                 <Play className="mr-2 w-4 h-4" />
-                Voir la démo
+                Essayer la démo
               </Link>
             </Button>
           </motion.div>
@@ -490,10 +512,81 @@ export default function HomePage() {
         </div>
       </section>
 
+
       {/* Pricing Section */}
       <Pricing />
 
-      {/* CTA Band */}
+      {/* Lead Magnet Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 to-indigo-50">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerChildren}
+            className="text-center"
+          >
+            <motion.div variants={fadeInUp} className="mb-8">
+              <Badge className="bg-purple-100 text-purple-800 px-4 py-2 text-sm font-medium mb-4">
+                <Download className="w-4 h-4 mr-2" />
+                Ressource gratuite
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+                Checklist RGPD & AI Act
+              </h2>
+              <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                Téléchargez notre guide complet pour la conformité de votre assistant IA aux réglementations françaises et européennes.
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeInUp} className="bg-white rounded-lg shadow-lg p-8">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div className="text-left">
+                  <h3 className="text-xl font-semibold text-slate-900 mb-4">Ce que vous allez obtenir :</h3>
+                  <ul className="space-y-3 text-slate-600">
+                    <li className="flex items-start">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      Audit RGPD complet pour les assistants IA
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      Plan d'action AI Act (conformité européenne)
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      Dossier DPO prêt à l'emploi
+                    </li>
+                    <li className="flex items-start">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      Template de politique de données
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="text-center">
+                  <div className="bg-gradient-to-br from-purple-100 to-indigo-100 rounded-lg p-6 mb-6">
+                    <FileText className="w-16 h-16 text-purple-600 mx-auto mb-4" />
+                    <div className="text-2xl font-bold text-slate-900">24 pages</div>
+                    <div className="text-sm text-slate-600">Guide PDF complet</div>
+                  </div>
+                  
+                  <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700 text-white w-full">
+                    <a href="mailto:hello@raggy.fr?subject=Demande%20Checklist%20RGPD%20AI%20Act&body=Bonjour,%0A%0AJe%20souhaiterais%20recevoir%20la%20checklist%20RGPD%20%26%20AI%20Act.%0A%0ANom%20:%20%0AEntreprise%20:%20%0ASecteur%20:%20%0ATaille%20équipe%20:%20%0A%0AMerci%20!">
+                      <Download className="mr-2 w-4 h-4" />
+                      Télécharger gratuitement
+                    </a>
+                  </Button>
+                  <p className="text-xs text-slate-500 mt-2">
+                    Aucune carte bancaire requise
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Band - Free Trial Focus */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-indigo-600">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
@@ -502,21 +595,24 @@ export default function HomePage() {
             viewport={{ once: true }}
             variants={staggerChildren}
           >
-            <motion.h2 variants={fadeInUp} className="text-3xl sm:text-4xl font-bold mb-4">
-              Lancez votre assistant RAG avec une démo en 5 minutes
+            <motion.h2 variants={fadeInUp} className="text-3xl sm:text-4xl font-bold text-white mb-4">
+              Prêt à rendre vos documents intelligents ?
             </motion.h2>
+            <motion.p variants={fadeInUp} className="text-xl text-blue-100 mb-6">
+              Commencez gratuitement, aucune carte bancaire requise
+            </motion.p>
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
                   <Link href="/demo">
-                    <Play className="mr-2 w-4 h-4" />
-                    Accéder à la démo
+                    <Star className="mr-2 w-4 h-4" />
+                    Essai gratuit 14 jours
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
-                  <Link href="mailto:contact@raggy.fr?subject=Demande de pilote">
-                    <Mail className="mr-2 w-4 h-4" />
-                    Demander un pilote
-                  </Link>
+                <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white/10">
+                  <a href="mailto:hello@raggy.fr?subject=Demo%20Enterprise%20-%20Audit%20gratuit">
+                    <Shield className="mr-2 w-4 h-4" />
+                    Audit Enterprise (gratuit 30min)
+                  </a>
                 </Button>
             </motion.div>
           </motion.div>
@@ -626,8 +722,11 @@ export default function HomePage() {
             <div>
               <h3 className="font-semibold text-white mb-4">Raggy</h3>
               <p className="text-sm mb-4">
-                Développement d'assistants RAG privés pour les entreprises françaises.
-                Solutions sur-mesure, sécurisées et conformes.
+                Assistants RAG privés pour entreprises françaises. 
+                Essai gratuit 14 jours. Vos documents deviennent intelligents.
+              </p>
+              <p className="text-xs text-slate-400">
+                Tarifs HT • Net 30 • Chorus Pro compatible
               </p>
             </div>
             
@@ -652,7 +751,10 @@ export default function HomePage() {
             </div>
           </div>
           
-          <div className="border-t border-slate-800 pt-8 text-center text-sm">
+          <div className="border-t border-slate-800 pt-8 text-center text-sm space-y-2">
+            <p className="text-blue-400 italic">
+              🇫🇷 Conçu par un dev français qui préfère coder que faire des PowerPoints
+            </p>
             <p>&copy; {new Date().getFullYear()} Raggy. Tous droits réservés.</p>
           </div>
         </div>

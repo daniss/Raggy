@@ -20,6 +20,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface DemoSession {
   token: string;
@@ -170,10 +171,10 @@ export default function DemoUploadPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Vérification de votre session...</p>
+          <p className="text-slate-600 dark:text-slate-400">Vérification de votre session...</p>
         </div>
       </div>
     );
@@ -181,11 +182,11 @@ export default function DemoUploadPage() {
 
   if (!demoSession) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Session requise</h2>
-          <p className="text-gray-600 mb-4">Vous devez d'abord créer une session de démo.</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Session requise</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">Vous devez d'abord créer une session de démo.</p>
           <Link href="/demo">
             <Button>Créer une session de démo</Button>
           </Link>
@@ -200,9 +201,9 @@ export default function DemoUploadPage() {
   const minutesRemaining = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur sticky top-0 z-50">
+      <header className="border-b bg-white/80 dark:bg-gray-800/80 backdrop-blur sticky top-0 z-50 border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center space-x-2">
@@ -211,20 +212,21 @@ export default function DemoUploadPage() {
             </Link>
             
             <div className="flex-1 flex items-center justify-center">
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                 Documents - Démo {demoSession.company}
               </h1>
             </div>
             
             <div className="flex items-center space-x-4">
-              <Badge variant="default" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+              <Badge variant="default" className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800">
                 <Clock className="w-3 h-3 mr-1" />
                 {hoursRemaining}h {minutesRemaining}min
               </Badge>
-              <Badge variant="outline">
+              <Badge variant="outline" className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300">
                 <Shield className="w-3 h-3 mr-1" />
                 Données sécurisées
               </Badge>
+              <ThemeToggle variant="minimal" size="sm" />
             </div>
           </div>
         </div>
@@ -246,10 +248,10 @@ export default function DemoUploadPage() {
                   Session active pour {demoSession.company}
                 </Badge>
               </div>
-              <h2 className="text-3xl font-bold mb-4">
+              <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-100">
                 Gestion des documents
               </h2>
-              <p className="text-lg text-slate-600">
+              <p className="text-lg text-slate-600 dark:text-slate-400">
                 Consultez les documents pré-chargés et ajoutez les vôtres
               </p>
             </div>
@@ -274,23 +276,20 @@ export default function DemoUploadPage() {
                 <CardContent>
                   <div className="space-y-3">
                     {demoDocuments.map((doc, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border hover:bg-slate-100 transition-colors">
+                      <div key={index} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors">
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
                             <FileText className="w-4 h-4 text-blue-600" />
                           </div>
                           <div>
-                            <div className="font-medium text-sm">{doc.name}</div>
-                            <div className="text-xs text-slate-500">{doc.size}</div>
+                            <div className="font-medium text-sm text-gray-900 dark:text-gray-100">{doc.name}</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400">{doc.size}</div>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge variant="outline" className="text-xs">
                             {doc.type}
                           </Badge>
-                          <Button variant="ghost" size="sm" className="text-xs">
-                            Aperçu
-                          </Button>
                         </div>
                       </div>
                     ))}
@@ -300,8 +299,8 @@ export default function DemoUploadPage() {
                   <div className="mt-6 pt-4 border-t">
                     <div className="text-center">
                       <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                      <h3 className="font-semibold mb-2">Ajoutez vos propres documents</h3>
-                      <p className="text-sm text-slate-600 mb-4">
+                      <h3 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">Ajoutez vos propres documents</h3>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
                         Glissez-déposez ou cliquez pour sélectionner vos fichiers
                       </p>
                       
@@ -319,8 +318,8 @@ export default function DemoUploadPage() {
                       <div 
                         className={`border-2 border-dashed rounded-lg p-8 transition-colors cursor-pointer relative ${
                           isUploading 
-                            ? 'border-blue-400 bg-blue-50' 
-                            : 'border-slate-300 hover:border-blue-400'
+                            ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20' 
+                            : 'border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500'
                         }`}
                         onDrop={handleDrop}
                         onDragOver={handleDragOver}
@@ -339,12 +338,12 @@ export default function DemoUploadPage() {
                         {isUploading ? (
                           <div className="flex flex-col items-center">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-                            <p className="text-sm text-blue-600">Upload en cours...</p>
+                            <p className="text-sm text-blue-600 dark:text-blue-400">Upload en cours...</p>
                           </div>
                         ) : (
                           <>
                             <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                            <p className="text-sm text-slate-600 mb-2">
+                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
                               Cliquez ici ou glissez-déposez vos fichiers
                             </p>
                             <Button 
@@ -362,14 +361,14 @@ export default function DemoUploadPage() {
                       {/* Uploaded files */}
                       {uploadedFiles.length > 0 && (
                         <div className="mt-4 space-y-2">
-                          <h4 className="font-medium text-sm text-left">Vos fichiers uploadés:</h4>
+                          <h4 className="font-medium text-sm text-left text-gray-900 dark:text-gray-100">Vos fichiers uploadés:</h4>
                           {uploadedFiles.map((file, index) => (
-                            <div key={index} className="flex items-center justify-between p-2 bg-green-50 rounded border">
+                            <div key={index} className="flex items-center justify-between p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-700">
                               <div className="flex items-center space-x-2">
                                 <div className="w-6 h-6 bg-green-100 rounded flex items-center justify-center">
                                   <FileText className="w-3 h-3 text-green-600" />
                                 </div>
-                                <span className="text-sm font-medium">{file.filename}</span>
+                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{file.filename}</span>
                               </div>
                               <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
                                 {file.status}
@@ -379,7 +378,7 @@ export default function DemoUploadPage() {
                         </div>
                       )}
                       
-                      <div className="mt-4 text-xs text-slate-500 space-y-1">
+                      <div className="mt-4 text-xs text-slate-500 dark:text-slate-400 space-y-1">
                         <div>• Formats supportés: PDF, DOCX, TXT, CSV</div>
                         <div>• Taille max: 10 MB par fichier</div>
                         <div>• Limite démo: 3 fichiers maximum ({uploadedFiles.length}/3 utilisés)</div>
@@ -423,21 +422,21 @@ export default function DemoUploadPage() {
                   <CardContent>
                     <div className="space-y-3">
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Entreprise:</span>
-                        <span className="font-medium">{demoSession.company}</span>
+                        <span className="text-slate-600 dark:text-slate-400">Entreprise:</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">{demoSession.company}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Email:</span>
-                        <span className="font-medium text-xs">{demoSession.email}</span>
+                        <span className="text-slate-600 dark:text-slate-400">Email:</span>
+                        <span className="font-medium text-xs text-gray-900 dark:text-gray-100">{demoSession.email}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Expire dans:</span>
-                        <span className="font-medium text-green-600">
+                        <span className="text-slate-600 dark:text-slate-400">Expire dans:</span>
+                        <span className="font-medium text-green-600 dark:text-green-400">
                           {hoursRemaining}h {minutesRemaining}min
                         </span>
                       </div>
                       <div className="pt-2 border-t">
-                        <div className="text-xs text-slate-500 space-y-1">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
                           <div>• Questions illimitées</div>
                           <div>• 5 documents pré-chargés</div>
                           <div>• Upload limité (3 fichiers max)</div>
@@ -460,11 +459,6 @@ export default function DemoUploadPage() {
                         Assistant IA
                       </Link>
                     </Button>
-                    <Button variant="ghost" size="sm" className="w-full" asChild>
-                      <Link href="/demo">
-                        Retour à l'accueil démo
-                      </Link>
-                    </Button>
                   </CardContent>
                 </Card>
               </div>
@@ -482,7 +476,7 @@ export default function DemoUploadPage() {
 
             {/* Call to Action */}
             <div className="text-center pt-8 border-t">
-              <p className="text-slate-600 mb-4">
+              <p className="text-slate-600 dark:text-slate-400 mb-4">
                 Convaincu par la démo ?
               </p>
               <div className="flex justify-center space-x-4">

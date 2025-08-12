@@ -43,7 +43,7 @@ export default function Compliance() {
     {
       icon: Database,
       title: 'Hébergement UE',
-      description: 'Données stockées exclusivement en Union Européenne avec souveraineté garantie.',
+      description: 'Données stockées en Union Européenne par choix de déploiement.',
       color: 'text-blue-600', 
       bgColor: 'bg-blue-50'
     },
@@ -57,7 +57,7 @@ export default function Compliance() {
     {
       icon: FileText,
       title: 'Preuve de purge avec JSON',
-      description: 'Certificat cryptographique de destruction complète avec hash de vérification.',
+      description: 'Certificat de destruction complète avec hash de vérification.',
       color: 'text-orange-600',
       bgColor: 'bg-orange-50'
     },
@@ -71,7 +71,7 @@ export default function Compliance() {
     {
       icon: Zap,
       title: 'TLS en transit',
-      description: 'Chiffrement TLS 1.3 pour tous les échanges de données et communications API.',
+      description: 'Chiffrement TLS (1.2+) pour tous les échanges de données et communications API.',
       color: 'text-indigo-600',
       bgColor: 'bg-indigo-50'
     }
@@ -141,7 +141,7 @@ export default function Compliance() {
           <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
             <Link href="/demo">
               <Play className="mr-2 w-4 h-4" />
-              Voir la démo
+              Essayer la démo
             </Link>
           </Button>
         </motion.div>

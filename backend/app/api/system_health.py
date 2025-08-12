@@ -28,17 +28,17 @@ async def get_detailed_health(
             "performance_metrics": {}
         }
         
-        # Check Groq API health
-        try:
-            groq_healthy = qa_chain.test_connection()
+        # Skip Groq API test - wasteful on tokens
+        # Just check if API key is configured
+        from app.core.config import settings
+        if settings.groq_api_key:
             health_data["components"]["groq_api"] = {
-                "status": "healthy" if groq_healthy else "unhealthy",
+                "status": "configured",
                 "last_check": datetime.utcnow().isoformat()
             }
-        except Exception as e:
+        else:
             health_data["components"]["groq_api"] = {
-                "status": "unhealthy",
-                "error": str(e),
+                "status": "not_configured",
                 "last_check": datetime.utcnow().isoformat()
             }
         
@@ -254,19 +254,20 @@ async def run_system_diagnostics(
             "overall_result": "pass"
         }
         
-        # Test Groq API connection
-        try:
-            groq_test = qa_chain.test_connection()
+        # Skip Groq API test - wasteful on tokens
+        # Just check if API key is configured
+        from app.core.config import settings
+        if settings.groq_api_key:
             diagnostics["tests"]["groq_connection"] = {
-                "status": "pass" if groq_test else "fail",
-                "message": "Groq API connection successful" if groq_test else "Groq API connection failed",
-                "execution_time": "< 1s"
+                "status": "pass",
+                "message": "Groq API key configured",
+                "execution_time": "0s"
             }
-        except Exception as e:
+        else:
             diagnostics["tests"]["groq_connection"] = {
                 "status": "fail",
-                "message": f"Groq API test failed: {str(e)}",
-                "execution_time": "timeout"
+                "message": "Groq API key not configured",
+                "execution_time": "0s"
             }
             diagnostics["overall_result"] = "fail"
         

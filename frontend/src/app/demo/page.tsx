@@ -30,6 +30,7 @@ export default function DemoPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const checkExistingSession = useCallback(async () => {
     try {
@@ -73,6 +74,7 @@ export default function DemoPage() {
   const handleStartDemo = async () => {
     if (demoStep === 'email' && email && company) {
       setIsLoading(true);
+      setError(null); // Clear any previous errors
       
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/v1/demo/register`, {
@@ -91,6 +93,12 @@ export default function DemoPage() {
         });
 
         if (!response.ok) {
+          // Handle specific validation errors from backend
+          if (response.status === 400) {
+            const errorData = await response.json();
+            setError(errorData.error || errorData.detail || 'Erreur de validation');
+            return;
+          }
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
@@ -114,7 +122,7 @@ export default function DemoPage() {
         }
       } catch (error) {
         console.error('Demo registration failed:', error);
-        alert('Une erreur est survenue lors de la création de votre session de démo. Veuillez réessayer.');
+        setError('Une erreur est survenue lors de la création de votre session de démo. Veuillez réessayer.');
       } finally {
         setIsLoading(false);
       }
@@ -261,6 +269,13 @@ export default function DemoPage() {
               <Card className="max-w-md mx-auto">
                 <CardContent className="pt-6">
                   <div className="space-y-4">
+                    {error && (
+                      <Alert variant="destructive">
+                        <AlertDescription>
+                          {error}
+                        </AlertDescription>
+                      </Alert>
+                    )}
                     <div>
                       <label className="block text-sm font-medium mb-2">
                         Email professionnel
@@ -269,7 +284,10 @@ export default function DemoPage() {
                         type="email"
                         placeholder="vous@entreprise.fr"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          if (error) setError(null); // Clear error when user starts typing
+                        }}
                       />
                     </div>
                     <div>
@@ -280,7 +298,10 @@ export default function DemoPage() {
                         type="text"
                         placeholder="Votre Entreprise SARL"
                         value={company}
-                        onChange={(e) => setCompany(e.target.value)}
+                        onChange={(e) => {
+                          setCompany(e.target.value);
+                          if (error) setError(null); // Clear error when user starts typing
+                        }}
                       />
                     </div>
                     

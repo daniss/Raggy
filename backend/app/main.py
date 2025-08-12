@@ -137,15 +137,13 @@ async def health_check():
             dependencies["vector_store"] = f"error: {str(e)[:50]}"
             overall_healthy = False
         
-        # Check Groq API
-        try:
-            groq_status = qa_chain.test_connection()
-            dependencies["groq_api"] = "connected" if groq_status else "disconnected"
-            
-            if not groq_status:
-                overall_healthy = False
-        except Exception as e:
-            dependencies["groq_api"] = f"error: {str(e)[:50]}"
+        # Skip Groq API test - wasteful on tokens
+        # Just check if API key is configured
+        from app.core.config import settings
+        if settings.groq_api_key:
+            dependencies["groq_api"] = "configured"
+        else:
+            dependencies["groq_api"] = "not configured"
             overall_healthy = False
         
         # Check Supabase

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Set Demo Session</title>
+</head>
+<body>
+    <h1>Setting Demo Session</h1>
+    <div id="status">Setting session...</div>
+    
+    <script>
+        // Demo session data from API response
+        const demoSession = {
+            token: "demo_20250811_X7S-5BoU2705MZd38UyapA",
+            email: "test@example.com",
+            company: "Test Company",
+            expiresAt: new Date("2025-08-12T16:36:37.114298").getTime(),
+            documents: [
+                {"name":"Contrat_Type_Client.docx","size":"40 KB","type":"Commercial","description":"Modèle de contrat client standard"},
+                {"name":"Guide_Conformite_RGPD.pdf","size":"15 KB","type":"Juridique","description":"Guide complet de conformité RGPD pour entreprises"},
+                {"name":"Manuel_Procedures_RH_2024.pdf","size":"18 KB","type":"RH","description":"Manuel des procédures ressources humaines"},
+                {"name":"Documentation_Technique_Produit.pdf","size":"23 KB","type":"Technique","description":"Documentation technique complète produit"},
+                {"name":"Analyse_Fiscale_2024.xlsx","size":"6 KB","type":"Finance","description":"Analyse fiscale et optimisation"}
+            ],
+            sampleQuestions: [
+                "Quelles sont les obligations RGPD pour le traitement des données clients ?",
+                "Quelle est la procédure de recrutement d'un nouveau collaborateur ?",
+                "Quels sont les délais de paiement dans nos contrats types ?",
+                "Comment calculer le crédit d'impôt recherche ?",
+                "Quelles sont les spécifications techniques de notre produit principal ?"
+            ]
+        };
+        
+        // Store in localStorage
+        localStorage.setItem('demoSession', JSON.stringify(demoSession));
+        localStorage.setItem('demoRequestCount', '0');
+        
+        document.getElementById('status').innerHTML = `
+            <p>✅ Demo session set successfully!</p>
+            <p><strong>Token:</strong> ${demoSession.token}</p>
+            <p><strong>Company:</strong> ${demoSession.company}</p>
+            <p><strong>Expires:</strong> ${new Date(demoSession.expiresAt).toLocaleString()}</p>
+            <p><a href="http://localhost:3001/demo-assistant" target="_blank">→ Go to Demo Assistant</a></p>
+        `;
+    </script>
+</body>
+</html>

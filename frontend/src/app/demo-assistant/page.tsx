@@ -12,17 +12,23 @@ import {
   Bot,
   Clock,
   Shield,
-  ArrowLeft
+  ArrowLeft,
+  MessageCircle,
+  Palette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import ChatMessage from './components/ChatMessage';
-import ChatInput from './components/ChatInput';
+import EnhancedChatInput from './components/EnhancedChatInput';
+import SourcesPanel from './components/SourcesPanel';
+import ConversationExporter from './components/ConversationExporter';
+import ThemeToggle from '@/components/ThemeToggle';
 import { handleApiError, type ChatResponse, type Source } from '@/utils/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorAlert } from '@/components/ErrorAlert';
+import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 interface Message {
@@ -52,6 +58,17 @@ export default function DemoAssistantPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string>();
+  const [requestCount, setRequestCount] = useState(0);
+  const MAX_REQUESTS = 5;
+  
+  // Sources panel state
+  const [showSourcesPanel, setShowSourcesPanel] = useState(false);
+  const [sourcesPanelCollapsed, setSourcesPanelCollapsed] = useState(false);
+  const [currentMessageSources, setCurrentMessageSources] = useState<Source[]>([]);
+  const [allSources, setAllSources] = useState<Source[]>([]);
+  const [activeCitation, setActiveCitation] = useState<number | null>(null);
+  const [autoOpenSources, setAutoOpenSources] = useState(true); // Auto-open sources panel
+  const [sourcesButtonPulse, setSourcesButtonPulse] = useState(false); // Pulse animation for new sources
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -86,6 +103,12 @@ export default function DemoAssistantPage() {
 
       setDemoSession(session);
       
+      // Load request count from localStorage
+      const storedCount = localStorage.getItem('demoRequestCount');
+      if (storedCount) {
+        setRequestCount(parseInt(storedCount, 10));
+      }
+      
       // Set initial welcome message with demo context
       const welcomeMessage: Message = {
         id: '1',
@@ -116,6 +139,12 @@ Posez-moi n'importe quelle question sur ces documents !`,
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isLoading || !demoSession) return;
+    
+    // Check if request limit is reached
+    if (requestCount >= MAX_REQUESTS) {
+      setError(`Vous avez atteint la limite de ${MAX_REQUESTS} questions pour la démo. Pour continuer, contactez-nous pour la version complète.`);
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -135,6 +164,10 @@ Posez-moi n'importe quelle question sur ces documents !`,
     setMessages(prev => [...prev, userMessage, loadingMessage]);
     setIsLoading(true);
     setError(null);
+    
+    // Clear sources from previous message when starting a new question
+    setCurrentMessageSources([]);
+    setAllSources([]);
 
     try {
       const startTime = Date.now();
@@ -196,7 +229,22 @@ Posez-moi n'importe quelle question sur ces documents !`,
                     
                   case 'sources':
                     finalSources = data.sources;
-                    console.log('Sources received:', finalSources);
+                    // Update current message sources - replace all sources with just the latest ones
+                    setCurrentMessageSources(finalSources);
+                    // Replace allSources with only the sources from the current response
+                    setAllSources(finalSources);
+                    
+                    // Auto-open sources panel when sources are received (like GitHub Copilot)
+                    if (finalSources && finalSources.length > 0) {
+                      if (autoOpenSources) {
+                        setShowSourcesPanel(true);
+                        setSourcesPanelCollapsed(false);
+                      } else {
+                        // If auto-open is disabled, pulse the sources button to draw attention
+                        setSourcesButtonPulse(true);
+                        setTimeout(() => setSourcesButtonPulse(false), 2000);
+                      }
+                    }
                     break;
                     
                   case 'complete':
@@ -205,10 +253,23 @@ Posez-moi n'importe quelle question sur ces documents !`,
                     
                     setConversationId(currentConversationId);
                     
+                    // Increment request count and save to localStorage
+                    const newCount = requestCount + 1;
+                    setRequestCount(newCount);
+                    localStorage.setItem('demoRequestCount', newCount.toString());
+                    
+                    // Add warning message if this was the last question
+                    let finalContent = accumulatedContent;
+                    if (newCount === MAX_REQUESTS) {
+                      finalContent += `\n\n---\n\n⚠️ **Vous avez atteint la limite de ${MAX_REQUESTS} questions pour cette démo.**\n\nPour continuer à explorer notre solution RAG et débloquer toutes les fonctionnalités, [contactez notre équipe commerciale](/#contact).`;
+                    } else if (newCount === MAX_REQUESTS - 1) {
+                      finalContent += `\n\n---\n\n💡 **Attention : Il vous reste 1 dernière question pour cette démo.**`;
+                    }
+                    
                     const finalMessage: Message = {
                       id: loadingMessage.id,
                       type: 'assistant',
-                      content: accumulatedContent,
+                      content: finalContent,
                       timestamp: new Date(),
                       sources: finalSources,
                       isLoading: false,
@@ -308,9 +369,9 @@ Veuillez réessayer ou retourner à la page de démo si le problème persiste.`,
   ];
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col">
+    <div className="h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col transition-colors duration-500">
       {/* Demo Header */}
-      <header className="border-b bg-white/80 backdrop-blur flex-shrink-0">
+      <header className="border-b panel-glass flex-shrink-0">
         <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
           <Link href="/demo/upload" className="flex items-center space-x-2">
             <ArrowLeft className="w-5 h-5" />
@@ -318,23 +379,77 @@ Veuillez réessayer ou retourner à la page de démo si le problème persiste.`,
           </Link>
           
           <div className="flex-1 flex items-center justify-center">
-            <h1 className="text-xl font-semibold text-gray-900">
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Assistant IA - Démo {demoSession.company}
             </h1>
           </div>
           
-          <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm" asChild>
+          <div className="flex items-center space-x-3">
+            <Button variant="outline" size="sm" asChild className="glass-hover">
               <Link href="/demo/upload">
                 <FileText className="w-4 h-4 mr-2" />
                 Documents
               </Link>
             </Button>
-            <Badge variant="default" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+            <motion.div
+              animate={sourcesButtonPulse ? { scale: [1, 1.1, 1], opacity: [1, 0.8, 1] } : {}}
+              transition={{ duration: 0.6, repeat: sourcesButtonPulse ? 3 : 0 }}
+            >
+              <Button 
+                variant={showSourcesPanel ? "default" : "outline"} 
+                size="sm"
+                onClick={() => {
+                  setShowSourcesPanel(!showSourcesPanel);
+                  setSourcesButtonPulse(false); // Stop pulse when clicked
+                }}
+                className={cn(
+                  "glass-hover transition-all duration-300",
+                  showSourcesPanel 
+                    ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg" 
+                    : "bg-white/10 backdrop-blur border-white/20",
+                  sourcesButtonPulse && "ring-2 ring-purple-400 ring-opacity-50"
+                )}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Sources {allSources.length > 0 && `(${allSources.length})`}
+                {allSources.length > 0 && !showSourcesPanel && (
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="ml-1"
+                  >
+                    <Sparkles className="w-3 h-3 text-purple-400" />
+                  </motion.div>
+                )}
+              </Button>
+            </motion.div>
+            {messages.length > 1 && (
+              <ConversationExporter 
+                messages={messages}
+                demoSession={demoSession}
+                allSources={allSources}
+              />
+            )}
+            <ThemeToggle variant="minimal" size="sm" showLabel={false} />
+            <Badge 
+              variant="outline"
+              className={cn(
+                "glass-subtle transition-all duration-300",
+                requestCount >= MAX_REQUESTS 
+                  ? "border-red-300 text-red-700 dark:border-red-700 dark:text-red-300" 
+                  : requestCount >= MAX_REQUESTS - 1 
+                  ? "border-orange-300 text-orange-700 dark:border-orange-700 dark:text-orange-300"
+                  : "border-green-300 text-green-700 dark:border-green-700 dark:text-green-300"
+              )}
+            >
+              <MessageCircle className="w-3 h-3 mr-1" />
+              {MAX_REQUESTS - requestCount} questions restantes
+            </Badge>
+            <Badge variant="outline" className="glass-subtle border-blue-300 text-blue-700 dark:border-blue-700 dark:text-blue-300">
               <Clock className="w-3 h-3 mr-1" />
               {hoursRemaining}h {minutesRemaining}min
             </Badge>
-            <Badge variant="outline">
+            <Badge variant="outline" className="glass-subtle border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-300">
               <Shield className="w-3 h-3 mr-1" />
               Données sécurisées
             </Badge>
@@ -342,24 +457,35 @@ Veuillez réessayer ou retourner à la page de démo si le problème persiste.`,
         </div>
       </header>
 
-      {/* Chat Area */}
-      <div className="flex-1 flex flex-col min-h-0">
+      {/* Main Content Area - Responsive Split Panel Layout */}
+      <div className="flex-1 flex min-h-0 relative">
+        {/* Left Panel - Chat Area */}
+        <div className="flex-1 flex flex-col min-h-0">
         {/* Sample Questions (show only at start) */}
         {messages.length === 1 && (
-          <div className="border-b bg-white p-4 flex-shrink-0">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Questions suggérées :</h3>
+          <div className="border-b panel-glass p-4 flex-shrink-0">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Questions suggérées :</h3>
+            </div>
             <div className="flex flex-wrap gap-2">
               {sampleQuestions.slice(0, 3).map((question, index) => (
-                <Button
+                <motion.div
                   key={index}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSampleQuestion(question)}
-                  className="text-xs h-8"
-                  disabled={isLoading}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
                 >
-                  {question.length > 50 ? question.substring(0, 50) + '...' : question}
-                </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSampleQuestion(question)}
+                    className="text-xs h-8 glass-hover transition-all duration-300 bg-white/20 dark:bg-gray-800/20 border-white/30 dark:border-gray-600/30 hover:bg-white/30 dark:hover:bg-gray-700/30 text-gray-800 dark:text-gray-200"
+                    disabled={isLoading || requestCount >= MAX_REQUESTS}
+                  >
+                    {question.length > 50 ? question.substring(0, 50) + '...' : question}
+                  </Button>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -407,21 +533,73 @@ Veuillez réessayer ou retourner à la page de démo si le problème persiste.`,
         </ScrollArea>
 
         {/* Input */}
-        <ChatInput
+        <EnhancedChatInput
           onSendMessage={handleSendMessage}
-          disabled={isLoading}
-          placeholder="Posez une question sur les documents de démo..."
+          disabled={isLoading || requestCount >= MAX_REQUESTS}
+          placeholder={
+            requestCount >= MAX_REQUESTS 
+              ? "Limite de questions atteinte - Contactez-nous pour la version complète" 
+              : `Posez une question sur les documents de démo... (${MAX_REQUESTS - requestCount} restantes)`
+          }
         />
       </div>
 
-      {/* Demo Limitations Footer */}
-      <div className="border-t bg-yellow-50 p-3 flex-shrink-0">
-        <div className="flex items-center justify-center text-sm text-yellow-800">
-          <Info className="w-4 h-4 mr-2" />
-          Démo limitée - Pour la version complète avec upload illimité et fonctionnalités avancées, 
-          <Link href="/#contact" className="ml-1 underline font-medium">contactez-nous</Link>
-        </div>
+      {/* Sources Panel */}
+      <AnimatePresence>
+        {showSourcesPanel && (
+          <SourcesPanel
+            sources={allSources}
+            isVisible={showSourcesPanel}
+            onClose={() => setShowSourcesPanel(false)}
+            onToggle={() => setSourcesPanelCollapsed(!sourcesPanelCollapsed)}
+            isCollapsed={sourcesPanelCollapsed}
+            currentMessageSources={currentMessageSources}
+            onSourceSelect={(source, index) => {
+              setActiveCitation(index);
+            }}
+          />
+        )}
+      </AnimatePresence>
       </div>
+
+      {/* Demo Limitations Footer */}
+      <motion.div 
+        className={cn(
+          "border-t panel-glass p-3 flex-shrink-0 transition-all duration-500",
+          requestCount >= MAX_REQUESTS 
+            ? 'bg-red-50/20 dark:bg-red-900/20 border-red-200/30 dark:border-red-700/30' 
+            : 'bg-yellow-50/20 dark:bg-yellow-900/20 border-yellow-200/30 dark:border-yellow-700/30'
+        )}
+        animate={{
+          background: requestCount >= MAX_REQUESTS ? 
+            'rgba(254, 226, 226, 0.3)' : 'rgba(254, 249, 195, 0.3)'
+        }}
+      >
+        <div className={cn(
+          "flex items-center justify-center text-sm transition-colors duration-300",
+          requestCount >= MAX_REQUESTS 
+            ? 'text-red-800 dark:text-red-200' 
+            : 'text-yellow-800 dark:text-yellow-200'
+        )}>
+          {requestCount >= MAX_REQUESTS ? (
+            <>
+              <AlertCircle className="w-4 h-4 mr-2 animate-pulse" />
+              Limite de {MAX_REQUESTS} questions atteinte - Pour continuer avec la version complète,
+              <Link href="/#contact" className="ml-1 underline font-semibold hover:text-red-600 dark:hover:text-red-300 transition-colors">
+                contactez-nous
+              </Link>
+            </>
+          ) : (
+            <>
+              <Info className="w-4 h-4 mr-2" />
+              Démo limitée à {MAX_REQUESTS} questions - Pour la version complète avec questions illimitées, 
+              <Link href="/#contact" className="ml-1 underline font-medium hover:text-yellow-600 dark:hover:text-yellow-300 transition-colors">
+                contactez-nous
+              </Link>
+            </>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 }

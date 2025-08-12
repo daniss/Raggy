@@ -3,10 +3,12 @@
 import uuid
 import secrets
 import json
+import os
+from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks, Header, UploadFile, File
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from pydantic import BaseModel, validator
 from app.db.supabase_client import get_supabase_client, save_document_info, update_document_status
 from app.core.sentry_config import capture_exception, add_breadcrumb
@@ -235,12 +237,12 @@ async def validate_demo_session(session_token: str) -> Dict[str, Any]:
         
         result = supabase.table("demo_signups").select("*").eq(
             "session_token", session_token
-        ).eq("status", "active").single().execute()
+        ).eq("status", "active").execute()
         
-        if not result.data:
+        if not result.data or len(result.data) == 0:
             raise HTTPException(status_code=401, detail="Demo session not found or expired")
         
-        demo = result.data
+        demo = result.data[0]
         
         # Check if session is expired
         expires_at = datetime.fromisoformat(demo["expires_at"].replace('Z', '+00:00'))
@@ -295,24 +297,35 @@ async def register_demo(
         supabase = get_supabase_client()
         
         # Check for existing active demo for this email
-        existing_result = supabase.table("demo_signups").select("*").eq(
+        existing_email_result = supabase.table("demo_signups").select("*").eq(
             "email", request.email
         ).eq("status", "active").execute()
         
-        if existing_result.data:
-            existing_demo = existing_result.data[0]
-            # If demo is not expired, return existing session
+        if existing_email_result.data:
+            existing_demo = existing_email_result.data[0]
+            # Check if demo is not expired
             expires_at = datetime.fromisoformat(existing_demo["expires_at"].replace('Z', '+00:00'))
             if expires_at > datetime.now().replace(tzinfo=expires_at.tzinfo):
-                logger.info(f"Returning existing demo session for {request.email}")
-                
-                return DemoRegistrationResponse(
-                    success=True,
-                    session_token=existing_demo["session_token"],
-                    expires_at=datetime.fromisoformat(existing_demo["expires_at"].replace('Z', '+00:00')),
-                    message="Session de démo existante réactivée",
-                    demo_documents=await get_demo_documents(),
-                    sample_questions=await get_sample_questions()
+                logger.info(f"Rejecting duplicate email registration: {request.email}")
+                raise HTTPException(
+                    status_code=400,
+                    detail="Un email avec cette adresse existe déjà. Veuillez utiliser une autre adresse email."
+                )
+        
+        # Check for existing active demo for this company name
+        existing_company_result = supabase.table("demo_signups").select("*").eq(
+            "company_name", request.company_name
+        ).eq("status", "active").execute()
+        
+        if existing_company_result.data:
+            existing_company = existing_company_result.data[0]
+            # Check if demo is not expired
+            expires_at = datetime.fromisoformat(existing_company["expires_at"].replace('Z', '+00:00'))
+            if expires_at > datetime.now().replace(tzinfo=expires_at.tzinfo):
+                logger.info(f"Rejecting duplicate company registration: {request.company_name}")
+                raise HTTPException(
+                    status_code=400,
+                    detail="Une organisation avec ce nom existe déjà. Veuillez utiliser un autre nom d'organisation."
                 )
         
         # Create new demo registration
@@ -360,6 +373,9 @@ async def register_demo(
             sample_questions=await get_sample_questions()
         )
         
+    except HTTPException:
+        # Re-raise HTTPExceptions (like our validation errors) as they are
+        raise
     except Exception as e:
         logger.error(f"Demo registration failed: {e}")
         capture_exception(e)
@@ -520,20 +536,47 @@ async def demo_chat_stream(
                     
                     return selected_results
                 
-                # Simplified search for demo performance - single query, lower threshold
-                docs_with_confidence = await enhanced_retriever.similarity_search_with_confidence(
+                # Multi-organization search for demo - search both shared demo org and user's org
+                user_demo_org_id = get_demo_organization_id(x_demo_session)
+                
+                # Search both organizations and merge results
+                all_docs_with_confidence = []
+                
+                # Search shared demo organization (pre-loaded documents)
+                shared_docs_with_confidence = await enhanced_retriever.similarity_search_with_confidence(
                     request.question, 
-                    k=6,  # Reduced from multiple searches
-                    organization_id=shared_demo_org_id,  # Search only shared demo org
-                    min_confidence=70.0  # Lowered threshold for better recall
+                    k=4,  # Reduced per org to maintain performance
+                    organization_id=shared_demo_org_id,
+                    min_confidence=90.0  # High confidence threshold for precision
                 )
+                all_docs_with_confidence.extend(shared_docs_with_confidence)
+                
+                # Search user's demo organization (uploaded documents)
+                user_docs_with_confidence = await enhanced_retriever.similarity_search_with_confidence(
+                    request.question, 
+                    k=4,  # Reduced per org to maintain performance  
+                    organization_id=user_demo_org_id,
+                    min_confidence=90.0  # High confidence threshold for precision
+                )
+                all_docs_with_confidence.extend(user_docs_with_confidence)
+                
+                # Sort by confidence and take top results
+                all_docs_with_confidence.sort(key=lambda x: x[1], reverse=True)
+                docs_with_confidence = all_docs_with_confidence[:6]  # Keep top 6 overall
                 docs = [doc for doc, confidence in docs_with_confidence]
+                
+                # Log search results from both organizations
+                logger.info(f"Multi-org demo search: {len(shared_docs_with_confidence)} from shared org, "
+                           f"{len(user_docs_with_confidence)} from user org, "
+                           f"{len(docs)} total after filtering")
                 
                 if not docs:
                     yield f"data: {json.dumps({'type': 'status', 'message': 'Aucun document trouvé avec confiance suffisante'})}\n\n"
                 else:
                     avg_confidence = sum(conf for _, conf in docs_with_confidence) / len(docs_with_confidence) if docs_with_confidence else 0
-                    yield f"data: {json.dumps({'type': 'status', 'message': f'{len(docs)} documents trouvés (confiance moyenne: {avg_confidence:.1f}%)'})}\n\n"
+                    shared_count = len(shared_docs_with_confidence)
+                    user_count = len(user_docs_with_confidence)
+                    yield f"data: {json.dumps({'type': 'status', 'message': f'{len(docs)} documents trouvés (base: {shared_count}, personnels: {user_count}, confiance moyenne: {avg_confidence:.1f}%)'})}\n\n"
                 
                 # Retrieval compression - summarize chunks to reduce noise
                 async def compress_retrieval_context(docs_with_confidence, max_compressed_tokens=2000):
@@ -1365,3 +1408,64 @@ async def list_demo_documents(
         logger.error(f"Failed to list demo documents: {e}")
         capture_exception(e)
         raise HTTPException(status_code=500, detail="Failed to retrieve documents")
+
+
+@router.get("/document/{filename}")
+async def serve_demo_document(
+    filename: str,
+    x_demo_session: str = Header(..., alias="X-Demo-Session")
+):
+    """
+    Serve demo document files (PDF, DOCX, XLSX) for preview.
+    """
+    try:
+        # Validate demo session
+        demo_session = await validate_demo_session(x_demo_session)
+        
+        # Security: Only allow specific demo documents
+        allowed_files = {
+            "Guide_Conformite_RGPD.pdf",
+            "Manuel_Procedures_RH_2024.pdf", 
+            "Documentation_Technique_Produit.pdf",
+            "Contrat_Type_Client.docx",
+            "Analyse_Fiscale_2024.xlsx"
+        }
+        
+        if filename not in allowed_files:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        # Check if file exists in the professional docs directory
+        file_path = Path("/tmp/professional_docs") / filename
+        
+        if not file_path.exists():
+            logger.error(f"Demo document not found: {file_path}")
+            raise HTTPException(status_code=404, detail="Document file not found")
+        
+        # Determine media type based on file extension
+        media_types = {
+            ".pdf": "application/pdf",
+            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        }
+        
+        file_extension = file_path.suffix.lower()
+        media_type = media_types.get(file_extension, "application/octet-stream")
+        
+        logger.info(f"Serving demo document: {filename} for session {x_demo_session[:16]}...")
+        
+        return FileResponse(
+            path=str(file_path),
+            media_type=media_type,
+            filename=filename,
+            headers={
+                "Cache-Control": "public, max-age=3600",  # Cache for 1 hour
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to serve demo document {filename}: {e}")
+        capture_exception(e)
+        raise HTTPException(status_code=500, detail="Failed to serve document")

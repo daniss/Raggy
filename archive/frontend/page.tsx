@@ -114,7 +114,7 @@ export default function HomePage() {
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
               <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                Voir la Démo
+                Essayer la Démo
               </Button>
             </motion.div>
 

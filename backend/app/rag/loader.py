@@ -189,51 +189,75 @@ class DocumentLoader:
                 raise e  # Raise original error
     
     def _load_pdf_pymupdf(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
-        """Load PDF using PyMuPDF (primary method)."""
-        documents = []
+        """Load PDF using PyMuPDF (primary method), combining all pages into single document."""
         pdf_doc = fitz.open(file_path)
+        
+        # Combine all pages into a single document for proper chunking
+        all_pages_text = []
+        page_numbers = []
         
         for page_num, page in enumerate(pdf_doc):
             text = page.get_text()
             if text.strip():  # Skip empty pages
-                page_metadata = metadata.copy()
-                page_metadata.update({
-                    "page": page_num + 1,
-                    "total_pages": len(pdf_doc),
-                    "extraction_method": "pymupdf"
-                })
-                
-                documents.append(Document(
-                    page_content=text,
-                    metadata=page_metadata
-                ))
+                all_pages_text.append(text.strip())
+                page_numbers.append(page_num + 1)
         
         pdf_doc.close()
-        return documents
+        
+        if not all_pages_text:
+            logger.warning(f"No text content extracted from PDF: {file_path}")
+            return []
+        
+        # Combine all page text with page separators
+        combined_text = "\n\n".join(all_pages_text)
+        
+        # Create single document with combined text
+        combined_metadata = metadata.copy()
+        combined_metadata.update({
+            "total_pages": len(pdf_doc),
+            "pages_with_content": page_numbers,
+            "extraction_method": "pymupdf"
+        })
+        
+        return [Document(
+            page_content=combined_text,
+            metadata=combined_metadata
+        )]
     
     def _load_pdf_pdfplumber(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
-        """Load PDF using pdfplumber (fallback method)."""
+        """Load PDF using pdfplumber (fallback method), combining all pages into single document."""
         if not PDFPLUMBER_AVAILABLE:
             raise ImportError("pdfplumber not available")
         
-        documents = []
+        all_pages_text = []
+        page_numbers = []
+        
         with pdfplumber.open(file_path) as pdf:
             for page_num, page in enumerate(pdf.pages):
                 text = page.extract_text()
                 if text and text.strip():
-                    page_metadata = metadata.copy()
-                    page_metadata.update({
-                        "page": page_num + 1,
-                        "total_pages": len(pdf.pages),
-                        "extraction_method": "pdfplumber"
-                    })
-                    
-                    documents.append(Document(
-                        page_content=text,
-                        metadata=page_metadata
-                    ))
+                    all_pages_text.append(text.strip())
+                    page_numbers.append(page_num + 1)
         
-        return documents
+        if not all_pages_text:
+            logger.warning(f"No text content extracted from PDF: {file_path}")
+            return []
+        
+        # Combine all page text with page separators
+        combined_text = "\n\n".join(all_pages_text)
+        
+        # Create single document with combined text
+        combined_metadata = metadata.copy()
+        combined_metadata.update({
+            "total_pages": len(page_numbers),
+            "pages_with_content": page_numbers,
+            "extraction_method": "pdfplumber"
+        })
+        
+        return [Document(
+            page_content=combined_text,
+            metadata=combined_metadata
+        )]
     
     def _load_text(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
         """Load text document."""
@@ -516,25 +540,38 @@ class DocumentLoader:
             raise
     
     def _load_with_unstructured(self, file_path: str, metadata: Dict[str, Any]) -> List[Document]:
-        """Load document using unstructured library."""
+        """Load document using unstructured library, combining elements into a single document."""
         try:
             elements = partition(filename=file_path)
             
-            documents = []
+            # Combine all text elements into a single document for proper chunking
+            text_parts = []
+            element_types = []
+            
             for element in elements:
                 if hasattr(element, 'text') and element.text.strip():
-                    element_metadata = metadata.copy()
-                    element_metadata.update({
-                        "element_type": element.category if hasattr(element, 'category') else "unknown",
-                        "extraction_method": "unstructured"
-                    })
-                    
-                    documents.append(Document(
-                        page_content=element.text,
-                        metadata=element_metadata
-                    ))
+                    text_parts.append(element.text.strip())
+                    element_types.append(element.category if hasattr(element, 'category') else "unknown")
             
-            return documents
+            if not text_parts:
+                logger.warning(f"No text content extracted from {file_path}")
+                return []
+            
+            # Combine all text with appropriate separators
+            full_text = "\n\n".join(text_parts)
+            
+            # Create single document with combined text
+            combined_metadata = metadata.copy()
+            combined_metadata.update({
+                "extraction_method": "unstructured",
+                "element_count": len(text_parts),
+                "element_types": list(set(element_types))
+            })
+            
+            return [Document(
+                page_content=full_text,
+                metadata=combined_metadata
+            )]
             
         except Exception as e:
             logger.error(f"Failed to load with unstructured: {e}")

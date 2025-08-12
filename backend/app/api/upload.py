@@ -140,10 +140,11 @@ async def upload_documents(
                         
                         supabase_retriever.add_documents(chunks)
                         
-                        # Update document status to completed
+                        # Update document status to completed with chunks count
                         await update_document_status(
                             document_id=document_id,
-                            status="completed"
+                            status="completed",
+                            chunks_count=len(chunks)
                         )
                         
                         processed_files.append({
