@@ -21,48 +21,31 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useDemo } from '@/contexts/DemoContext';
 
 export default function DemoPage() {
   const router = useRouter();
+  const { demoSession, loading, setDemoSession, isDemoSessionValid } = useDemo();
   const [demoStep, setDemoStep] = useState<'welcome' | 'email'>('welcome');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const checkExistingSession = useCallback(async () => {
-    try {
-      const storedSession = localStorage.getItem('demoSession');
-      if (storedSession) {
-        const session = JSON.parse(storedSession);
-        
-        // Check if session is still valid
-        if (Date.now() < session.expiresAt) {
-          // Session is valid, set flag to redirect
-          setShouldRedirect(true);
-          return;
-        } else {
-          // Session expired, remove it
-          localStorage.removeItem('demoSession');
-        }
-      }
-    } catch (error) {
-      console.error('Error checking existing session:', error);
-      localStorage.removeItem('demoSession');
-    } finally {
-      // Use setTimeout to ensure setState happens in next tick
-      setTimeout(() => {
-        setIsCheckingSession(false);
-      }, 0);
+  const checkExistingSession = useCallback(() => {
+    if (loading) return; // Wait for DemoContext to load
+    
+    if (demoSession && isDemoSessionValid()) {
+      // Valid session exists, set flag to redirect
+      setShouldRedirect(true);
     }
-  }, []);
+  }, [demoSession, loading, isDemoSessionValid]);
 
-  // Check for existing demo session on mount
+  // Check for existing demo session when context loads
   useEffect(() => {
     checkExistingSession();
-  }, [checkExistingSession]);
+  }, [checkExistingSession, demoSession, loading]);
 
   // Handle redirect in a separate effect to avoid setState during render
   useEffect(() => {
@@ -105,15 +88,16 @@ export default function DemoPage() {
         const data = await response.json();
         
         if (data.success) {
-          // Store demo session and redirect to assistant
-          localStorage.setItem('demoSession', JSON.stringify({
+          // Store demo session using DemoContext
+          const newSession = {
             token: data.session_token,
             email,
             company,
             documents: data.demo_documents,
             sampleQuestions: data.sample_questions,
             expiresAt: new Date(data.expires_at).getTime()
-          }));
+          };
+          setDemoSession(newSession);
           
           // Redirect directly to demo assistant
           router.push('/demo-assistant');
@@ -130,8 +114,8 @@ export default function DemoPage() {
   };
 
 
-  // Show loading while checking for existing session or redirecting
-  if (isCheckingSession || shouldRedirect) {
+  // Show loading while DemoContext is loading or redirecting
+  if (loading || shouldRedirect) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center">
         <div className="text-center">

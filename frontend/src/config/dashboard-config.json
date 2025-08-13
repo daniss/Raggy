@@ -1,0 +1,121 @@
+{
+  "menus": [
+    {
+      "id": "overview",
+      "label": "Tableau de bord",
+      "href": "/dashboard",
+      "icon": "LayoutDashboard",
+      "roles": ["org_admin","user","auditor","power_analyst","internal"],
+      "widgets": [
+        {"id": "kpi_tokens_month", "label": "Tokens (Mois)", "metric": "usage.tokens.month_to_date", "trend": true},
+        {"id": "kpi_cost_forecast", "label": "Prévision Coût", "metric": "billing.forecast.month_eur", "trend": true, "roles":["org_admin","internal"]},
+        {"id": "kpi_latency", "label": "Latence p50 / p95", "metrics": ["rag.latency.p50","rag.latency.p95"]},
+        {"id": "kpi_precision", "label": "Precision@3", "metric": "rag.eval.precision_at_3", "roles":["org_admin","power_analyst","internal"]},
+        {"id": "kpi_satisfaction", "label": "Satisfaction", "metric": "feedback.csat.avg"},
+        {"id": "kpi_quota_usage", "label": "Quota %", "metric": "usage.quota_percent"}
+      ],
+      "alerts_panel": {
+        "sources": ["quota","budget","quality","latency"],
+        "endpoints": ["GET /api/v1/alerts/active"]
+      },
+      "endpoints": ["GET /api/v1/dashboard/overview"],
+      "actions": [],
+      "sensitivity": "low"
+    },
+    {
+      "id": "documents",
+      "label": "Documents",
+      "href": "/dashboard/documents",
+      "icon": "FileText",
+      "roles": ["org_admin","user","power_analyst","internal"],
+      "sections": [
+        {
+          "id":"list",
+          "table":{
+            "columns":["filename","size_mb","status","embedding_version","chunks","duplicates","updated_at"],
+            "endpoint":"GET /api/v1/documents?org_id=:org"
+          }
+        },
+        {
+          "id":"stats",
+          "widgets":[
+            {"id":"total_docs","metric":"docs.total"},
+            {"id":"total_vectors","metric":"docs.vectors.total"},
+            {"id":"duplicate_rate","metric":"docs.duplicates.percent"}
+          ]
+        }
+      ],
+      "actions":[
+        {"id":"upload_document","method":"POST /api/v1/documents"},
+        {"id":"purge_document","method":"DELETE /api/v1/documents/{id}"},
+        {"id":"re_embed_document","method":"POST /api/v1/documents/{id}/reembed"}
+      ],
+      "endpoints":[
+        "GET /api/v1/documents",
+        "POST /api/v1/documents",
+        "DELETE /api/v1/documents/{id}",
+        "POST /api/v1/documents/{id}/reembed"
+      ],
+      "sensitivity":"medium"
+    },
+    {
+      "id":"conversations",
+      "label":"Conversations",
+      "href": "/dashboard/conversations",
+      "icon": "MessageCircle",
+      "roles":["org_admin","user","auditor","power_analyst","internal"],
+      "sections":[
+        {
+          "id":"recent_conversations",
+          "table":{
+            "columns":["conversation_id","messages","avg_latency","csat","updated_at"],
+            "endpoint":"GET /api/v1/conversations?org_id=:org"
+          }
+        },
+        {
+          "id":"feedback",
+          "table":{
+            "columns":["message_id","type","relevance_score","comment","created_at"],
+            "endpoint":"GET /api/v1/feedback?org_id=:org"
+          }
+        }
+      ],
+      "actions":[
+        {"id":"export_conversation","method":"GET /api/v1/conversations/{conversation_id}/export"}
+      ],
+      "endpoints":[
+        "GET /api/v1/conversations",
+        "GET /api/v1/feedback"
+      ],
+      "sensitivity":"medium"
+    },
+    {
+      "id":"support_status",
+      "label":"Support",
+      "href": "/dashboard/support",
+      "icon": "HelpCircle",
+      "roles":["org_admin","user","auditor","internal"],
+      "sections":[
+        {
+          "id":"service_health",
+          "widgets":[
+            {"id":"backend_status","metric":"health.backend"},
+            {"id":"vector_status","metric":"health.vector_store"},
+            {"id":"llm_status","metric":"health.llm"}
+          ]
+        }
+      ],
+      "endpoints":[
+        "GET /api/v1/status/health"
+      ],
+      "sensitivity":"low"
+    }
+  ],
+  "role_defaults": {
+    "org_admin": ["overview","documents","conversations","support_status"],
+    "user": ["overview","documents","conversations","support_status"],
+    "auditor": ["overview","conversations","support_status"],
+    "power_analyst": ["overview","documents","conversations","support_status"],
+    "internal": "*"
+  }
+}

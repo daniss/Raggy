@@ -3,7 +3,12 @@ import { Inter } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { DemoProvider } from '@/contexts/DemoContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { OrganizationProviderWrapper } from '@/contexts/OrganizationProviderWrapper'
+import { EnterpriseApiProvider } from '@/contexts/EnterpriseApiContext'
+import { NotificationProvider } from '@/contexts/NotificationContext'
+import { QueryProvider } from '@/contexts/QueryProvider'
 import '@/styles/globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -60,13 +65,23 @@ export default function RootLayout({
         inter.className
       )}>
         <div className="relative min-h-screen">
-          <ThemeProvider>
-            <AuthProvider>
-              <ErrorBoundary>
-                {children}
-              </ErrorBoundary>
-            </AuthProvider>
-          </ThemeProvider>
+          <QueryProvider>
+            <ThemeProvider>
+              <DemoProvider>
+                <AuthProvider>
+                  <OrganizationProviderWrapper>
+                    <EnterpriseApiProvider>
+                      <NotificationProvider>
+                        <ErrorBoundary>
+                          {children}
+                        </ErrorBoundary>
+                      </NotificationProvider>
+                    </EnterpriseApiProvider>
+                  </OrganizationProviderWrapper>
+                </AuthProvider>
+              </DemoProvider>
+            </ThemeProvider>
+          </QueryProvider>
         </div>
       </body>
     </html>

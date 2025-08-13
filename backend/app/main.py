@@ -94,13 +94,32 @@ app.add_middleware(
 # Simplified middleware - basic rate limiting only
 # Rate limiting handled by nginx/reverse proxy in production
 
-# Include routers
+# Include routers - Core functionality
 app.include_router(chat_router, prefix="/api/v1")
 app.include_router(chat_stream_router, prefix="/api/v1")
 app.include_router(upload_router, prefix="/api/v1")
 app.include_router(system_health_router, prefix="/api/v1")
 app.include_router(demo_router, prefix="/api/v1")
 app.include_router(demo_health_router, prefix="/api/v1")
+
+# Include enterprise routers
+from app.api.organizations import router as organizations_router
+from app.api.users import router as users_router
+from app.api.analytics_enterprise import router as analytics_router
+from app.api.security_compliance import router as security_router
+from app.api.billing_subscriptions import router as billing_router
+from app.api.playground_templates import router as playground_router
+
+app.include_router(organizations_router, prefix="/api/v1")
+app.include_router(users_router, prefix="/api/v1")
+app.include_router(analytics_router, prefix="/api/v1")
+app.include_router(security_router, prefix="/api/v1")
+app.include_router(billing_router, prefix="/api/v1")
+app.include_router(playground_router, prefix="/api/v1")
+
+# Include Supabase direct data router
+from app.api.supabase_direct import router as supabase_direct_router
+app.include_router(supabase_direct_router, prefix="/api/v1")
 
 
 # Root endpoint

@@ -110,10 +110,10 @@ uvicorn app.main:app --reload --port 8000
 #### Frontend Setup
 ```bash
 cd frontend
-npm install
+pnpm install
 cp .env.local.example .env.local
 # Configurer les variables dans .env.local
-npm run dev
+pnpm run dev
 ```
 </details>
 
@@ -247,8 +247,8 @@ pytest tests/ -v --cov=app
 
 # Frontend - Tests composants
 cd frontend
-npm test
-npm run type-check
+pnpm test
+pnpm run type-check
 ```
 
 ## 🚢 Déploiement Production

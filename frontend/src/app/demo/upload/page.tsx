@@ -21,20 +21,11 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
-
-interface DemoSession {
-  token: string;
-  email: string;
-  company: string;
-  documents?: any[];
-  sampleQuestions?: string[];
-  expiresAt: number;
-}
+import { useDemo, callDemoApi } from '@/contexts/DemoContext';
 
 export default function DemoUploadPage() {
   const router = useRouter();
-  const [demoSession, setDemoSession] = useState<DemoSession | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { demoSession, loading, isDemoSessionValid, clearDemoSession } = useDemo();
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -50,44 +41,26 @@ export default function DemoUploadPage() {
 
   useEffect(() => {
     checkDemoSession();
-  }, []);
+  }, [demoSession, loading]);
 
   const checkDemoSession = () => {
-    try {
-      const storedSession = localStorage.getItem('demoSession');
-      if (!storedSession) {
-        // No session, redirect to demo page
-        router.push('/demo');
-        return;
-      }
-
-      const session = JSON.parse(storedSession);
-      
-      // Check if session is expired
-      if (Date.now() > session.expiresAt) {
-        localStorage.removeItem('demoSession');
-        router.push('/demo');
-        return;
-      }
-
-      setDemoSession(session);
-      loadUploadedFiles(session.token);
-    } catch (error) {
-      console.error('Error checking demo session:', error);
-      localStorage.removeItem('demoSession');
+    if (loading) return; // Wait for DemoContext to load
+    
+    if (!demoSession || !isDemoSessionValid()) {
+      // No valid session, redirect to demo page
       router.push('/demo');
-    } finally {
-      setIsLoading(false);
+      return;
     }
+
+    // Load uploaded files for valid session
+    loadUploadedFiles();
   };
 
-  const loadUploadedFiles = async (sessionToken: string) => {
+  const loadUploadedFiles = async () => {
+    if (!demoSession) return;
+    
     try {
-      const response = await fetch('/api/backend/demo/documents', {
-        headers: {
-          'X-Demo-Session': sessionToken
-        }
-      });
+      const response = await callDemoApi('/documents');
       
       if (response.ok) {
         const data = await response.json();
@@ -95,6 +68,10 @@ export default function DemoUploadPage() {
       }
     } catch (error) {
       console.error('Error loading uploaded files:', error);
+      if (error instanceof Error && error.message?.includes('Demo session expired')) {
+        clearDemoSession();
+        router.push('/demo');
+      }
     }
   };
 
@@ -123,11 +100,8 @@ export default function DemoUploadPage() {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch('/api/backend/demo/upload', {
+        const response = await callDemoApi('/upload', {
           method: 'POST',
-          headers: {
-            'X-Demo-Session': demoSession.token
-          },
           body: formData
         });
 
@@ -136,7 +110,7 @@ export default function DemoUploadPage() {
           console.log('Upload successful:', result);
           
           // Reload uploaded files
-          await loadUploadedFiles(demoSession.token);
+          await loadUploadedFiles();
         } else {
           const error = await response.json();
           setUploadError(error.detail || `Erreur lors de l'upload de ${file.name}`);
@@ -144,7 +118,12 @@ export default function DemoUploadPage() {
       }
     } catch (error) {
       console.error('Upload error:', error);
-      setUploadError('Erreur lors de l\'upload des fichiers');
+      if (error instanceof Error && error.message?.includes('Demo session expired')) {
+        clearDemoSession();
+        router.push('/demo');
+      } else {
+        setUploadError('Erreur lors de l\'upload des fichiers');
+      }
     } finally {
       setIsUploading(false);
     }
@@ -169,7 +148,7 @@ export default function DemoUploadPage() {
     event.preventDefault();
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">

@@ -36,16 +36,25 @@ def create_supabase_client() -> Client:
     return get_supabase_client()
 
 
-# For backward compatibility with existing code
-supabase_client = None
+# For backward compatibility with existing code - use lazy initialization
+class LazySupabaseClient:
+    """A lazy wrapper for the Supabase client that initializes on first use."""
+    def __init__(self):
+        self._client = None
+    
+    def __getattr__(self, name):
+        if self._client is None:
+            self._client = get_supabase_client()
+        return getattr(self._client, name)
+    
+    @property
+    def client(self):
+        if self._client is None:
+            self._client = get_supabase_client()
+        return self._client
 
-
-def _get_client():
-    """Internal getter that always returns the current client."""
-    global supabase_client
-    if supabase_client is None:
-        supabase_client = get_supabase_client()
-    return supabase_client
+# Create the lazy client for backward compatibility
+supabase_client = LazySupabaseClient()
 
 
 async def log_chat_interaction(

@@ -27,9 +27,10 @@ import ConversationExporter from './components/ConversationExporter';
 import ThemeToggle from '@/components/ThemeToggle';
 import { handleApiError, type ChatResponse, type Source } from '@/utils/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { ErrorAlert } from '@/components/ErrorAlert';
+import { ErrorAlert } from './components/ErrorAlert';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { useDemo } from '@/contexts/DemoContext';
 
 interface Message {
   id: string;
@@ -51,8 +52,7 @@ interface DemoSession {
 }
 
 export default function DemoAssistantPage() {
-  const [demoSession, setDemoSession] = useState<DemoSession | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
+  const { demoSession, loading, isDemoSessionValid, clearDemoSession } = useDemo();
   const [messages, setMessages] = useState<Message[]>([]);
   
   const [isLoading, setIsLoading] = useState(false);
@@ -73,47 +73,27 @@ export default function DemoAssistantPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Load demo session on mount
+  // Check demo session and initialize
   useEffect(() => {
-    loadDemoSession();
-  }, []);
+    if (loading) return; // Wait for DemoContext to load
+    
+    if (!demoSession || !isDemoSessionValid()) {
+      // No valid session, redirect to demo page
+      window.location.href = '/demo';
+      return;
+    }
 
-  // Auto-scroll to bottom when new messages are added
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const loadDemoSession = () => {
-    try {
-      const storedSession = localStorage.getItem('demoSession');
-      if (!storedSession) {
-        // Redirect to demo page if no session
-        window.location.href = '/demo';
-        return;
-      }
-
-      const session = JSON.parse(storedSession);
-      
-      // Check if session is expired
-      if (Date.now() > session.expiresAt) {
-        localStorage.removeItem('demoSession');
-        window.location.href = '/demo';
-        return;
-      }
-
-      setDemoSession(session);
-      
-      // Load request count from localStorage
-      const storedCount = localStorage.getItem('demoRequestCount');
-      if (storedCount) {
-        setRequestCount(parseInt(storedCount, 10));
-      }
-      
-      // Set initial welcome message with demo context
-      const welcomeMessage: Message = {
-        id: '1',
-        type: 'assistant',
-        content: `Bienvenue dans votre sandbox de démo, **${session.company}** ! 
+    // Load request count from localStorage
+    const storedCount = localStorage.getItem('demoRequestCount');
+    if (storedCount) {
+      setRequestCount(parseInt(storedCount, 10));
+    }
+    
+    // Set initial welcome message with demo context
+    const welcomeMessage: Message = {
+      id: '1',
+      type: 'assistant',
+      content: `Bienvenue dans votre sandbox de démo, **${demoSession.company}** ! 
 
 Je suis votre assistant IA personnel. Vous pouvez me poser des questions sur les documents pré-chargés :
 
@@ -124,18 +104,16 @@ Je suis votre assistant IA personnel. Vous pouvez me poser des questions sur les
 • **Documentation_Technique_Produit.pdf** - Spécifications techniques
 
 Posez-moi n'importe quelle question sur ces documents !`,
-        timestamp: new Date()
-      };
-      
-      setMessages([welcomeMessage]);
-      
-    } catch (error) {
-      console.error('Failed to load demo session:', error);
-      window.location.href = '/demo';
-    } finally {
-      setIsInitializing(false);
-    }
-  };
+      timestamp: new Date()
+    };
+    
+    setMessages([welcomeMessage]);
+  }, [demoSession, loading, isDemoSessionValid]);
+
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isLoading || !demoSession) return;
@@ -329,12 +307,14 @@ Veuillez réessayer ou retourner à la page de démo si le problème persiste.`,
     handleSendMessage(question);
   };
 
-  if (isInitializing) {
+  if (loading || !demoSession || !isDemoSessionValid()) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600">Chargement de votre démo...</p>
+          <p className="mt-4 text-gray-600">
+            {loading ? 'Chargement de votre démo...' : 'Redirection vers la démo...'}
+          </p>
         </div>
       </div>
     );

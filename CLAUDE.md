@@ -94,21 +94,21 @@ make type-check
 cd frontend
 
 # Install dependencies
-npm install
+pnpm install
 # or with make
 make install-frontend
 
 # Run development server
-npm run dev
+pnpm run dev
 # Access at: http://localhost:3000
 
 # Build for production
-npm run build
-npm start
+pnpm run build
+pnpm start
 
 # Type checking and linting
-npm run type-check
-npm run lint
+pnpm run type-check
+pnpm run lint
 # or with make
 make test-frontend
 ```

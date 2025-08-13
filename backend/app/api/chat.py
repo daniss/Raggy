@@ -17,6 +17,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 
+def get_request_info(request: Request) -> tuple[str, str]:
+    """Extract client IP and user agent from request."""
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
+    return client_ip, user_agent
+
+
 @router.post("/", response_model=ChatResponse)
 async def chat(
     http_request: Request,

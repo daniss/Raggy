@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { type Source } from '@/utils/api';
-import SourceCard from '../../assistant/components/SourceCard';
+import SourceCard from './SourceCard';
 import { renderTextWithCitations } from './CitationBubble';
 import ThinkingIndicator from './ThinkingIndicator';
 

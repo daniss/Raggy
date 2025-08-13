@@ -1,6 +1,6 @@
 import uuid
 import logging
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, BackgroundTasks, Query, Request
 from app.models.schemas import UploadResponse, DocumentInfo
 from app.core.deps import get_current_user, get_current_organization, require_admin
@@ -9,7 +9,7 @@ from app.services.audit_logger import audit_logger, AuditAction
 from app.core.redis_cache import redis_cache
 from app.rag import loader, splitter, retriever
 from app.core.config import settings
-from app.db.supabase_client import save_document_info, update_document_status, delete_document, get_documents_list
+from app.db.supabase_client import save_document_info, update_document_status, delete_document, get_documents_list, get_supabase_client
 from app.rag.supabase_retriever import supabase_retriever
 # Removed complex background job services for minimal system
 # from app.services.batch_processor import batch_processor, BatchStatus
@@ -21,6 +21,13 @@ from app.core.file_constants import ALLOWED_FILE_TYPES
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/upload", tags=["upload"])
+
+
+def get_request_info(request: Request) -> tuple[str, str]:
+    """Extract client IP and user agent from request."""
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
+    return client_ip, user_agent
 
 
 @router.post("/", response_model=UploadResponse)
@@ -600,3 +607,5 @@ async def get_document_analytics(
     except Exception as e:
         logger.error(f"Failed to get analytics for document {document_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve document analytics")
+
+

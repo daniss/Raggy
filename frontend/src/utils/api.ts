@@ -1,15 +1,11 @@
 import axios, { AxiosResponse, AxiosError } from 'axios';
 import { createClient } from '@/utils/supabase';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-
-// Create axios instance with default config
+// Use relative URLs to leverage Next.js rewrites
 const api = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
+  baseURL: '/api/v1',
   timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // Don't set default Content-Type - let axios handle it based on data type
 });
 
 // Request interceptor to add auth token
@@ -19,28 +15,80 @@ api.interceptors.request.use(
     if (typeof window !== 'undefined') {
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (session?.access_token) {
         config.headers.Authorization = `Bearer ${session.access_token}`;
+        console.log('✓ Added auth token to request:', config.url);
+        console.log('🔍 Token details:', {
+          length: session.access_token.length,
+          starts_with: session.access_token.substring(0, 20) + '...',
+          expires_at: session.expires_at,
+          token_type: session.token_type,
+          user_id: session.user?.id
+        });
+      } else {
+        console.error('⚠ NO AUTH TOKEN AVAILABLE for request:', config.url);
+        console.error('🔍 Session debug:', { session, hasSession: !!session });
       }
     }
+
+    // Handle Content-Type intelligently
+    const isFormData = config.data instanceof FormData;
+    
+    if (isFormData) {
+      // For FormData, don't set Content-Type - let axios/browser handle it
+      console.debug('📄 FormData detected, letting browser set Content-Type with boundary');
+      // Remove any existing Content-Type to avoid conflicts
+      if (config.headers['Content-Type']) {
+        delete config.headers['Content-Type'];
+      }
+    } else if (!config.headers['Content-Type']) {
+      // For non-FormData requests, set JSON Content-Type
+      config.headers['Content-Type'] = 'application/json';
+      console.debug('📝 Set Content-Type to application/json for:', config.url);
+    }
+
     return config;
   },
   (error) => {
+    console.error('❌ Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
-// Response interceptor for error handling
+// Response interceptor for error handling (auth-only)
 api.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response: AxiosResponse) => {
+    console.debug('✓ Request successful:', response.config.url, 'Status:', response.status);
+    return response;
+  },
   (error: AxiosError) => {
+    // Enhanced error logging
+    const url = error.config?.url;
+    const method = error.config?.method?.toUpperCase();
+    const status = error.response?.status;
+    const statusText = error.response?.statusText;
+    const responseData = error.response?.data;
+    
+    console.error('❌ API Request failed:', {
+      url,
+      method,
+      status,
+      statusText,
+      data: responseData,
+      headers: error.config?.headers
+    });
+    
     // Handle common errors
     if (error.response?.status === 401) {
-      // Unauthorized - sign out and redirect to login
+      console.error('🔒 Authentication failed - 401 Unauthorized');
+      
+      // Auto-logout on authentication failure
       if (typeof window !== 'undefined') {
+        console.log('🚪 Signing out user due to auth failure');
         const supabase = createClient();
         supabase.auth.signOut();
-        window.location.href = '/auth/login';
+        window.location.href = '/login';
       }
     }
     
@@ -117,21 +165,34 @@ export const chatApi = {
 
 export const uploadApi = {
   /**
-   * Upload documents
+   * Upload documents (authenticated mode)
    */
   uploadDocuments: async (files: File[]): Promise<UploadResponse> => {
+    if (!files || files.length === 0) {
+      throw new Error('No files provided for upload');
+    }
+
+    console.log('🔄 Starting authenticated upload for', files.length, 'files');
+    
     const formData = new FormData();
-    files.forEach((file) => {
+    files.forEach((file, index) => {
       formData.append('files', file);
+      console.debug(`📎 Added file ${index + 1}:`, file.name, `(${file.size} bytes)`);
     });
 
-    const response = await api.post<UploadResponse>('/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    try {
+      // Don't set Content-Type manually - let axios handle FormData properly
+      console.debug('🚀 Sending upload request to /api/v1/upload/');
+      const response = await api.post<UploadResponse>('/upload/', formData);
+      
+      console.log('✅ Upload successful:', response.data.message);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Upload failed:', error);
+      throw error; // Re-throw to let caller handle it
+    }
   },
+
 
   /**
    * List uploaded documents
@@ -290,9 +351,7 @@ export const healthApi = {
    * Get application health
    */
   getHealth: async (): Promise<HealthResponse> => {
-    const response = await api.get<HealthResponse>('/health', {
-      baseURL: API_BASE_URL, // Use root health endpoint
-    });
+    const response = await api.get<HealthResponse>('/health');
     return response.data;
   },
 };
@@ -444,6 +503,16 @@ export const handleApiError = (error: any): string => {
     }
   });
 
+  // Authentication-specific errors
+  if (error.response?.status === 401) {
+    return 'Session expirée. Veuillez vous reconnecter.';
+  }
+
+  if (error.response?.status === 403) {
+    return 'Accès refusé. Vous n\'avez pas les permissions nécessaires.';
+  }
+
+  // Specific error messages from API
   if (error.response?.data?.error) {
     return error.response.data.error;
   }
@@ -453,31 +522,42 @@ export const handleApiError = (error: any): string => {
   if (error.response?.data?.message) {
     return error.response.data.message;
   }
+
+  // Upload-specific errors
+  if (error.response?.status === 413) {
+    return 'Fichier trop volumineux. Taille maximale : 50 MB pour les utilisateurs authentifiés, 10 MB pour la démo.';
+  }
+  if (error.response?.status === 415) {
+    return 'Type de fichier non supporté. Formats acceptés : PDF, DOCX, TXT, CSV, XLSX.';
+  }
+  if (error.response?.status === 422) {
+    return 'Erreur de validation. Vérifiez le format et le contenu de votre fichier.';
+  }
+
+  // Server errors
   if (error.response?.status === 500) {
-    return 'Erreur interne du serveur. Le document sera traité en arrière-plan.';
+    return 'Erreur interne du serveur. Veuillez réessayer dans quelques instants.';
   }
   if (error.response?.status === 502) {
     return 'Service temporairement indisponible. Veuillez réessayer dans quelques instants.';
   }
-  if (error.response?.status === 413) {
-    return 'Fichier trop volumineux. Veuillez choisir un fichier plus petit.';
+  if (error.response?.status === 503) {
+    return 'Service en cours de maintenance. Veuillez réessayer plus tard.';
   }
-  if (error.response?.status === 415) {
-    return 'Type de fichier non supporté. Veuillez choisir un fichier PDF, DOC, DOCX ou TXT.';
-  }
-  if (error.response?.status === 422) {
-    return 'Erreur de validation. Vérifiez le format de votre fichier.';
-  }
+
+  // Network errors
   if (error.message?.includes('timeout')) {
-    return 'Délai d\'attente dépassé. Le fichier est en cours de traitement.';
+    return 'Délai d\'attente dépassé. Le document peut être en cours de traitement.';
   }
   if (error.message?.includes('Network Error')) {
     return 'Erreur de connexion. Vérifiez votre connexion internet.';
   }
+
+  // Generic fallback
   if (error.message) {
     return error.message;
   }
-  return 'Une erreur inattendue s\'est produite';
+  return 'Une erreur inattendue s\'est produite. Veuillez réessayer.';
 };
 
 export const isApiError = (error: any): boolean => {
