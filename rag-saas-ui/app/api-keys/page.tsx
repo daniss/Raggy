@@ -1,5 +1,8 @@
 'use client'
 
+// Force dynamic rendering to avoid build-time Supabase calls
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect } from 'react'
 import { LayoutShell } from '@/components/layout/layout-shell'
 import { PageHeader } from '@/components/layout/PageHeader'

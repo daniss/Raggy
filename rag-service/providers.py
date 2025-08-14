@@ -70,14 +70,14 @@ class SupabaseProvider:
             logger.error(f"Failed to store DEK for org {org_id}: {e}")
             raise
     
-    async def fetch_document_content(self, org_id: str, document_id: str) -> Optional[bytes]:
+    async def fetch_document_content(self, org_id: str, document_id: str) -> Optional[tuple[bytes, str]]:
         """
         Fetch document content from Supabase Storage
-        Returns raw bytes for processing
+        Returns tuple of (content_bytes, file_path) for processing
         """
         try:
             # Get document metadata first
-            result = self.client.from_('documents').select('file_path').eq('id', document_id).eq('org_id', org_id).single().execute()
+            result = self.client.from_('documents').select('file_path, name, mime_type').eq('id', document_id).eq('org_id', org_id).single().execute()
             
             if not result.data:
                 logger.warning(f"Document {document_id} not found in org {org_id}")
@@ -89,10 +89,9 @@ class SupabaseProvider:
                 return None
             
             # Download from storage
-            # Note: This is a simplified version. In production, you might need to handle
-            # different storage backends or encryption at the storage level
             response = self.client.storage.from_('documents').download(file_path)
-            return response
+            logger.info(f"Downloaded document {document_id}: {len(response)} bytes")
+            return response, file_path
             
         except Exception as e:
             logger.error(f"Failed to fetch document {document_id}: {e}")
@@ -148,9 +147,12 @@ class SupabaseProvider:
         """Mark document as successfully indexed"""
         try:
             self.client.from_('documents').update({
+                'rag_status': 'ready',
                 'status': 'ready',
+                'rag_indexed_at': 'now()',
                 'updated_at': 'now()'
             }).eq('id', document_id).execute()
+            logger.info(f"Marked document {document_id} as indexed")
         except Exception as e:
             logger.error(f"Failed to mark document {document_id} as indexed: {e}")
             raise
@@ -159,12 +161,15 @@ class SupabaseProvider:
         """Mark document as failed with error"""
         try:
             self.client.from_('documents').update({
+                'rag_status': 'error',
                 'status': 'error',
+                'rag_error': error_message[:500],  # Limit error message length
                 'updated_at': 'now()'
-                # Note: You might want to add an error field to documents table
             }).eq('id', document_id).execute()
+            logger.info(f"Marked document {document_id} as error: {error_message}")
         except Exception as e:
             logger.error(f"Failed to mark document {document_id} as error: {e}")
+            # Don't re-raise to avoid infinite loops
 
 class EmbeddingProvider:
     """
