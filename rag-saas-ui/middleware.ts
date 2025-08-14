@@ -39,9 +39,10 @@ export async function middleware(request: NextRequest) {
   const publicRoutes = ['/auth/login', '/auth/register', '/auth/callback']
   const isPublicRoute = publicRoutes.includes(pathname)
   const isAuthRoute = pathname.startsWith('/auth/')
+  const isPublicApiRoute = pathname.startsWith('/api/rag/health') || pathname.startsWith('/api/rag/test')
 
   // If no session and trying to access protected route, redirect to login
-  if (!session && !isPublicRoute) {
+  if (!session && !isPublicRoute && !isPublicApiRoute) {
     url.pathname = '/auth/login'
     url.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(url)
