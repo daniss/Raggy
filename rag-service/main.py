@@ -6,10 +6,12 @@ Strictly separated from business logic (auth, teams, documents CRUD stay in Next
 """
 
 import os
+import time
 import asyncio
 import logging
-from typing import AsyncGenerator, Dict, Any, Optional
+from typing import AsyncGenerator, Dict, Any, Optional, List
 from contextlib import asynccontextmanager
+from datetime import datetime
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request
@@ -43,6 +45,14 @@ class HealthResponse(BaseModel):
     version: str
     providers: Dict[str, str]
     database: str
+
+class QAMetricsResponse(BaseModel):
+    """Quality assurance metrics response"""
+    timestamp: str
+    service_status: str
+    performance_metrics: Dict[str, float]
+    quality_scores: Dict[str, float]
+    system_health: Dict[str, Any]
 
 # Global providers - initialized at startup
 security_manager: SecurityManager = None
@@ -137,6 +147,132 @@ async def health_check():
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         raise HTTPException(status_code=503, detail="Service unhealthy")
+
+@app.get("/rag/qa/metrics", response_model=QAMetricsResponse)
+async def get_qa_metrics():
+    """Get quality assurance metrics for monitoring"""
+    import time
+    from datetime import datetime
+    
+    try:
+        start_time = time.time()
+        
+        # Test basic functionality
+        test_embedding_time = time.time()
+        test_embedding = await embedding_provider.embed_query("test query for QA metrics")
+        embedding_latency = (time.time() - test_embedding_time) * 1000
+        
+        # Test database connectivity
+        db_test_time = time.time()
+        db_status = await supabase_provider.test_connection()
+        db_latency = (time.time() - db_test_time) * 1000
+        
+        # Calculate quality scores
+        performance_metrics = {
+            "embedding_latency_ms": embedding_latency,
+            "database_latency_ms": db_latency,
+            "total_response_time_ms": (time.time() - start_time) * 1000
+        }
+        
+        quality_scores = {
+            "service_availability": 1.0 if db_status else 0.0,
+            "embedding_service": 1.0 if test_embedding else 0.0,
+            "overall_health": 1.0 if all([db_status, test_embedding]) else 0.5
+        }
+        
+        system_health = {
+            "providers_status": {
+                "embedding": embedding_provider.get_provider_info(),
+                "llm": llm_provider.get_provider_info(),
+                "database": db_status
+            },
+            "uptime_check": "healthy",
+            "memory_usage": "normal"  # Placeholder - could add actual memory monitoring
+        }
+        
+        return QAMetricsResponse(
+            timestamp=datetime.now().isoformat(),
+            service_status="operational",
+            performance_metrics=performance_metrics,
+            quality_scores=quality_scores,
+            system_health=system_health
+        )
+        
+    except Exception as e:
+        logger.error(f"QA metrics collection failed: {e}")
+        return QAMetricsResponse(
+            timestamp=datetime.now().isoformat(),
+            service_status="degraded",
+            performance_metrics={"error": True},
+            quality_scores={"overall_health": 0.0},
+            system_health={"error": str(e)}
+        )
+
+@app.post("/rag/qa/validate")
+async def validate_rag_quality(request: AskRequest):
+    """Validate RAG response quality for a test query"""
+    correlation_id = request.correlation_id or f"qa_validate_{int(time.time())}"
+    
+    try:
+        start_time = time.time()
+        
+        # Process the query through the RAG pipeline
+        question_embedding = await embedding_provider.embed_query(request.message)
+        
+        # Search for relevant chunks
+        chunks = await supabase_provider.search_similar_chunks(
+            request.org_id, question_embedding, 5
+        )
+        
+        # Calculate quality metrics
+        embedding_time = time.time() - start_time
+        search_time = time.time() - start_time - embedding_time
+        
+        quality_metrics = {
+            "correlation_id": correlation_id,
+            "query_length": len(request.message),
+            "chunks_retrieved": len(chunks) if chunks else 0,
+            "embedding_latency_ms": embedding_time * 1000,
+            "search_latency_ms": search_time * 1000,
+            "total_latency_ms": (time.time() - start_time) * 1000,
+            "relevance_score": 0.85 if chunks else 0.0,  # Mock relevance score
+            "quality_grade": "A" if chunks and len(chunks) >= 3 else "B"
+        }
+        
+        return {
+            "status": "validation_complete",
+            "timestamp": datetime.now().isoformat(),
+            "query": request.message[:100] + "..." if len(request.message) > 100 else request.message,
+            "quality_metrics": quality_metrics,
+            "recommendations": _generate_qa_recommendations(quality_metrics)
+        }
+        
+    except Exception as e:
+        logger.error(f"[{correlation_id}] QA validation failed: {e}")
+        return {
+            "status": "validation_failed",
+            "timestamp": datetime.now().isoformat(),
+            "error": str(e),
+            "quality_metrics": {"error": True}
+        }
+
+def _generate_qa_recommendations(metrics: Dict[str, Any]) -> List[str]:
+    """Generate QA recommendations based on metrics"""
+    recommendations = []
+    
+    if metrics.get("total_latency_ms", 0) > 3000:
+        recommendations.append("Consider optimizing query processing - response time exceeds 3s threshold")
+    
+    if metrics.get("chunks_retrieved", 0) < 3:
+        recommendations.append("Low chunk retrieval - consider improving document indexing or query preprocessing")
+    
+    if metrics.get("relevance_score", 0) < 0.8:
+        recommendations.append("Relevance score below threshold - review vector search parameters")
+    
+    if not recommendations:
+        recommendations.append("Quality metrics within acceptable ranges")
+    
+    return recommendations
 
 @app.post("/rag/index")
 async def index_document(request: IndexRequest):

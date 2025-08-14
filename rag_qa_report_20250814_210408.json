@@ -1,0 +1,93 @@
+{
+  "timestamp": "2025-08-14T21:04:08.873084",
+  "suite_execution_time": 0.011726140975952148,
+  "summary": {
+    "total_tests": 6,
+    "passed_tests": 0,
+    "failed_tests": 6,
+    "overall_score": 0.0,
+    "overall_pass": false
+  },
+  "categories": {
+    "accuracy": {
+      "total_tests": 1,
+      "passed_tests": 0,
+      "score": 0.0,
+      "passed": false
+    },
+    "performance": {
+      "total_tests": 1,
+      "passed_tests": 0,
+      "score": 0.0,
+      "passed": false
+    },
+    "security": {
+      "total_tests": 3,
+      "passed_tests": 0,
+      "score": 0.0,
+      "passed": false
+    },
+    "reliability": {
+      "total_tests": 1,
+      "passed_tests": 0,
+      "score": 0.0,
+      "passed": false
+    }
+  },
+  "detailed_results": [
+    {
+      "test_name": "Response Accuracy Test",
+      "category": "accuracy",
+      "passed": false,
+      "score": 0.0,
+      "details": "Test failed with exception: All connection attempts failed",
+      "execution_time": 0.006642580032348633,
+      "timestamp": "2025-08-14T21:04:08.868062"
+    },
+    {
+      "test_name": "Performance Benchmark Test",
+      "category": "performance",
+      "passed": false,
+      "score": 0.0,
+      "details": "Test failed with exception: All connection attempts failed",
+      "execution_time": 0.001123189926147461,
+      "timestamp": "2025-08-14T21:04:08.869393"
+    },
+    {
+      "test_name": "Unauthorized Access Protection",
+      "category": "security",
+      "passed": false,
+      "score": 0.0,
+      "details": "Security test failed: All connection attempts failed",
+      "execution_time": 0.0,
+      "timestamp": "2025-08-14T21:04:08.870727"
+    },
+    {
+      "test_name": "Input Validation Security",
+      "category": "security",
+      "passed": false,
+      "score": 0.0,
+      "details": "Input validation test failed: All connection attempts failed",
+      "execution_time": 0.0,
+      "timestamp": "2025-08-14T21:04:08.871779"
+    },
+    {
+      "test_name": "Overall Security Requirements",
+      "category": "security",
+      "passed": false,
+      "score": 0.0,
+      "details": "Security tests passed: 0/2",
+      "execution_time": 0.0022928714752197266,
+      "timestamp": "2025-08-14T21:04:08.871911"
+    },
+    {
+      "test_name": "System Reliability Test",
+      "category": "reliability",
+      "passed": false,
+      "score": 0.0,
+      "details": "Test failed with exception: All connection attempts failed",
+      "execution_time": 0.0008754730224609375,
+      "timestamp": "2025-08-14T21:04:08.872943"
+    }
+  ]
+}
