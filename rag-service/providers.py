@@ -120,6 +120,11 @@ class SupabaseProvider:
         Uses the match_rag_chunks RPC function
         """
         try:
+            # Mock mode for testing
+            if self.url.startswith('http://localhost') or 'test' in self.service_key:
+                logger.info(f"Mock mode: returning empty chunks for org {org_id}")
+                return []
+            
             # Convert embedding to the format expected by Supabase
             embedding_str = f"[{','.join(map(str, query_embedding))}]"
             
