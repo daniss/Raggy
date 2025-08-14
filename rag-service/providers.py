@@ -70,14 +70,14 @@ class SupabaseProvider:
             logger.error(f"Failed to store DEK for org {org_id}: {e}")
             raise
     
-    async def fetch_document_content(self, org_id: str, document_id: str) -> Optional[bytes]:
+    async def fetch_document_content(self, org_id: str, document_id: str) -> Optional[tuple[bytes, str]]:
         """
         Fetch document content from Supabase Storage
-        Returns raw bytes for processing
+        Returns tuple of (content_bytes, file_path) for processing
         """
         try:
             # Get document metadata first
-            result = self.client.from_('documents').select('file_path').eq('id', document_id).eq('org_id', org_id).single().execute()
+            result = self.client.from_('documents').select('file_path, name, mime_type').eq('id', document_id).eq('org_id', org_id).single().execute()
             
             if not result.data:
                 logger.warning(f"Document {document_id} not found in org {org_id}")
@@ -89,10 +89,9 @@ class SupabaseProvider:
                 return None
             
             # Download from storage
-            # Note: This is a simplified version. In production, you might need to handle
-            # different storage backends or encryption at the storage level
             response = self.client.storage.from_('documents').download(file_path)
-            return response
+            logger.info(f"Downloaded document {document_id}: {len(response)} bytes")
+            return response, file_path
             
         except Exception as e:
             logger.error(f"Failed to fetch document {document_id}: {e}")

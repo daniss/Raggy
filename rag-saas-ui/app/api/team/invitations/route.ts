@@ -83,16 +83,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "emails, roles, and orgId are required" }, { status: 400 })
     }
 
-    // Verify user has admin/owner role
+    // Verify user has admin/owner role and get org info
     const { data: userMembership } = await supabase
       .from('memberships')
-      .select('role')
+      .select(`
+        role,
+        organizations (
+          tier
+        )
+      `)
       .eq('user_id', user.id)
       .eq('org_id', orgId)
       .single()
 
     if (!userMembership || !['owner', 'admin'].includes(userMembership.role)) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
+    }
+
+    const orgTier = userMembership.organizations?.tier || 'starter'
+
+    // Check seat limits
+    const { data: currentMembers } = await supabase
+      .from('memberships')
+      .select('id')
+      .eq('org_id', orgId)
+
+    const currentSeats = currentMembers?.length || 0
+    const newInvitations = emails.length
+
+    // Import limits check
+    const { checkLimit, TIER_LIMITS } = await import('@/lib/limits')
+    const limitCheck = checkLimit(orgTier as any, 'seats', currentSeats, newInvitations)
+
+    if (!limitCheck.allowed) {
+      return NextResponse.json({
+        error: "Seat limit exceeded",
+        code: "SEATS_EXCEEDED",
+        current_usage: currentSeats,
+        limit: limitCheck.limit,
+        suggested_tier: limitCheck.suggested_tier,
+        message: `Votre plan ${orgTier} permet ${limitCheck.limit} sièges. Vous en utilisez actuellement ${currentSeats} et tentez d'inviter ${newInvitations} personnes supplémentaires.`
+      }, { status: 402 })
     }
 
     const role = roles[0] // Take first role for now
