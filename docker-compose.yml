@@ -31,6 +31,58 @@ services:
       retries: 3
       start_period: 40s
 
+  # RAG Service (FastAPI)
+  rag-service:
+    build:
+      context: ./rag-service
+      dockerfile: Dockerfile
+    container_name: support-bot-rag
+    ports:
+      - "8001:8001"
+    environment:
+      # Supabase connection
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      
+      # Encryption
+      - RAG_MASTER_KEY=${RAG_MASTER_KEY}
+      
+      # Embedding provider
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+      - EMBEDDING_DIM=${EMBEDDING_DIM}
+      - EMBEDDING_API_KEY=${EMBEDDING_API_KEY}
+      
+      # LLM provider
+      - GENERATION_PROVIDER=${GENERATION_PROVIDER}
+      - GENERATION_MODEL_FAST=${GENERATION_MODEL_FAST}
+      - GENERATION_MODEL_QUALITY=${GENERATION_MODEL_QUALITY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      
+      # Processing configuration
+      - CHUNK_SIZE=${CHUNK_SIZE}
+      - CHUNK_OVERLAP=${CHUNK_OVERLAP}
+      - RETRIEVAL_K=${RETRIEVAL_K}
+      - MAX_CONTEXT_DOCS=${MAX_CONTEXT_DOCS}
+      
+      # Service configuration
+      - RAG_SERVICE_PORT=8001
+      - DEBUG=${DEBUG}
+    volumes:
+      - ./rag-service:/app
+    networks:
+      - support-bot-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+    command: ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/rag/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   # Frontend Service
   frontend:
     build:
@@ -43,6 +95,7 @@ services:
       - NODE_ENV=development
       - NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
       - BACKEND_URL=http://backend:8000
+      - RAG_BASE_URL=http://rag-service:8001
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       - NEXT_PUBLIC_APP_NAME=Support Chatbot
@@ -54,8 +107,9 @@ services:
       - support-bot-network
     depends_on:
       - backend
+      - rag-service
     restart: unless-stopped
-    command: ["npm", "run", "dev"]
+    command: ["pnpm", "dev"]
 
   # Redis for caching (optional)
   redis:
