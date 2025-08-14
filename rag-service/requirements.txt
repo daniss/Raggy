@@ -1,0 +1,20 @@
+# FastAPI RAG Service Dependencies
+# Core framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.24.0
+
+# HTTP client for API calls
+httpx>=0.25.0
+
+# Database and Supabase
+supabase>=2.0.0
+postgrest>=0.13.0
+
+# Encryption
+cryptography>=41.0.0
+
+# Data processing
+pydantic>=2.5.0
+
+# Utilities
+python-multipart>=0.0.6  # For file uploads if needed
