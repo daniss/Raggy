@@ -147,9 +147,12 @@ class SupabaseProvider:
         """Mark document as successfully indexed"""
         try:
             self.client.from_('documents').update({
+                'rag_status': 'ready',
                 'status': 'ready',
+                'rag_indexed_at': 'now()',
                 'updated_at': 'now()'
             }).eq('id', document_id).execute()
+            logger.info(f"Marked document {document_id} as indexed")
         except Exception as e:
             logger.error(f"Failed to mark document {document_id} as indexed: {e}")
             raise
@@ -158,12 +161,15 @@ class SupabaseProvider:
         """Mark document as failed with error"""
         try:
             self.client.from_('documents').update({
+                'rag_status': 'error',
                 'status': 'error',
+                'rag_error': error_message[:500],  # Limit error message length
                 'updated_at': 'now()'
-                # Note: You might want to add an error field to documents table
             }).eq('id', document_id).execute()
+            logger.info(f"Marked document {document_id} as error: {error_message}")
         except Exception as e:
             logger.error(f"Failed to mark document {document_id} as error: {e}")
+            # Don't re-raise to avoid infinite loops
 
 class EmbeddingProvider:
     """

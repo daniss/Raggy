@@ -279,9 +279,21 @@ export async function POST(request: NextRequest) {
         const encoder = new TextEncoder()
         
         try {
+          // Generate detailed correlation ID for tracking
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+          const randomId = Math.random().toString(36).substr(2, 9)
+          const correlationId = `rag-${timestamp}-${randomId}`
+          
+          // Log request start
+          console.log(`[${correlationId}] RAG request started:`, {
+            orgId,
+            messageLength: userMessage.length,
+            options,
+            conversationId
+          })
+          
           // Check if RAG_BASE_URL is configured for real RAG
           const ragBaseUrl = process.env.RAG_BASE_URL
-          const correlationId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
           let responseGenerator
           
           if (ragBaseUrl) {
