@@ -1,0 +1,27 @@
+2025-08-14 21:04:08,861 - INFO - 🚀 Starting Comprehensive RAG Quality Assurance Suite
+2025-08-14 21:04:08,861 - INFO - ======================================================================
+2025-08-14 21:04:08,861 - INFO - 🎯 Testing Response Accuracy...
+2025-08-14 21:04:08,868 - INFO - ❌ FAIL: Response Accuracy Test (Score: 0.00, Time: 0.007s)
+2025-08-14 21:04:08,868 - INFO -    Details: Test failed with exception: All connection attempts failed
+2025-08-14 21:04:08,868 - INFO - ⚡ Testing Performance Benchmarks...
+2025-08-14 21:04:08,869 - INFO - ❌ FAIL: Performance Benchmark Test (Score: 0.00, Time: 0.001s)
+2025-08-14 21:04:08,869 - INFO -    Details: Test failed with exception: All connection attempts failed
+2025-08-14 21:04:08,869 - INFO - 🔒 Testing Security Requirements...
+2025-08-14 21:04:08,870 - INFO - ❌ FAIL: Unauthorized Access Protection (Score: 0.00, Time: 0.000s)
+2025-08-14 21:04:08,870 - INFO -    Details: Security test failed: All connection attempts failed
+2025-08-14 21:04:08,871 - INFO - ❌ FAIL: Input Validation Security (Score: 0.00, Time: 0.000s)
+2025-08-14 21:04:08,871 - INFO -    Details: Input validation test failed: All connection attempts failed
+2025-08-14 21:04:08,871 - INFO - ❌ FAIL: Overall Security Requirements (Score: 0.00, Time: 0.002s)
+2025-08-14 21:04:08,871 - INFO -    Details: Security tests passed: 0/2
+2025-08-14 21:04:08,872 - INFO - 🛡️ Testing System Reliability...
+2025-08-14 21:04:08,872 - INFO - ❌ FAIL: System Reliability Test (Score: 0.00, Time: 0.001s)
+2025-08-14 21:04:08,873 - INFO -    Details: Test failed with exception: All connection attempts failed
+2025-08-14 21:04:08,873 - INFO - ======================================================================
+2025-08-14 21:04:08,873 - INFO - 📊 RAG QUALITY ASSURANCE SUMMARY
+2025-08-14 21:04:08,873 - INFO - Overall Score: 0.0% (0/6 tests passed)
+2025-08-14 21:04:08,873 - INFO - ❌ Accuracy: 0.0% (0/1)
+2025-08-14 21:04:08,873 - INFO - ❌ Performance: 0.0% (0/1)
+2025-08-14 21:04:08,873 - INFO - ❌ Security: 0.0% (0/3)
+2025-08-14 21:04:08,873 - INFO - ❌ Reliability: 0.0% (0/1)
+2025-08-14 21:04:08,873 - WARNING - ⚠️ RAG SYSTEM FAILED QUALITY ASSURANCE - REQUIRES ATTENTION
+2025-08-14 21:04:08,873 - INFO - 📄 Detailed report saved to: rag_qa_report_20250814_210408.json
