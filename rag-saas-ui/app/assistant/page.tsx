@@ -27,6 +27,7 @@ function AssistantContent() {
   const [quickMode, setQuickMode] = useState(false)
   const [citationsEnabled, setCitationsEnabled] = useState(true)
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
+  const [loadedConversationId, setLoadedConversationId] = useState<string | null>(null)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [messages, setMessages] = useState<Message[]>([])
   const [loadingConversations, setLoadingConversations] = useState(true)
@@ -54,12 +55,21 @@ function AssistantContent() {
         variant: 'destructive'
       })
     },
-    onSuccess: () => {
-      // Reload conversations and messages when streaming completes
-      loadConversations()
-      if (activeConversation) {
-        loadMessages()
+    onSuccess: (assistantContent?: string) => {
+      // Add assistant message to local state instead of reloading
+      if (assistantContent) {
+        const assistantMessage: Message = {
+          id: `temp-assistant-${Date.now()}`,
+          type: 'assistant',
+          content: assistantContent,
+          timestamp: new Date().toISOString(),
+          metadata: chat.citations.length > 0 ? { citations: chat.citations } : undefined
+        }
+        setMessages(prev => [...prev, assistantMessage])
       }
+      
+      // Only update conversations list to show updated message count/timestamp
+      loadConversations()
     }
   })
 
@@ -101,6 +111,7 @@ function AssistantContent() {
       setLoadingMessages(true)
       const msgs = await ConversationsAPI.getMessages(activeConversation)
       setMessages(msgs)
+      setLoadedConversationId(activeConversation)
     } catch (error) {
       console.error('Failed to load messages:', error)
       toast({
@@ -113,9 +124,14 @@ function AssistantContent() {
     }
   }
 
-  // Load messages when conversation changes
+  // Load messages when conversation changes to a different one
   useEffect(() => {
-    loadMessages()
+    if (activeConversation && activeConversation !== loadedConversationId) {
+      loadMessages()
+    } else if (!activeConversation) {
+      setMessages([])
+      setLoadedConversationId(null)
+    }
   }, [activeConversation])
 
   // Auto-scroll to bottom when new messages arrive
@@ -127,8 +143,14 @@ function AssistantContent() {
 
   // Create new conversation (will be created automatically on first message)
   const handleCreateConversation = () => {
+    // Stop any ongoing streaming
+    if (chat.isStreaming) {
+      chat.stop()
+    }
     setActiveConversation(null)
     setMessages([])
+    setLoadedConversationId(null)
+    setLastUserMessage("")
   }
 
   // Send message using streaming
@@ -138,6 +160,15 @@ function AssistantContent() {
     const messageContent = message.trim()
     setMessage("")
     setLastUserMessage(messageContent)
+    
+    // Optimistically add user message to UI immediately
+    const userMessage: Message = {
+      id: `temp-user-${Date.now()}`,
+      type: 'user',
+      content: messageContent,
+      timestamp: new Date().toISOString()
+    }
+    setMessages(prev => [...prev, userMessage])
     
     const options: ChatOptions = {
       citations: citationsEnabled,
@@ -150,6 +181,9 @@ function AssistantContent() {
       if (newConversationId && !activeConversation) {
         // New conversation was created
         setActiveConversation(newConversationId)
+        setLoadedConversationId(newConversationId)
+        // Update conversations list without full reload
+        loadConversations()
       }
       
       // Show citations panel if citations are enabled and received
@@ -158,6 +192,8 @@ function AssistantContent() {
       }
     } catch (error) {
       console.error('Failed to send message:', error)
+      // Remove optimistic message on error
+      setMessages(prev => prev.filter(m => m.id !== userMessage.id))
     }
   }
 
@@ -398,21 +434,22 @@ function AssistantContent() {
   const rightPane = (
     <div className="flex flex-col h-full">
       {/* Chat Messages */}
-      <ScrollArea className="flex-1 py-4">
-        {loadingMessages ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-4 h-4 animate-spin" />
-          </div>
-        ) : !activeConversation ? (
-          <div className="flex items-center justify-center h-full text-center text-muted">
-            <div>
-              <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Sélectionnez une conversation pour commencer</p>
-              <p className="text-xs mt-1">ou créez une nouvelle conversation</p>
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="p-4">
+          {loadingMessages ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-4 h-4 animate-spin" />
             </div>
-          </div>
-        ) : (
-          <div className="space-y-4" role="log" aria-label="Messages de la conversation">
+          ) : !activeConversation ? (
+            <div className="flex items-center justify-center h-full text-center text-muted">
+              <div>
+                <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Sélectionnez une conversation pour commencer</p>
+                <p className="text-xs mt-1">ou créez une nouvelle conversation</p>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4" role="log" aria-label="Messages de la conversation">
             {messages.length === 0 && !chat.isStreaming && (
               <div className="flex gap-3 justify-start">
                 <Avatar className="w-8 h-8">
@@ -532,12 +569,13 @@ function AssistantContent() {
             )}
             
             <div ref={messagesEndRef} />
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t pt-4">
+      <div className="border-t pt-4 px-4">
         <div className="flex gap-2">
           <Input
             placeholder={activeConversation ? "Posez votre question..." : "Posez votre première question pour commencer..."}

@@ -39,7 +39,7 @@ export interface ChatOptions {
 export interface UseChatOptions {
   orgId: string
   onError?: (error: string) => void
-  onSuccess?: () => void
+  onSuccess?: (assistantContent?: string) => void
 }
 
 export function useChat({ orgId, onError, onSuccess }: UseChatOptions) {
@@ -142,7 +142,7 @@ export function useChat({ orgId, onError, onSuccess }: UseChatOptions) {
                       newConversationId = event.conversation_id
                     }
                     setIsStreaming(false)
-                    onSuccess?.()
+                    onSuccess?.(streamingMessageRef.current)
                     return newConversationId
                     
                   case 'error':

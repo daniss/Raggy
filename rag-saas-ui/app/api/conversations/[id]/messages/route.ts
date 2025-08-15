@@ -21,12 +21,26 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .from('conversations')
       .select(`
         id,
-        org_id,
-        memberships!inner(user_id)
+        org_id
       `)
       .eq('id', conversationId)
-      .eq('memberships.user_id', user.id)
       .single()
+
+    if (convError || !conversation) {
+      return NextResponse.json({ error: "Conversation not found" }, { status: 404 })
+    }
+
+    // Check if user is a member of the organization
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('org_id', conversation.org_id)
+      .single()
+
+    if (!membership) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 })
+    }
 
     if (convError || !conversation) {
       return NextResponse.json({ error: "Conversation not found or access denied" }, { status: 404 })
@@ -80,19 +94,24 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .from('conversations')
       .select(`
         id,
-        org_id,
-        memberships!inner(user_id, role)
+        org_id
       `)
       .eq('id', conversationId)
-      .eq('memberships.user_id', user.id)
       .single()
 
     if (convError || !conversation) {
-      return NextResponse.json({ error: "Conversation not found or access denied" }, { status: 404 })
+      return NextResponse.json({ error: "Conversation not found" }, { status: 404 })
     }
 
-    // Only allow editor+ to add messages
-    if (!['owner', 'admin', 'editor'].includes((conversation as any).memberships.role)) {
+    // Check if user is a member of the organization with editor+ permissions
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('org_id', conversation.org_id)
+      .single()
+
+    if (!membership || !['owner', 'admin', 'editor'].includes(membership.role)) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 

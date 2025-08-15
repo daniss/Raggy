@@ -159,6 +159,7 @@ export async function PATCH(request: NextRequest) {
 
       // Déclencher indexation RAG automatique
       const ragBaseUrl = process.env.RAG_BASE_URL
+      console.log(`RAG_BASE_URL: ${ragBaseUrl}`)
       if (ragBaseUrl) {
         try {
           // Indexation asynchrone via FastAPI
