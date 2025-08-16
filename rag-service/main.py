@@ -321,7 +321,7 @@ async def _extract_and_chunk_text(document_content: bytes, document_id: str) -> 
     
     # Basic chunking with overlap (convert tokens to characters: 1 token ≈ 4 chars)
     chunk_size_tokens = int(os.getenv('CHUNK_SIZE', '800'))
-    print(f"Using chunk size: {chunk_size_tokens} tokens")
+    logger.info(f"Using chunk size: {chunk_size_tokens} tokens")
     overlap_tokens = int(os.getenv('CHUNK_OVERLAP', '150'))
     
     # Convert tokens to characters (1 token ≈ 4 characters)
