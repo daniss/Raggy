@@ -460,7 +460,6 @@ def _build_context_from_chunks(decrypted_chunks: list) -> str:
 
 def _build_citations_from_chunks(decrypted_chunks: list) -> str:
     """Build citations array from chunks"""
-    import json
     
     citations = []
     
