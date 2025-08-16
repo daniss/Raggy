@@ -86,7 +86,7 @@ function LoginForm() {
 
       if (data.user) {
         // Redirect to dashboard - middleware will handle organization check
-        window.location.replace(redirectTo)
+        router.replace(redirectTo)
       }
     } catch (error) {
       console.error('Login error:', error)
