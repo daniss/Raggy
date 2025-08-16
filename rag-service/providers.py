@@ -165,11 +165,20 @@ class SupabaseProvider:
                 return {}
             
             result = self.client.from_('documents').select(
-                'id, title, filename, file_size, mime_type'
+                'id, name, original_name, mime_type, size_bytes'
             ).in_('id', document_ids).execute()
             
             # Return as a dictionary keyed by document_id
-            return {doc['id']: doc for doc in result.data} if result.data else {}
+            metadata = {}
+            for doc in (result.data or []):
+                doc_meta = doc.copy()
+                # Use name as title and original_name as filename
+                doc_meta['title'] = doc.get('name', f"Document {doc['id'][:8]}...")
+                doc_meta['filename'] = doc.get('original_name', doc.get('name', f"doc_{doc['id'][:8]}.pdf"))
+                doc_meta['file_size'] = doc.get('size_bytes')  # Map size_bytes to file_size for compatibility
+                metadata[doc['id']] = doc_meta
+            
+            return metadata
             
         except Exception as e:
             logger.error(f"Failed to get documents metadata: {e}")

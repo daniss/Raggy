@@ -132,7 +132,7 @@ export const MessageComposer = forwardRef<HTMLInputElement, MessageComposerProps
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
           {/* Status */}
           <div className="flex items-center gap-3">
-            <p 
+            <div 
               id="composer-help" 
               className="text-xs text-text-subtle leading-relaxed"
               role="status"
@@ -147,7 +147,7 @@ export const MessageComposer = forwardRef<HTMLInputElement, MessageComposerProps
                 ? t.assistant.continue_conversation
                 : t.assistant.first_question_creates
               }
-            </p>
+            </div>
             
             {/* Usage Warning */}
             {showUsageWarning && (

@@ -80,13 +80,13 @@ function LoginForm() {
         } else {
           setError(signInError.message)
         }
-        return
+        setIsLoading(false);
+        return;
       }
 
       if (data.user) {
         // Redirect to dashboard - middleware will handle organization check
-        router.push(redirectTo)
-        router.refresh()
+        window.location.replace(redirectTo)
       }
     } catch (error) {
       console.error('Login error:', error)
