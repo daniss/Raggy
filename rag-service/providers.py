@@ -38,7 +38,10 @@ class SupabaseProvider:
             result = self.client.from_('organizations').select('id').limit(1).execute()
             return f"connected ({len(result.data)} orgs)"
         except Exception as e:
-            logger.error(f"Supabase connection failed: {e}")
+            logger.warning(f"Supabase connection failed (using mock mode): {e}")
+            # In development/test mode, allow continuing without real database
+            if self.url.startswith('http://localhost') or 'test' in self.service_key:
+                return "mock-connection (no database)"
             raise
     
     async def get_org_dek(self, org_id: str) -> Optional[str]:
@@ -67,14 +70,14 @@ class SupabaseProvider:
             logger.error(f"Failed to store DEK for org {org_id}: {e}")
             raise
     
-    async def fetch_document_content(self, org_id: str, document_id: str) -> Optional[bytes]:
+    async def fetch_document_content(self, org_id: str, document_id: str) -> Optional[tuple[bytes, str]]:
         """
         Fetch document content from Supabase Storage
-        Returns raw bytes for processing
+        Returns tuple of (content_bytes, file_path) for processing
         """
         try:
             # Get document metadata first
-            result = self.client.from_('documents').select('file_path').eq('id', document_id).eq('org_id', org_id).single().execute()
+            result = self.client.from_('documents').select('file_path, name, mime_type').eq('id', document_id).eq('org_id', org_id).single().execute()
             
             if not result.data:
                 logger.warning(f"Document {document_id} not found in org {org_id}")
@@ -86,10 +89,9 @@ class SupabaseProvider:
                 return None
             
             # Download from storage
-            # Note: This is a simplified version. In production, you might need to handle
-            # different storage backends or encryption at the storage level
             response = self.client.storage.from_('documents').download(file_path)
-            return response
+            logger.info(f"Downloaded document {document_id}: {len(response)} bytes")
+            return response, file_path
             
         except Exception as e:
             logger.error(f"Failed to fetch document {document_id}: {e}")
@@ -117,6 +119,11 @@ class SupabaseProvider:
         Uses the match_rag_chunks RPC function
         """
         try:
+            # Mock mode for testing
+            if self.url.startswith('http://localhost') or 'test' in self.service_key:
+                logger.info(f"Mock mode: returning empty chunks for org {org_id}")
+                return []
+            
             # Convert embedding to the format expected by Supabase
             embedding_str = f"[{','.join(map(str, query_embedding))}]"
             
@@ -140,9 +147,12 @@ class SupabaseProvider:
         """Mark document as successfully indexed"""
         try:
             self.client.from_('documents').update({
+                'rag_status': 'ready',
                 'status': 'ready',
+                'rag_indexed_at': 'now()',
                 'updated_at': 'now()'
             }).eq('id', document_id).execute()
+            logger.info(f"Marked document {document_id} as indexed")
         except Exception as e:
             logger.error(f"Failed to mark document {document_id} as indexed: {e}")
             raise
@@ -151,10 +161,12 @@ class SupabaseProvider:
         """Mark document as failed with error"""
         try:
             self.client.from_('documents').update({
+                'rag_status': 'error',
                 'status': 'error',
+                'rag_error': error_message[:500],  # Limit error message length
                 'updated_at': 'now()'
-                # Note: You might want to add an error field to documents table
             }).eq('id', document_id).execute()
+            logger.info(f"Marked document {document_id} as error: {error_message}")
         except Exception as e:
             logger.error(f"Failed to mark document {document_id} as error: {e}")
     
@@ -206,7 +218,11 @@ class EmbeddingProvider:
             await self.embed_query("test")
             logger.info(f"Embedding provider {self.provider} connected")
         except Exception as e:
-            logger.error(f"Embedding provider {self.provider} failed: {e}")
+            logger.warning(f"Embedding provider {self.provider} failed (using mock mode): {e}")
+            # In development/test mode, allow continuing without real API
+            if 'test' in str(self.api_key):
+                logger.info(f"Using mock embedding provider for testing")
+                return
             raise
     
     async def embed_query(self, text: str) -> List[float]:
@@ -219,6 +235,10 @@ class EmbeddingProvider:
         Handles batching and rate limiting
         """
         try:
+            # Mock mode for testing
+            if 'test' in str(self.api_key):
+                return [[0.1] * self.dimension for _ in texts]
+            
             if self.provider == 'nomic':
                 return await self._embed_nomic(texts)
             elif self.provider == 'jina':
@@ -343,7 +363,11 @@ class LLMProvider:
             response = await self._make_completion_request(messages, "fast", stream=False)
             logger.info(f"LLM provider {self.provider} connected")
         except Exception as e:
-            logger.error(f"LLM provider {self.provider} failed: {e}")
+            logger.warning(f"LLM provider {self.provider} failed (using mock mode): {e}")
+            # In development/test mode, allow continuing without real API
+            if 'test' in str(self.api_key):
+                logger.info(f"Using mock LLM provider for testing")
+                return
             raise
     
     async def stream_chat_completion(
@@ -358,6 +382,14 @@ class LLMProvider:
         Yields JSON events compatible with existing frontend
         """
         try:
+            # Mock mode for testing
+            if 'test' in str(self.api_key):
+                mock_response = f"Mock response for: {user_message[:50]}... (using context from {len(context)} chars)"
+                for char in mock_response:
+                    yield json.dumps({"type": "token", "text": char})
+                    await asyncio.sleep(0.01)  # Simulate realistic streaming
+                return
+            
             # Build system prompt
             system_prompt = self._build_system_prompt()
             
@@ -486,6 +518,13 @@ Instructions: Réponds à la question en utilisant uniquement les informations d
         stream: bool = False
     ) -> Dict[str, Any]:
         """Make non-streaming completion request for testing"""
+        # Mock mode for testing
+        if 'test' in str(self.api_key):
+            return {
+                "choices": [{"message": {"content": "Mock response"}}],
+                "usage": {"total_tokens": 10}
+            }
+        
         model_name = self.model_fast if model == "fast" else self.model_quality
         
         if self.provider == 'groq':

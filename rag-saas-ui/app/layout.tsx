@@ -1,22 +1,12 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Space_Grotesk } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 // Fixed import path to use existing AppProvider
 import { AppProvider } from "@/contexts/app-context"
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-})
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-space-grotesk",
-})
+// Simplified font configuration to avoid build issues
+const fontClass = "font-sans"
 
 export const metadata: Metadata = {
   title: "Assistant IA Privé - RAG SaaS",
@@ -30,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="fr" className={`${inter.variable} ${spaceGrotesk.variable} antialiased`} suppressHydrationWarning={true}>
+    <html lang="fr" className={`${fontClass} antialiased`} suppressHydrationWarning={true}>
       <body>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <AppProvider>
