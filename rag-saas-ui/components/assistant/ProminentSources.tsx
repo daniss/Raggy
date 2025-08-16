@@ -90,7 +90,6 @@ export function ProminentSources({
         '--cd-text-primary': '#0B1220',
         '--cd-text-secondary': 'rgba(11, 18, 32, 0.62)',
         '--cd-accent': '#0B63E6',
-      } as React.CSSProperties}
     >
       {/* Header with enhanced stats */}
       <div className="flex items-center justify-between mb-3">
