@@ -203,14 +203,16 @@ async def _process_document_indexing(org_id: str, document_id: str, correlation_
     try:
         logger.info(f"[{correlation_id}] Starting indexing pipeline for document {document_id}")
         
-        # Step 1: Fetch document content
-        document_content = await supabase_provider.fetch_document_content(org_id, document_id)
-        if not document_content:
+        # Step 1: Fetch document content and metadata
+        document_result = await supabase_provider.fetch_document_content(org_id, document_id)
+        if not document_result:
             logger.error(f"[{correlation_id}] Document content not found")
             return
         
+        document_content, file_path = document_result
+        
         # Step 2: Extract text and create chunks
-        chunks = await _extract_and_chunk_text(document_content, document_id)
+        chunks = await _extract_and_chunk_text(document_content, document_id, file_path)
         logger.info(f"[{correlation_id}] Created {len(chunks)} chunks")
         
         # Step 3: Generate embeddings for all chunks
@@ -293,7 +295,7 @@ async def _stream_rag_response(request: AskRequest) -> AsyncGenerator[str, None]
             yield f"data: {event}\n\n"
         
         # Step 6: Send citations if enabled
-        if request.options.get("citations", True):
+        if request.options.get("citations", True) and decrypted_chunks:
             citations = _build_citations_from_chunks(decrypted_chunks)
             yield f'data: {{"type": "citations", "items": {citations}}}\n\n'
         
@@ -307,21 +309,69 @@ async def _stream_rag_response(request: AskRequest) -> AsyncGenerator[str, None]
         logger.error(f"[{correlation_id}] RAG streaming failed: {e}")
         yield f'data: {{"type": "error", "message": "Une erreur est survenue lors du traitement de votre demande."}}\n\n'
 
-async def _extract_and_chunk_text(document_content: bytes, document_id: str) -> list:
+async def _extract_and_chunk_text(document_content: bytes, document_id: str, file_path: str = None) -> list:
     """
     Extract text from document and create chunks
-    Basic implementation - can be extended with specialized parsers
+    Supports: PDF, DOCX, TXT, MD, HTML, CSV
     """
-    # Simple text extraction (extend this based on mime type)
+    import mimetypes
+    import magic
+    from pypdf import PdfReader
+    from docx import Document
+    from bs4 import BeautifulSoup
+    import csv
+    import io
+    
+    # Determine file type
+    mime_type = None
+    if file_path:
+        mime_type, _ = mimetypes.guess_type(file_path)
+    
+    # Fallback to python-magic for MIME type detection
+    if not mime_type:
+        try:
+            mime_type = magic.from_buffer(document_content, mime=True)
+        except Exception as e:
+            logger.warning(f"Failed to detect MIME type: {e}")
+            mime_type = "application/octet-stream"
+    
+    logger.info(f"Processing document {document_id} with MIME type: {mime_type}")
+    
+    # Extract text based on file type
+    text = ""
     try:
-        text = document_content.decode('utf-8')
-    except UnicodeDecodeError:
-        # Try with error handling
-        text = document_content.decode('utf-8', errors='ignore')
+        if mime_type == "application/pdf" or file_path.lower().endswith('.pdf'):
+            # PDF parsing
+            text = _extract_pdf_text(document_content)
+        elif mime_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document" or file_path.lower().endswith('.docx'):
+            # DOCX parsing
+            text = _extract_docx_text(document_content)
+        elif mime_type in ["text/html", "application/xhtml+xml"] or file_path.lower().endswith(('.html', '.htm')):
+            # HTML parsing
+            text = _extract_html_text(document_content)
+        elif mime_type == "text/csv" or file_path.lower().endswith('.csv'):
+            # CSV parsing
+            text = _extract_csv_text(document_content)
+        elif mime_type.startswith("text/") or file_path.lower().endswith(('.txt', '.md', '.py', '.js', '.json')):
+            # Plain text files
+            try:
+                text = document_content.decode('utf-8')
+            except UnicodeDecodeError:
+                text = document_content.decode('utf-8', errors='ignore')
+        else:
+            logger.warning(f"Unsupported file type: {mime_type}. Attempting plain text extraction.")
+            try:
+                text = document_content.decode('utf-8', errors='ignore')
+            except Exception as e:
+                raise ValueError(f"Unable to extract text from unsupported file type: {mime_type}")
+    
+    except Exception as e:
+        logger.error(f"Text extraction failed for {document_id}: {e}")
+        raise ValueError(f"Failed to extract text: {str(e)}")
     
     # Basic chunking with overlap (convert tokens to characters: 1 token ≈ 4 chars)
     chunk_size_tokens = int(os.getenv('CHUNK_SIZE', '800'))
-    print(f"Using chunk size: {chunk_size_tokens} tokens")
+    logger.info(f"Using chunk size: {chunk_size_tokens} tokens")
     overlap_tokens = int(os.getenv('CHUNK_OVERLAP', '150'))
     
     # Convert tokens to characters (1 token ≈ 4 characters)
@@ -334,17 +384,105 @@ async def _extract_and_chunk_text(document_content: bytes, document_id: str) -> 
     for i in range(0, len(text), chunk_size_chars - overlap_chars):
         chunk_text = text[i:i + chunk_size_chars]
         
-        chunks.append({
-            'text': chunk_text,
-            'chunk_index': len(chunks),
-            'section': 'main',  # Basic section detection
-            'page': None
-        })
+        if chunk_text.strip():  # Only add non-empty chunks
+            chunks.append({
+                'text': chunk_text,
+                'chunk_index': len(chunks),
+                'section': 'main',  # Basic section detection
+                'page': None,
+                'word_count': len(chunk_words)
+            })
         
         if i + chunk_size_chars >= len(text):
             break
     
+    logger.info(f"Created {len(chunks)} chunks for document {document_id}")
     return chunks
+
+def _extract_pdf_text(content: bytes) -> str:
+    """Extract text from PDF using pypdf"""
+    from pypdf import PdfReader
+    import io
+    
+    try:
+        pdf_file = io.BytesIO(content)
+        reader = PdfReader(pdf_file)
+        
+        text_parts = []
+        for page_num, page in enumerate(reader.pages):
+            page_text = page.extract_text()
+            if page_text.strip():
+                text_parts.append(page_text)
+        
+        return '\n'.join(text_parts)
+    except Exception as e:
+        raise ValueError(f"PDF parsing failed: {str(e)}")
+
+def _extract_docx_text(content: bytes) -> str:
+    """Extract text from DOCX using python-docx"""
+    from docx import Document
+    import io
+    
+    try:
+        docx_file = io.BytesIO(content)
+        doc = Document(docx_file)
+        
+        text_parts = []
+        for para in doc.paragraphs:
+            if para.text.strip():
+                text_parts.append(para.text)
+        
+        return '\n'.join(text_parts)
+    except Exception as e:
+        raise ValueError(f"DOCX parsing failed: {str(e)}")
+
+def _extract_html_text(content: bytes) -> str:
+    """Extract text from HTML using BeautifulSoup"""
+    from bs4 import BeautifulSoup
+    
+    try:
+        soup = BeautifulSoup(content, 'html.parser')
+        
+        # Remove script and style elements
+        for script in soup(["script", "style"]):
+            script.decompose()
+        
+        # Get text and clean up
+        text = soup.get_text()
+        
+        # Clean up whitespace
+        lines = (line.strip() for line in text.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        text = ' '.join(chunk for chunk in chunks if chunk)
+        
+        return text
+    except Exception as e:
+        raise ValueError(f"HTML parsing failed: {str(e)}")
+
+def _extract_csv_text(content: bytes) -> str:
+    """Extract text from CSV by joining textual columns"""
+    import csv
+    import io
+    
+    try:
+        csv_file = io.StringIO(content.decode('utf-8'))
+        reader = csv.reader(csv_file)
+        
+        text_parts = []
+        for row_num, row in enumerate(reader):
+            # Join non-empty cells, filtering out purely numeric values
+            row_text = []
+            for cell in row:
+                cell = cell.strip()
+                if cell and not cell.replace('.', '').replace('-', '').replace(',', '').isdigit():
+                    row_text.append(cell)
+            
+            if row_text:
+                text_parts.append(' | '.join(row_text))
+        
+        return '\n'.join(text_parts)
+    except Exception as e:
+        raise ValueError(f"CSV parsing failed: {str(e)}")
 
 async def _encrypt_and_store_chunks(
     org_id: str, 
@@ -421,7 +559,39 @@ async def _decrypt_chunks(org_id: str, encrypted_chunks: list, correlation_id: s
                 elif isinstance(ciphertext_bytes, str):
                     # Direct base64 format
                     ciphertext_bytes = base64.b64decode(ciphertext_bytes)
-                    nonce_bytes = base64.b64decode(nonce_bytes)
+                if (
+                    isinstance(ciphertext_bytes, str)
+                    and ciphertext_bytes.startswith('\\x')
+                    and re.fullmatch(r'[0-9a-fA-F]+', ciphertext_bytes[2:])
+                    and isinstance(nonce_bytes, str)
+                    and nonce_bytes.startswith('\\x')
+                    and re.fullmatch(r'[0-9a-fA-F]+', nonce_bytes[2:])
+                ):
+                    # Robustly handle hex format from PostgreSQL bytea
+                    hex_ciphertext = ciphertext_bytes[2:]  # Remove \x prefix
+                    hex_nonce = nonce_bytes[2:]  # Remove \x prefix
+                    try:
+                        base64_ciphertext_bytes = bytes.fromhex(hex_ciphertext)
+                        base64_nonce_bytes = bytes.fromhex(hex_nonce)
+                        # Decode the base64 string to get the actual encrypted bytes
+                        ciphertext_bytes = base64.b64decode(base64_ciphertext_bytes.decode('utf-8'))
+                        nonce_bytes = base64.b64decode(base64_nonce_bytes.decode('utf-8'))
+                    except Exception as e:
+                        logger.warning(f"[{correlation_id}] Hex decoding failed for chunk {chunk.get('id')}: {e}")
+                        continue
+                elif (
+                    isinstance(ciphertext_bytes, str)
+                    and re.fullmatch(r'[A-Za-z0-9+/=]+', ciphertext_bytes)
+                    and isinstance(nonce_bytes, str)
+                    and re.fullmatch(r'[A-Za-z0-9+/=]+', nonce_bytes)
+                ):
+                    # Direct base64 format
+                    try:
+                        ciphertext_bytes = base64.b64decode(ciphertext_bytes)
+                        nonce_bytes = base64.b64decode(nonce_bytes)
+                    except Exception as e:
+                        logger.warning(f"[{correlation_id}] Base64 decoding failed for chunk {chunk.get('id')}: {e}")
+                        continue
                 # If already bytes, use as-is
                 
                 decrypted_text = security_manager.decrypt_content(
@@ -460,7 +630,6 @@ def _build_context_from_chunks(decrypted_chunks: list) -> str:
 
 def _build_citations_from_chunks(decrypted_chunks: list) -> str:
     """Build citations array from chunks"""
-    import json
     
     citations = []
     

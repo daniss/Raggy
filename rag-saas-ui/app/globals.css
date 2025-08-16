@@ -41,9 +41,59 @@
   --font-space-grotesk: "Space Grotesk", sans-serif;
   --color-text-inverse: #ffffff;
 
-  /* Shadows */
+  /* Enhanced Modern Design Tokens */
+  --surface-elevated: #ffffff;
+  --surface-elevated-hover: #fafbfc;
+  --text-subtle: #6b7280;
+  --accent: #3b82f6;
+  --accent-100: #dbeafe;
+  --accent-200: #bfdbfe;
+  --accent-300: #93c5fd;
+  --accent-400: #60a5fa;
+  --accent-500: #3b82f6;
+  --accent-600: #2563eb;
+  --accent-700: #1d4ed8;
+  --accent-foreground: #ffffff;
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+  --warning-50: #fefce8;
+  --warning-500: #eab308;
+  --warning-600: #ca8a04;
+
+  /* Modern Spacing Scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  --space-48: 12rem;
+
+  /* Modern Radius Scale */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+
+  /* Enhanced Shadows */
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 1px var(--color-border);
   --shadow-pop: 0 4px 16px -2px rgba(0, 0, 0, 0.15);
+  --shadow-surface-low: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-surface-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-surface-high: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-glow-accent: 0 0 6px rgb(59 130 246 / 0.3);
+
+  /* Layout Dimensions */
+  --sidebar-width-conversations: 320px;
+  --sidebar-width-sources: 280px;
+  --content-width-reading: 820px;
 
   /* Legacy shadcn variables for compatibility */
   --background: var(--color-bg);
@@ -106,6 +156,32 @@
   --color-sidebar-border: #334155;
   --color-sidebar-ring: #6366f1;
   --color-text-inverse: #0f172a;
+
+  /* Enhanced Dark Mode Tokens */
+  --surface-elevated: #1e293b;
+  --surface-elevated-hover: #334155;
+  --text-subtle: #94a3b8;
+  --accent: #60a5fa;
+  --accent-100: #1e3a8a;
+  --accent-200: #1e40af;
+  --accent-300: #1d4ed8;
+  --accent-400: #2563eb;
+  --accent-500: #3b82f6;
+  --accent-600: #60a5fa;
+  --accent-700: #93c5fd;
+  --accent-foreground: #0f172a;
+  --status-success: #34d399;
+  --status-warning: #fbbf24;
+  --status-error: #f87171;
+  --warning-50: #451a03;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+
+  /* Dark mode shadows use lighter opacity */
+  --shadow-surface-low: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-surface-medium: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-surface-high: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --shadow-glow-accent: 0 0 6px rgb(96 165 250 / 0.4);
 }
 
 @theme inline {
@@ -184,6 +260,145 @@
 
   .text-muted {
     color: var(--color-text-muted);
+  }
+
+  /* Modern Assistant Design Utilities */
+  .glass-blur {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glass-subtle {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .surface-elevated {
+    background-color: var(--surface-elevated);
+  }
+
+  .surface-elevated-hover:hover {
+    background-color: var(--surface-elevated-hover);
+  }
+
+  .shadow-surface-low {
+    box-shadow: var(--shadow-surface-low);
+  }
+
+  .shadow-surface-medium {
+    box-shadow: var(--shadow-surface-medium);
+  }
+
+  .shadow-surface-high {
+    box-shadow: var(--shadow-surface-high);
+  }
+
+  .shadow-glow-accent {
+    box-shadow: var(--shadow-glow-accent);
+  }
+
+  /* Text utilities */
+  .text-subtle {
+    color: var(--text-subtle);
+  }
+
+  /* Animation utilities */
+  .animate-pulse-soft {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .8;
+    }
+  }
+
+  /* Enhanced transitions */
+  .transition-smooth {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .transition-fast {
+    transition: all 0.15s ease-out;
+  }
+
+  /* Border radius utilities using CSS variables */
+  .rounded-xs {
+    border-radius: var(--radius-xs);
+  }
+
+  .rounded-sm {
+    border-radius: var(--radius-sm);
+  }
+
+  .rounded-md {
+    border-radius: var(--radius-md);
+  }
+
+  .rounded-lg {
+    border-radius: var(--radius-lg);
+  }
+
+  .rounded-xl {
+    border-radius: var(--radius-xl);
+  }
+
+  .rounded-2xl {
+    border-radius: var(--radius-2xl);
+  }
+
+  /* Chat-specific utilities */
+  .message-bubble-user {
+    background: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-600) 100%);
+    color: var(--accent-foreground);
+    border-radius: 18px 18px 4px 18px;
+  }
+
+  .message-bubble-assistant {
+    background-color: var(--surface-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 18px 18px 18px 4px;
+    transition: all 0.2s ease;
+  }
+
+  .message-bubble-assistant:hover {
+    background-color: var(--surface-elevated-hover);
+    box-shadow: var(--shadow-surface-medium);
+  }
+
+  /* Conversation item enhancements */
+  .conversation-item-modern {
+    border-radius: var(--radius-md);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border-left: 3px solid transparent;
+  }
+
+  .conversation-item-modern:hover {
+    background-color: var(--surface-elevated);
+    box-shadow: var(--shadow-surface-low);
+  }
+
+  .conversation-item-modern.active {
+    background-color: var(--surface-elevated);
+    border-left-color: var(--accent);
+    box-shadow: var(--shadow-surface-medium);
+  }
+
+  /* Citation card enhancements */
+  .citation-card {
+    background: linear-gradient(135deg, var(--surface-elevated) 0%, var(--surface-elevated-hover) 100%);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    transition: all 0.25s ease;
+  }
+
+  .citation-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-surface-medium);
+    border-color: var(--accent-300);
   }
 
   .badge {
@@ -266,7 +481,7 @@
     margin-top: 24px;
   }
 
-  /* Conversation item states */
+  /* Legacy conversation item states (keeping for compatibility) */
   .conversation-item {
     transition: all 0.2s ease;
     border-left: 3px solid transparent;

@@ -46,27 +46,21 @@ async function* mockRAGResponse(userMessage: string, options: { citations?: bool
       items: [
         {
           document_id: 'doc_1',
-          title: 'Document 1.pdf',
+          chunk_index: 0,
           score: 0.95,
-          spans: [
-            {
-              snippet: 'Extrait pertinent du document...',
-              from: 100,
-              to: 150
-            }
-          ]
+          section: 'Introduction',
+          page: 1,
+          document_title: 'Document 1.pdf',
+          document_filename: 'document1.pdf'
         },
         {
           document_id: 'doc_2', 
-          title: 'Guide utilisateur.docx',
+          chunk_index: 1,
           score: 0.87,
-          spans: [
-            {
-              snippet: 'Information complémentaire...',
-              from: 250,
-              to: 300
-            }
-          ]
+          section: 'Guide utilisateur',
+          page: 3,
+          document_title: 'Guide utilisateur.docx',
+          document_filename: 'guide.docx'
         }
       ]
     }
@@ -180,16 +174,52 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Rate limit exceeded. Please wait before sending another message." }, { status: 429 })
     }
 
-    // Verify user belongs to org
+    // Verify user belongs to org and get tier info
     const { data: userMembership } = await supabase
       .from('memberships')
-      .select('role')
+      .select(`
+        role,
+        organizations (
+          tier
+        )
+      `)
       .eq('user_id', user.id)
       .eq('org_id', orgId)
       .single()
 
     if (!userMembership || !['owner', 'admin', 'editor'].includes(userMembership.role)) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
+    }
+
+    const orgTier = userMembership.organizations?.tier || 'starter'
+
+    // Check monthly token limits
+    const currentMonth = new Date().toISOString().slice(0, 7) + '-01'
+    
+    const { data: usage } = await supabase
+      .from('usage_monthly')
+      .select('tokens_used')
+      .eq('org_id', orgId)
+      .eq('month', currentMonth)
+      .single()
+
+    const currentTokens = usage?.tokens_used || 0
+    const estimatedTokens = Math.ceil(userMessage.length / 4) // Rough estimate: 4 chars per token
+
+    // Import limits check
+    const { checkLimit } = await import('@/lib/limits')
+    const tokenLimitCheck = checkLimit(orgTier as any, 'monthly_tokens', currentTokens, estimatedTokens)
+    
+    if (!tokenLimitCheck.allowed) {
+      const { formatNumber } = await import('@/lib/limits')
+      return NextResponse.json({
+        error: "Monthly token limit exceeded",
+        code: "TOKENS_EXCEEDED",
+        current_usage: currentTokens,
+        limit: tokenLimitCheck.limit,
+        suggested_tier: tokenLimitCheck.suggested_tier,
+        message: `Votre plan ${orgTier} permet ${formatNumber(tokenLimitCheck.limit!)} tokens par mois. Vous en avez déjà utilisé ${formatNumber(currentTokens)}.`
+      }, { status: 402 })
     }
 
     // Create or get conversation
@@ -243,9 +273,21 @@ export async function POST(request: NextRequest) {
         const encoder = new TextEncoder()
         
         try {
+          // Generate detailed correlation ID for tracking
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+          const randomId = Math.random().toString(36).substr(2, 9)
+          const correlationId = `rag-${timestamp}-${randomId}`
+          
+          // Log request start
+          console.log(`[${correlationId}] RAG request started:`, {
+            orgId,
+            messageLength: userMessage.length,
+            options,
+            conversationId
+          })
+          
           // Check if RAG_BASE_URL is configured for real RAG
           const ragBaseUrl = process.env.RAG_BASE_URL
-          const correlationId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
           let responseGenerator
           
           if (ragBaseUrl) {

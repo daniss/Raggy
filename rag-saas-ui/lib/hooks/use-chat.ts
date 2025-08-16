@@ -44,6 +44,7 @@ export interface UseChatOptions {
 export function useChat({ orgId, onError, onSuccess }: UseChatOptions) {
   const [isStreaming, setIsStreaming] = useState(false)
   const [streamingContent, setStreamingContent] = useState('')
+  const [streamingMessage, setStreamingMessage] = useState<ChatMessage | null>(null);
   const [citations, setCitations] = useState<Citation[]>([])
   const [currentUsage, setCurrentUsage] = useState<Usage | null>(null)
   
@@ -59,6 +60,24 @@ export function useChat({ orgId, onError, onSuccess }: UseChatOptions) {
       onError?.('Une requête est déjà en cours')
       return null
     }
+
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      type: 'user',
+      content: message,
+      timestamp: new Date().toISOString(),
+    };
+
+    const assistantMessage: ChatMessage = {
+      id: `assistant-${Date.now()}`,
+      type: 'assistant',
+      content: '',
+      timestamp: new Date().toISOString(),
+      metadata: { citations: [] },
+    };
+
+    setStreamingMessage(assistantMessage);
+
 
     setIsStreaming(true)
     setStreamingContent('')
@@ -121,10 +140,14 @@ export function useChat({ orgId, onError, onSuccess }: UseChatOptions) {
                   case 'token':
                     streamingMessageRef.current += event.text
                     setStreamingContent(streamingMessageRef.current)
+                    assistantMessage.content = streamingMessageRef.current;
+                    setStreamingMessage({ ...assistantMessage });
                     break
                     
                   case 'citations':
                     setCitations(event.items || [])
+                    assistantMessage.metadata!.citations = event.items || [];
+                    setStreamingMessage({ ...assistantMessage });
                     break
                     
                   case 'usage':
@@ -142,6 +165,7 @@ export function useChat({ orgId, onError, onSuccess }: UseChatOptions) {
                     }
                     setIsStreaming(false)
                     onSuccess?.(streamingMessageRef.current)
+                    setStreamingMessage(null);
                     return newConversationId
                     
                   case 'error':
@@ -210,6 +234,7 @@ export function useChat({ orgId, onError, onSuccess }: UseChatOptions) {
     regenerate,
     isStreaming,
     streamingContent,
+    streamingMessage,
     citations,
     currentUsage
   }

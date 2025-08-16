@@ -20,16 +20,66 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Verify user has editor+ role
+    // Verify user has editor+ role and get org info
     const { data: userMembership } = await supabase
       .from('memberships')
-      .select('role')
+      .select(`
+        role,
+        organizations (
+          tier
+        )
+      `)
       .eq('user_id', user.id)
       .eq('org_id', orgId)
       .single()
 
     if (!userMembership || !['owner', 'admin', 'editor'].includes(userMembership.role)) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
+    }
+
+    const orgTier = userMembership.organizations?.tier || 'starter'
+
+    // Check document count and storage limits
+    const currentMonth = new Date().toISOString().slice(0, 7) + '-01'
+    
+    const { data: usage } = await supabase
+      .from('usage_monthly')
+      .select('documents_count, storage_bytes')
+      .eq('org_id', orgId)
+      .eq('month', currentMonth)
+      .single()
+
+    const currentDocs = usage?.documents_count || 0
+    const currentStorage = usage?.storage_bytes || 0
+
+    // Import limits check
+    const { checkLimit } = await import('@/lib/limits')
+    
+    // Check document count limit
+    const docLimitCheck = checkLimit(orgTier as any, 'documents_count', currentDocs, 1)
+    if (!docLimitCheck.allowed) {
+      return NextResponse.json({
+        error: "Document limit exceeded",
+        code: "DOCUMENTS_EXCEEDED",
+        current_usage: currentDocs,
+        limit: docLimitCheck.limit,
+        suggested_tier: docLimitCheck.suggested_tier,
+        message: `Votre plan ${orgTier} permet ${docLimitCheck.limit} documents. Vous en avez déjà ${currentDocs}.`
+      }, { status: 402 })
+    }
+
+    // Check storage limit
+    const storageLimitCheck = checkLimit(orgTier as any, 'storage_bytes', currentStorage, size)
+    if (!storageLimitCheck.allowed) {
+      const { formatStorageSize } = await import('@/lib/limits')
+      return NextResponse.json({
+        error: "Storage limit exceeded",
+        code: "STORAGE_EXCEEDED",
+        current_usage: currentStorage,
+        limit: storageLimitCheck.limit,
+        suggested_tier: storageLimitCheck.suggested_tier,
+        message: `Votre plan ${orgTier} permet ${formatStorageSize(storageLimitCheck.limit!)}. Vous utilisez actuellement ${formatStorageSize(currentStorage)} et ce fichier fait ${formatStorageSize(size)}.`
+      }, { status: 402 })
     }
 
     // Generate unique document ID and file path

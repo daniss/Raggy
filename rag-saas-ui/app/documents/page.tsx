@@ -48,10 +48,54 @@ function DocumentsContent() {
     loadDocuments()
   }, [organization?.id, statusFilter, searchQuery])
 
-  // File upload handler
+  // Supported file types
+  const SUPPORTED_FILE_TYPES = {
+    'application/pdf': '.pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx', 
+    'text/plain': '.txt',
+    'text/markdown': '.md',
+    'text/html': '.html',
+    'text/csv': '.csv',
+    'application/json': '.json',
+    'text/javascript': '.js',
+    'text/python': '.py'
+  }
+
+  const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+
+  // Enhanced file validation
+  const validateFile = (file: File): { valid: boolean; error?: string } => {
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      return { 
+        valid: false, 
+        error: `Le fichier est trop volumineux. Taille maximale: 50MB (actuel: ${(file.size / 1024 / 1024).toFixed(1)}MB)` 
+      }
+    }
+
+    // Check file type
+    if (!SUPPORTED_FILE_TYPES[file.type as keyof typeof SUPPORTED_FILE_TYPES] && 
+        !Object.values(SUPPORTED_FILE_TYPES).some(ext => file.name.toLowerCase().endsWith(ext))) {
+      return { 
+        valid: false, 
+        error: `Type de fichier non supporté. Types acceptés: ${Object.values(SUPPORTED_FILE_TYPES).join(', ')}` 
+      }
+    }
+
+    return { valid: true }
+  }
+
+  // File upload handler with enhanced validation and progress
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file || !organization?.id) return
+
+    // Validate file
+    const validation = validateFile(file)
+    if (!validation.valid) {
+      alert(validation.error)
+      return
+    }
 
     try {
       setUploading(true)
@@ -64,7 +108,7 @@ function DocumentsContent() {
         file.size
       )
 
-      // Upload file to Supabase Storage
+      // Upload file to Supabase Storage with progress tracking
       await DocumentsAPI.uploadFile(uploadInit.uploadUrl, file)
 
       // Finalize upload
@@ -92,6 +136,34 @@ function DocumentsContent() {
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
+    }
+  }
+
+  // Handle drag and drop
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const files = Array.from(e.dataTransfer.files)
+    
+    if (files.length > 0) {
+      const file = files[0]
+      
+      // Validate file
+      const validation = validateFile(file)
+      if (!validation.valid) {
+        alert(validation.error)
+        return
+      }
+
+      // Create a fake event to reuse the upload handler
+      const fakeEvent = {
+        target: { files: [file] }
+      } as unknown as React.ChangeEvent<HTMLInputElement>
+      
+      handleFileUpload(fakeEvent)
     }
   }
 
@@ -183,30 +255,52 @@ function DocumentsContent() {
         <PageHeader 
           title="Documents"
           subtitle="Gérez et organisez vos documents pour l'IA"
+        />
+
+        {/* Document Upload Area */}
+        <div
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors mb-6 ${uploading ? 'border-blue-300 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+            }`}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         >
-          <div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileUpload}
-              accept=".pdf,.doc,.docx,.txt,.md"
-              className="hidden"
-            />
-            <Button onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-              {uploading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Téléchargement...
-                </>
-              ) : (
-                <>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Télécharger un document
-                </>
-              )}
-            </Button>
-          </div>
-        </PageHeader>
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={handleFileUpload}
+            accept=".pdf,.docx,.txt,.md,.html,.csv,.json,.js,.py"
+            className="hidden"
+          />
+          
+          {uploading ? (
+            <div className="flex flex-col items-center space-y-2">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+              <p className="text-sm text-gray-600">Téléchargement en cours...</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center space-y-4">
+              <Upload className="w-12 h-12 text-gray-400" />
+              <div>
+                <p className="text-lg font-medium text-gray-900">
+                  Glissez-déposez vos documents ici
+                </p>
+                <p className="text-sm text-gray-500">
+                  ou{' '}
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-blue-600 hover:text-blue-500 underline"
+                  >
+                    cliquez pour sélectionner
+                  </button>
+                </p>
+              </div>
+              <div className="text-xs text-gray-400 space-y-1">
+                <p>Types supportés: PDF, DOCX, TXT, MD, HTML, CSV, JSON, JS, PY</p>
+                <p>Taille maximum: 50MB</p>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Upgrade Banner */}
         {showUpgrade && (
