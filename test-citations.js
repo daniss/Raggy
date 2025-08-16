@@ -89,7 +89,28 @@ function testStreaming() {
   const testButton = document.createElement('button');
   testButton.textContent = 'Test Citations';
   testButton.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 9999; padding: 10px; background: #0B63E6; color: white; border: none; border-radius: 4px; cursor: pointer;';
+  testButton.className = 'test-citations-btn';
   
+  // Inject CSS for the test button if not already present
+  if (!document.getElementById('test-citations-btn-style')) {
+    const style = document.createElement('style');
+    style.id = 'test-citations-btn-style';
+    style.textContent = `
+      .test-citations-btn {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 9999;
+        padding: 10px;
+        background: #0B63E6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    `;
+    document.head.appendChild(style);
+  }
   testButton.addEventListener('click', () => {
     console.log('🧪 Running citation tests...');
     testCitationMarkers();
