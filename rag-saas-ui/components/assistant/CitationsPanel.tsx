@@ -29,15 +29,15 @@ export function CitationsPanel({
   const t = useI18n()
 
   return (
-    <div className="flex flex-col h-full bg-surface-elevated/40 backdrop-blur-sm">
+    <div className="flex flex-col h-full bg-surface-elevated/40 glass-subtle">
       {/* Header */}
       <div className="flex items-center justify-between mb-4 px-3 py-2 border-b border-border/20">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-accent/20 flex items-center justify-center">
+          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center shadow-sm">
             <FileText className="w-3.5 h-3.5 text-accent" />
           </div>
           <h3 className="font-semibold text-sm text-foreground">{t.assistant.sources}</h3>
-          <div className="w-5 h-5 rounded-full bg-surface-elevated/80 border border-border/40 flex items-center justify-center">
+          <div className="w-5 h-5 rounded-full bg-surface-elevated/80 border border-border/40 flex items-center justify-center shadow-sm">
             <span className="text-[10px] font-medium text-text-subtle">
               {citations.length}
             </span>
@@ -47,7 +47,7 @@ export function CitationsPanel({
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="h-6 w-6 p-0 text-text-subtle hover:text-foreground hover:bg-surface-elevated/60 rounded-lg transition-colors"
+          className="h-6 w-6 p-0 text-text-subtle hover:text-foreground hover:bg-surface-elevated/60 rounded-lg transition-fast"
         >
           <X className="w-3 h-3" />
         </Button>
@@ -73,10 +73,10 @@ export function CitationsPanel({
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
                 {/* Citation Card */}
-                <div className="border border-border/40 rounded-xl p-3 bg-background/60 hover:bg-surface-elevated/60 hover:border-border/60 transition-all duration-250 hover:shadow-surface-low backdrop-blur-sm">
+                <div className="citation-card p-3 hover:scale-[1.01] transition-smooth">
                   <div className="flex items-start gap-2.5">
                     {/* Number Badge */}
-                    <div className="flex-shrink-0 w-5 h-5 rounded-md bg-accent/20 flex items-center justify-center mt-0.5">
+                    <div className="flex-shrink-0 w-5 h-5 rounded-md bg-gradient-to-br from-accent/30 to-accent/20 flex items-center justify-center mt-0.5 shadow-sm">
                       <span className="text-[10px] font-bold text-accent tabular-nums">
                         {idx + 1}
                       </span>

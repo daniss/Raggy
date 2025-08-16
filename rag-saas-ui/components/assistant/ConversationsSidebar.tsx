@@ -121,10 +121,10 @@ export function ConversationsSidebar({
               filteredConversations.map((conv, index) => (
                 <div
                   key={conv.id}
-                  className={`conversation-item cursor-pointer relative group transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] animate-in fade-in slide-in-from-left-2 rounded-md ${
+                  className={`conversation-item-modern cursor-pointer relative group transition-smooth animate-in fade-in slide-in-from-left-2 ${
                     conv.id === activeConversation 
-                      ? 'bg-surface-elevated/80 border-l-[3px] border-l-accent shadow-surface-low' 
-                      : 'hover:bg-surface-elevated/50'
+                      ? 'active shadow-surface-medium' 
+                      : 'hover:shadow-surface-low'
                   }`}
                   style={{ animationDelay: `${index * 50}ms` }}
                   onClick={() => setActiveConversation(conv.id)}
@@ -140,7 +140,7 @@ export function ConversationsSidebar({
                 >
                   {/* Active indicator */}
                   {conv.id === activeConversation && (
-                    <div className="absolute inset-y-0 left-0 w-0.5 bg-accent rounded-r-full animate-in slide-in-from-left duration-300" />
+                    <div className="absolute inset-y-0 left-0 w-0.5 bg-accent rounded-r-full animate-in slide-in-from-left duration-300 shadow-glow-accent" />
                   )}
                   
                   <div className="flex items-center justify-between px-3 py-2.5">

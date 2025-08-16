@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { cn } from "@/lib/utils"
 import { useI18n } from "@/i18n/translations"
 import { formatRelativeTime } from "@/lib/utils/time"
+import { MarkdownRenderer } from "./MarkdownRenderer"
 
 interface ChatMessageProps {
   id: string
@@ -45,15 +46,10 @@ export function ChatMessage({
   const t = useI18n()
   const [showActions, setShowActions] = useState(false)
 
-  // Enhanced markdown rendering would go here
-  // For now, we'll use basic whitespace preservation with line breaks
-  const renderContent = (text: string) => {
-    return text.split('\n').map((line, i) => (
-      <span key={i}>
-        {line}
-        {i < text.split('\n').length - 1 && <br />}
-      </span>
-    ))
+  // Enhanced markdown rendering with copy functionality
+  const handleCopyMessage = () => {
+    navigator.clipboard.writeText(content)
+    onCopy?.()
   }
 
   return (
@@ -68,8 +64,8 @@ export function ChatMessage({
       )}>
         {/* Assistant Avatar */}
         {type === "assistant" && (
-          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
-            <div className="w-4 h-4 rounded bg-accent opacity-80" />
+          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-accent/20 to-accent/10 border border-accent/20 flex items-center justify-center shadow-sm">
+            <div className="w-4 h-4 rounded bg-gradient-to-br from-accent to-accent/80" />
           </div>
         )}
 
@@ -80,18 +76,22 @@ export function ChatMessage({
           {/* Message Bubble */}
           <div
             className={cn(
-              "px-4 py-3 rounded-xl transition-all duration-200 relative",
+              "px-4 py-3 transition-all duration-200 relative",
               type === "user" 
-                ? "bg-accent text-accent-foreground shadow-sm" 
-                : "bg-surface-elevated border border-border/30 shadow-sm hover:shadow-md"
+                ? "message-bubble-user shadow-surface-low hover:shadow-surface-medium" 
+                : "message-bubble-assistant"
             )}
             style={{
               maxWidth: type === "assistant" ? "620px" : "auto"
             }}
           >
             {/* Message Content */}
-            <div className="text-sm leading-relaxed prose prose-sm max-w-none">
-              {renderContent(content)}
+            <div className="text-sm leading-relaxed">
+              {type === "assistant" ? (
+                <MarkdownRenderer content={content} />
+              ) : (
+                <div className="whitespace-pre-wrap">{content}</div>
+              )}
               {isStreaming && (
                 <span className="inline-block w-0.5 h-4 bg-accent ml-1 animate-pulse" />
               )}
@@ -108,7 +108,7 @@ export function ChatMessage({
                   {sources.slice(0, 2).map((source, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center gap-2 p-2 rounded-lg bg-surface-elevated border border-border/30 hover:border-border/60 transition-all duration-200"
+                      className="citation-card flex items-center gap-2 p-2 cursor-pointer"
                     >
                       <div className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
                       <span className="text-xs font-medium text-foreground truncate flex-1">
@@ -133,27 +133,25 @@ export function ChatMessage({
             {/* Message Actions */}
             {showActions && (
               <div className={cn(
-                "absolute -top-2 flex items-center gap-1 bg-background border border-border/50 rounded-lg shadow-lg px-2 py-1 animate-in fade-in duration-200",
+                "absolute -top-2 flex items-center gap-1 bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-surface-medium px-2 py-1 animate-in fade-in duration-200 z-10",
                 type === "user" ? "right-0" : "left-0"
               )}>
-                {onCopy && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onCopy}
-                    className="h-6 w-6 p-0 hover:bg-accent/10"
-                    title={t.assistant.copy}
-                  >
-                    <Copy className="w-3 h-3" />
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopyMessage}
+                  className="h-6 w-6 p-0 hover:bg-accent/10 hover:text-accent transition-colors"
+                  title={t.assistant.copy}
+                >
+                  <Copy className="w-3 h-3" />
+                </Button>
                 
                 {type === "assistant" && isLastAssistantMessage && onRegenerate && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={onRegenerate}
-                    className="h-6 w-6 p-0 hover:bg-accent/10"
+                    className="h-6 w-6 p-0 hover:bg-accent/10 hover:text-accent transition-colors"
                     title={t.assistant.regenerate}
                   >
                     <RotateCcw className="w-3 h-3" />
@@ -166,7 +164,7 @@ export function ChatMessage({
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-6 w-6 p-0 hover:bg-accent/10"
+                        className="h-6 w-6 p-0 hover:bg-accent/10 hover:text-accent transition-colors"
                       >
                         <MoreHorizontal className="w-3 h-3" />
                       </Button>
@@ -205,8 +203,8 @@ export function ChatMessage({
 
         {/* User Avatar */}
         {type === "user" && (
-          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-surface-elevated border border-border/30 flex items-center justify-center">
-            <div className="w-4 h-4 rounded-full bg-text-subtle" />
+          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-surface-elevated to-surface-elevated-hover border border-border/30 flex items-center justify-center shadow-sm">
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-text-subtle to-text-subtle/70" />
           </div>
         )}
       </div>
