@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Bot, Plus } from "lucide-react"
 import { ChatMessage } from "./ChatMessage"
 import { useI18n } from "@/i18n/translations"
+import { formatRelativeTime } from "@/lib/utils/time"
 
 interface Message {
   id: string
@@ -129,12 +130,12 @@ export function ChatTranscript({
   }
 
   return (
-    <ScrollArea className="flex-1 min-h-0">
+    <ScrollArea className="flex-1 min-h-0" role="log" aria-label="Chat conversation">
       <div className="max-w-[820px] mx-auto px-4 sm:px-6 py-6">
-        <div className="space-y-6" role="log" aria-label="Conversation messages" aria-live="polite">
+        <div className="space-y-6" aria-live="polite" aria-relevant="additions text">
           {/* Welcome message */}
           {messages.length === 0 && !isStreaming && (
-            <div className="animate-in fade-in duration-500" role="article">
+            <div className="animate-in fade-in duration-500">
               <ChatMessage
                 id="welcome"
                 type="assistant"
@@ -159,6 +160,7 @@ export function ChatTranscript({
                 className="animate-in fade-in slide-in-from-bottom-2 duration-400"
                 style={{ animationDelay: `${index * 100}ms` }}
                 role="article"
+                aria-label={`${msg.type === 'user' ? 'User' : 'Assistant'} message from ${formatRelativeTime(msg.timestamp)}`}
               >
                 <ChatMessage
                   id={msg.id}
@@ -179,7 +181,12 @@ export function ChatTranscript({
           
           {/* Streaming message */}
           {isStreaming && (
-            <div className="animate-in fade-in duration-300">
+            <div 
+              className="animate-in fade-in duration-300"
+              role="status" 
+              aria-live="polite"
+              aria-label="Assistant is generating response"
+            >
               <ChatMessage
                 id="streaming"
                 type="assistant"

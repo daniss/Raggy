@@ -16,6 +16,7 @@ import { ConversationsAPI, type Conversation, type Message } from "@/lib/api/con
 import { useChat, type ChatOptions } from "@/lib/hooks/use-chat"
 import { useToast } from "@/hooks/use-toast"
 import { useI18n } from "@/i18n/translations"
+import { useKeyboardShortcuts } from "@/components/assistant/KeyboardShortcuts"
 
 // Import new components
 import {
@@ -59,6 +60,9 @@ function AssistantContent() {
   const { organization } = useApp()
   const { toast } = useToast()
   const t = useI18n()
+  
+  // Refs for focus management
+  const composerRef = useRef<HTMLInputElement>(null)
 
   const chat = useChat({
     orgId: organization?.id || '',
@@ -286,6 +290,14 @@ function AssistantContent() {
   const tokensRatio = limits.tokensUsed / limits.tokensLimit
   const showUsageWarning = tokensRatio >= 0.8
 
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onFocusComposer: () => composerRef.current?.focus(),
+    onNewConversation: handleCreateConversation,
+    onToggleSidebar: () => setShowMobileConversations(!showMobileConversations),
+    onToggleCitations: () => setShowCitationsSidePanel(!showCitationsSidePanel)
+  })
+
   return (
     <LayoutShell>
       <MainContent className="h-[calc(100vh-8rem)] flex flex-col">
@@ -396,6 +408,7 @@ function AssistantContent() {
 
             {/* Message Composer */}
             <MessageComposer
+              ref={composerRef}
               message={message}
               setMessage={setMessage}
               onSendMessage={handleSendMessage}

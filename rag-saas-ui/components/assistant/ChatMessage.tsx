@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, memo } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Clock, FileText, Copy, RotateCcw, Edit2, Trash2, MoreHorizontal } from "lucide-react"
@@ -211,3 +211,5 @@ export function ChatMessage({
     </div>
   )
 }
+
+export default memo(ChatMessage)

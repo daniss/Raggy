@@ -1,5 +1,6 @@
 "use client"
 
+import { useRef, forwardRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -25,7 +26,7 @@ interface MessageComposerProps {
   onOpenLocked: (feature: FeatureKey) => void
 }
 
-export function MessageComposer({
+export const MessageComposer = forwardRef<HTMLInputElement, MessageComposerProps>(({
   message,
   setMessage,
   onSendMessage,
@@ -41,10 +42,10 @@ export function MessageComposer({
   showUsageWarning,
   organizationTier,
   onOpenLocked
-}: MessageComposerProps) {
+}, ref) => {
   const t = useI18n()
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       if (isStreaming) {
@@ -52,6 +53,17 @@ export function MessageComposer({
       } else {
         onSendMessage()
       }
+    }
+    
+    // Handle Escape to blur the input
+    if (e.key === "Escape") {
+      (e.target as HTMLInputElement).blur()
+    }
+    
+    // Handle Ctrl/Cmd + Up to edit last user message (future feature)
+    if ((e.ctrlKey || e.metaKey) && e.key === "ArrowUp") {
+      e.preventDefault()
+      // Could implement edit last message here
     }
   }
 
@@ -64,6 +76,7 @@ export function MessageComposer({
             <div className="flex-1 relative">
               <div className="relative">
                 <Input
+                  ref={ref}
                   placeholder={
                     activeConversation 
                       ? t.assistant.composer_placeholder
@@ -198,4 +211,6 @@ export function MessageComposer({
       </div>
     </div>
   )
-}
+})
+
+MessageComposer.displayName = "MessageComposer"
