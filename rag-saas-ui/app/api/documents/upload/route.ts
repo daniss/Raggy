@@ -157,12 +157,12 @@ export async function PATCH(request: NextRequest) {
         console.error('Usage update error:', usageError)
       }
 
-      // Déclencher indexation RAG automatique
+      // Déclencher indexation RAG automatique (async)
       const ragBaseUrl = process.env.RAG_BASE_URL
       console.log(`RAG_BASE_URL: ${ragBaseUrl}`)
       if (ragBaseUrl) {
         try {
-          // Indexation asynchrone via FastAPI
+          // Indexation asynchrone via FastAPI - changera status vers 'ready' automatiquement
           const indexResponse = await fetch(`${ragBaseUrl}/rag/index`, {
             method: 'POST',
             headers: {

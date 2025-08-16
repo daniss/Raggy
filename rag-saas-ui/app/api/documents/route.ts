@@ -54,7 +54,9 @@ export async function GET(request: NextRequest) {
 
     // Filter by status
     if (status && status !== 'all') {
-      query = query.eq('status', status as 'processing' | 'ready' | 'error')
+      // Map frontend status to database status
+      const dbStatus = status === 'uploaded' ? 'processing' : status
+      query = query.eq('status', dbStatus as 'processing' | 'ready' | 'error')
     }
 
     // Search in document names
@@ -75,7 +77,8 @@ export async function GET(request: NextRequest) {
       type: doc.mime_type?.split('/')[1]?.toUpperCase() || 'FILE',
       size: doc.size_bytes ? `${(doc.size_bytes / (1024 * 1024)).toFixed(1)} MB` : 'Unknown',
       uploadedAt: doc.created_at,
-      status: doc.status === 'ready' ? 'Prêt' : doc.status === 'processing' ? 'En cours' : 'Erreur',
+      status: doc.status === 'ready' ? 'Prêt' : 
+              doc.status === 'processing' ? 'En cours' : 'Erreur',
       tags: doc.tags || [],
       uploadedBy: doc.profiles?.name || doc.profiles?.email || 'Unknown',
       filePath: doc.file_path

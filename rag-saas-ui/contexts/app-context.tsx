@@ -12,6 +12,7 @@ interface AppContextType {
   session: Session | null
   profile: Profile | null
   isLoading: boolean
+  isSettingUpOrg: boolean
 
   // Organization state
   organization: Organization | null
@@ -42,6 +43,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [userRole, setUserRole] = useState<UserRole | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isSettingUpOrg, setIsSettingUpOrg] = useState(false)
   const [lockedFeatureModal, setLockedFeatureModal] = useState<{
     open: boolean
     featureKey: FeatureKey | null
@@ -60,13 +62,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const data = await response.json()
         setOrganization(data.organization)
         setUserRole(data.userRole)
+        return true
+      } else if (response.status === 404) {
+        // No organization found, redirect to onboarding
+        console.warn('No organization found for user, redirecting to onboarding')
+        window.location.href = '/onboarding'
+        return false
       }
     } catch (error) {
       console.error('Error fetching organization:', error)
+      return false
     }
+    return false
   }
 
   const refreshOrganization = async () => {
+    // Skip if on onboarding page
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/onboarding')) {
+      return
+    }
     await fetchOrganizationData()
   }
 
@@ -95,8 +109,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           
           setProfile(profile)
           
-          // Fetch organization data
-          await fetchOrganizationData()
+          // Fetch organization data (skip if on onboarding page)
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/onboarding')) {
+            await fetchOrganizationData()
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error)
@@ -123,8 +139,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
           
           setProfile(profile)
           
-          // Fetch organization data
-          await fetchOrganizationData()
+          // Fetch organization data (skip if on onboarding page)
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/onboarding')) {
+            await fetchOrganizationData()
+          }
         } else {
           setProfile(null)
           setOrganization(null)
@@ -159,6 +177,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         session,
         profile,
         isLoading,
+        isSettingUpOrg,
         organization,
         userRole,
         orgName: organization?.name || "Mon Organisation",

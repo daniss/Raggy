@@ -4,10 +4,10 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 // GET - Historique des runs d'un connecteur
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const supabase = await createSupabaseServerClient()
     const url = new URL(request.url)
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '20'), 100)

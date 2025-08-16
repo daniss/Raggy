@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, email, name, company } = await request.json()
+    const { userId, email, name, company, orgName } = await request.json()
 
     if (!userId) {
       return NextResponse.json(
@@ -15,73 +15,93 @@ export async function POST(request: NextRequest) {
     // Use service role client for privileged operations
     const supabase = createSupabaseServiceClient()
 
-    // Vérifier si l'utilisateur a besoin d'un setup
-    const { data: needsSetup, error: checkError } = await (supabase as any)
-      .rpc('user_needs_setup', { p_user_id: userId })
+    // Check if user already has an organization
+    const { data: existingMembership } = await supabase
+      .from('memberships')
+      .select(`
+        org_id,
+        organizations!inner(id, name, tier)
+      `)
+      .eq('user_id', userId)
+      .single()
 
-    if (checkError) {
-      console.error('Error checking setup status:', checkError)
-      return NextResponse.json(
-        { error: "Failed to check setup status" },
-        { status: 500 }
-      )
-    }
-
-    if (!needsSetup) {
-      // Récupérer l'org existante
-      const { data: membership } = await supabase
-        .from('memberships')
-        .select(`
-          org_id,
-          organizations!inner(id, name, tier)
-        `)
-        .eq('user_id', userId)
-        .eq('role', 'owner')
-        .single()
-
+    if (existingMembership?.organizations) {
       return NextResponse.json({ 
         success: true, 
         message: "Utilisateur déjà configuré",
         organization: {
-          id: membership?.organizations.id,
-          name: membership?.organizations.name,
-          tier: membership?.organizations.tier
+          id: existingMembership.organizations.id,
+          name: existingMembership.organizations.name,
+          tier: existingMembership.organizations.tier
         }
       })
     }
 
-    // Utiliser la fonction d'auto-setup
-    const { data: orgId, error: setupError } = await (supabase as any)
-      .rpc('auto_setup_user', {
-        p_user_id: userId,
-        p_email: email || 'user@example.com',
-        p_name: name,
-        p_company: company
+    // Create new organization
+    const organizationName = orgName || company || `${name || 'My'} Organization`
+    
+    const { data: organization, error: orgError } = await supabase
+      .from('organizations')
+      .insert({
+        name: organizationName,
+        tier: 'starter'
       })
+      .select('id, name, tier')
+      .single()
 
-    if (setupError) {
-      console.error('Error during auto-setup:', setupError)
+    if (orgError) {
+      console.error('Error creating organization:', orgError)
       return NextResponse.json(
-        { error: "Échec de la configuration automatique" },
+        { error: "Failed to create organization" },
         { status: 500 }
       )
     }
 
-    // Récupérer les détails de l'organisation créée
-    const { data: organization, error: orgFetchError } = await supabase
-      .from('organizations')
-      .select('id, name, tier')
-      .eq('id', orgId)
-      .single()
+    // Create membership for the user as owner
+    const { error: membershipError } = await supabase
+      .from('memberships')
+      .insert({
+        user_id: userId,
+        org_id: organization.id,
+        role: 'owner'
+      })
 
-    if (orgFetchError) {
-      console.error('Error fetching organization:', orgFetchError)
+    if (membershipError) {
+      console.error('Error creating membership:', membershipError)
+      // Try to cleanup the organization
+      await supabase.from('organizations').delete().eq('id', organization.id)
+      return NextResponse.json(
+        { error: "Failed to create membership" },
+        { status: 500 }
+      )
+    }
+
+    // Create default settings for the organization
+    const { error: settingsError } = await supabase
+      .from('org_settings')
+      .insert({
+        org_id: organization.id,
+        settings: {
+          ai_model: 'gpt-3.5-turbo',
+          max_tokens: 2000,
+          temperature: 0.7,
+          enable_citations: true,
+          enable_streaming: false,
+          notification_email: true,
+          notification_push: false,
+          notification_weekly: true
+        }
+      })
+
+    if (settingsError) {
+      console.error('Error creating settings:', settingsError)
+      // Settings failure is not critical, continue
     }
 
     return NextResponse.json({ 
       success: true,
-      message: "Configuration automatique réussie",
-      organization: organization || { id: orgId }
+      message: "Organisation créée avec succès",
+      organization: organization
     })
 
   } catch (error) {

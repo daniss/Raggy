@@ -4,10 +4,10 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 // PATCH - Modifier un connecteur
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const supabase = await createSupabaseServerClient()
     
     // Check auth
@@ -96,10 +96,10 @@ export async function PATCH(
 // DELETE - Supprimer un connecteur
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const supabase = await createSupabaseServerClient()
     
     // Check auth
