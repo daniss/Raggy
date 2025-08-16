@@ -4,10 +4,10 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 // DELETE - Supprimer une clé API
 export async function DELETE(
   request: NextRequest, 
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params
+    const { id } = await params
     const supabase = await createSupabaseServerClient()
     
     // Check auth

@@ -54,35 +54,6 @@ export default function ConformitePage() {
   const accessLevel = getAccessLevel(userRole as UserRole, orgTier, 'compliance')
   const canWriteRetention = hasPermission(userRole as UserRole, 'compliance.write_retention')
 
-  // Early return if no access
-  if (!hasAccess) {
-    return (
-      <LayoutShell>
-        <MainContent>
-          <PageHeader 
-            title="Conformité" 
-            subtitle="Journaux d'activité et rétention"
-          />
-          
-          <Card className="text-center py-12">
-            <CardContent>
-              <Shield className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Accès restreint
-              </h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                Cette page nécessite des permissions d'administration sécurité pour accéder aux journaux de conformité.
-              </p>
-              <Button variant="outline" disabled>
-                Permissions insuffisantes
-              </Button>
-            </CardContent>
-          </Card>
-        </MainContent>
-      </LayoutShell>
-    )
-  }
-
   useEffect(() => {
     loadInitialData()
   }, [])
@@ -106,7 +77,7 @@ export default function ConformitePage() {
       const filters = {
         from: dateFrom,
         to: dateTo,
-        type: eventType,
+        type: eventType === 'all' ? '' : eventType,
         user: userId,
         limit: 50
       }
@@ -230,6 +201,35 @@ export default function ConformitePage() {
     )
   }
 
+  // Early return if no access
+  if (!hasAccess) {
+    return (
+      <LayoutShell>
+        <MainContent>
+          <PageHeader 
+            title="Conformité" 
+            subtitle="Journaux d'activité et rétention"
+          />
+          
+          <Card className="text-center py-12">
+            <CardContent>
+              <Shield className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Accès restreint
+              </h3>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                Cette page nécessite des permissions d'administration sécurité pour accéder aux journaux de conformité.
+              </p>
+              <Button variant="outline" disabled>
+                Permissions insuffisantes
+              </Button>
+            </CardContent>
+          </Card>
+        </MainContent>
+      </LayoutShell>
+    )
+  }
+
   return (
     <LayoutShell>
       <MainContent>
@@ -284,7 +284,7 @@ export default function ConformitePage() {
                       <SelectValue placeholder="Tous les types" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tous les types</SelectItem>
+                      <SelectItem value="all">Tous les types</SelectItem>
                       {availableEventTypes.map(type => (
                         <SelectItem key={type} value={type}>
                           {AuditAPI.formatEventType(type)}

@@ -31,13 +31,12 @@ export interface Message {
 
 export interface Citation {
   document_id: string
-  title: string
+  chunk_index: number
   score: number
-  spans: {
-    snippet: string
-    from: number
-    to: number
-  }[]
+  section: string | null
+  page: number | null
+  document_title?: string
+  document_filename?: string
 }
 
 export interface Usage {

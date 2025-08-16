@@ -46,27 +46,21 @@ async function* mockRAGResponse(userMessage: string, options: { citations?: bool
       items: [
         {
           document_id: 'doc_1',
-          title: 'Document 1.pdf',
+          chunk_index: 0,
           score: 0.95,
-          spans: [
-            {
-              snippet: 'Extrait pertinent du document...',
-              from: 100,
-              to: 150
-            }
-          ]
+          section: 'Introduction',
+          page: 1,
+          document_title: 'Document 1.pdf',
+          document_filename: 'document1.pdf'
         },
         {
           document_id: 'doc_2', 
-          title: 'Guide utilisateur.docx',
+          chunk_index: 1,
           score: 0.87,
-          spans: [
-            {
-              snippet: 'Information complémentaire...',
-              from: 250,
-              to: 300
-            }
-          ]
+          section: 'Guide utilisateur',
+          page: 3,
+          document_title: 'Guide utilisateur.docx',
+          document_filename: 'guide.docx'
         }
       ]
     }

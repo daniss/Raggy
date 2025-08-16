@@ -28,19 +28,24 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       .select(`
         id,
         org_id,
-        user_id,
-        memberships!inner(user_id, role)
+        user_id
       `)
       .eq('id', conversationId)
-      .eq('memberships.user_id', user.id)
       .single()
 
     if (convError || !conversation) {
-      return NextResponse.json({ error: "Conversation not found or access denied" }, { status: 404 })
+      return NextResponse.json({ error: "Conversation not found" }, { status: 404 })
     }
 
-    // Only allow editor+ to update conversations
-    if (!['owner', 'admin', 'editor'].includes((conversation as any).memberships.role)) {
+    // Check if user is a member of the organization with editor+ permissions
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('org_id', conversation.org_id)
+      .single()
+
+    if (!membership || !['owner', 'admin', 'editor'].includes(membership.role)) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 
@@ -88,22 +93,27 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       .select(`
         id,
         org_id,
-        user_id,
-        memberships!inner(user_id, role)
+        user_id
       `)
       .eq('id', conversationId)
-      .eq('memberships.user_id', user.id)
       .single()
 
     if (convError || !conversation) {
-      return NextResponse.json({ error: "Conversation not found or access denied" }, { status: 404 })
+      return NextResponse.json({ error: "Conversation not found" }, { status: 404 })
     }
 
+    // Check if user is a member of the organization 
+    const { data: membership } = await supabase
+      .from('memberships')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('org_id', conversation.org_id)
+      .single()
+
     // Only allow editor+ to delete conversations, or the owner of the conversation
-    const userRole = (conversation as any).memberships.role
     const isConversationOwner = conversation.user_id === user.id
     
-    if (!['owner', 'admin', 'editor'].includes(userRole) && !isConversationOwner) {
+    if (!membership || (!['owner', 'admin', 'editor'].includes(membership.role) && !isConversationOwner)) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 

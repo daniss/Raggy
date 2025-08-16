@@ -10,6 +10,7 @@ export const featureMatrix = {
     apiKeys: false,
     billing: false,
     fast_mode: false,
+    custom_prompts: false,
   },
   pro: {
     usage: true,
@@ -20,6 +21,7 @@ export const featureMatrix = {
     apiKeys: true,
     billing: true,
     fast_mode: true,
+    custom_prompts: true,
   },
   enterprise: {
     usage: true,
@@ -30,6 +32,7 @@ export const featureMatrix = {
     apiKeys: true,
     billing: true,
     fast_mode: true,
+    custom_prompts: true,
   },
 } as const
 

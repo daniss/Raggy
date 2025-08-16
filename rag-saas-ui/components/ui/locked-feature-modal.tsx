@@ -53,6 +53,11 @@ const featureContent: Record<FeatureKey, { title: string; bullets: string[]; min
     bullets: ["Réponses ultra-rapides", "Modèles optimisés", "Priorité de traitement"],
     minTier: "pro",
   },
+  custom_prompts: {
+    title: "Prompts personnalisés",
+    bullets: ["Définir vos propres prompts", "Sauvegarder vos modèles", "Optimiser vos réponses"],
+    minTier: "pro",
+  },
 }
 
 export const LockedFeatureModal: React.FC<LockedFeatureModalProps> = ({ featureKey, onClose, onUpgrade, open }) => {

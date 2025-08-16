@@ -169,7 +169,32 @@ class SupabaseProvider:
             logger.info(f"Marked document {document_id} as error: {error_message}")
         except Exception as e:
             logger.error(f"Failed to mark document {document_id} as error: {e}")
-            # Don't re-raise to avoid infinite loops
+    
+    async def get_documents_metadata(self, document_ids: List[str]) -> Dict[str, Dict[str, Any]]:
+        """Get document metadata for multiple documents"""
+        try:
+            if not document_ids:
+                return {}
+            
+            result = self.client.from_('documents').select(
+                'id, name, original_name, mime_type, size_bytes'
+            ).in_('id', document_ids).execute()
+            
+            # Return as a dictionary keyed by document_id
+            metadata = {}
+            for doc in (result.data or []):
+                doc_meta = doc.copy()
+                # Use name as title and original_name as filename
+                doc_meta['title'] = doc.get('name', f"Document {doc['id'][:8]}...")
+                doc_meta['filename'] = doc.get('original_name', doc.get('name', f"doc_{doc['id'][:8]}.pdf"))
+                doc_meta['file_size'] = doc.get('size_bytes')  # Map size_bytes to file_size for compatibility
+                metadata[doc['id']] = doc_meta
+            
+            return metadata
+            
+        except Exception as e:
+            logger.error(f"Failed to get documents metadata: {e}")
+            return {}
 
 class EmbeddingProvider:
     """
@@ -178,9 +203,9 @@ class EmbeddingProvider:
     """
     
     def __init__(self):
-        self.provider = os.getenv('EMBEDDING_PROVIDER', 'nomic').lower()
+        self.provider = os.getenv('EMBEDDING_PROVIDER', 'sentencetransformer').lower()
         self.api_key = os.getenv('EMBEDDING_API_KEY')
-        self.model = os.getenv('EMBEDDING_MODEL', 'nomic-embed-text-v1.5')
+        self.model = os.getenv('EMBEDDING_MODEL', 'intfloat/multilingual-e5-base')
         self.dimension = int(os.getenv('EMBEDDING_DIM', '768'))
         
         # HTTP client for API calls
@@ -218,6 +243,8 @@ class EmbeddingProvider:
                 return await self._embed_nomic(texts)
             elif self.provider == 'jina':
                 return await self._embed_jina(texts)
+            elif self.provider in ('sentencetransformer', 'sbert', 'intfloat'):
+                return await self._embed_sentence_transformer(texts)
             elif self.provider == 'mistral':
                 return await self._embed_mistral(texts)
             else:
@@ -291,6 +318,23 @@ class EmbeddingProvider:
         # Placeholder for Mistral API
         # Implementation will depend on Mistral's embedding API
         raise NotImplementedError("Mistral embedding not yet implemented")
+
+    async def _embed_sentence_transformer(self, texts: List[str]) -> List[List[float]]:
+        """Local SentenceTransformer (SBERT) embedding. Uses `sentence-transformers` package."""
+        try:
+            from sentence_transformers import SentenceTransformer
+        except Exception:
+            raise ImportError("sentence-transformers is required for sentencetransformer provider")
+
+        model_name = self.model or 'intfloat/multilingual-e5-base'
+
+        def _encode(batch_texts: List[str]):
+            m = SentenceTransformer(model_name)
+            return m.encode(batch_texts, convert_to_numpy=True, show_progress_bar=False)
+
+        embeddings = await asyncio.to_thread(_encode, texts)
+
+        return [emb.tolist() if hasattr(emb, 'tolist') else list(emb) for emb in embeddings]
     
     def get_provider_info(self) -> str:
         """Get provider information"""

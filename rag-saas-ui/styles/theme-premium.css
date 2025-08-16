@@ -1,0 +1,219 @@
+/**
+ * PREMIUM CHAT THEME - Notion/Copilot/ChatGPT Level
+ * Modern calm productivity - content-first design
+ */
+
+:root {
+  /* === NEUTRALS === */
+  /* Background hierarchy - 3 levels max */
+  --neutral-bg: #fafafa;           /* Page background - near white */
+  --neutral-surface: #ffffff;      /* Base surface */
+  --neutral-raised: #f8f9fa;       /* Raised surface */
+  --neutral-overlay: #ffffff;      /* Modal/overlay surface */
+  
+  /* Text hierarchy - clear contrast ratios */
+  --neutral-text-primary: #1a1a1a;    /* Primary text - 90% */
+  --neutral-text-secondary: #525252;  /* Secondary text - 70% */
+  --neutral-text-tertiary: #737373;   /* Tertiary text - 45% */
+  
+  /* Subtle borders and dividers */
+  --neutral-border: #e5e5e5;
+  --neutral-border-subtle: #f0f0f0;
+
+  /* === ACCENT - Modern Blue/Violet === */
+  --accent-solid: #4f46e5;         /* Primary actions */
+  --accent-soft: #eef2ff;          /* Soft backgrounds */
+  --accent-outline: #c7d2fe;       /* Outline variant */
+  --accent-hover: #4338ca;         /* Hover state */
+  --accent-active: #3730a3;        /* Active state */
+  --accent-text: #ffffff;          /* Text on accent */
+
+  /* === SEMANTICS === */
+  /* Success */
+  --success-solid: #059669;
+  --success-soft: #ecfdf5;
+  --success-text: #065f46;
+  
+  /* Info */
+  --info-solid: #0284c7;
+  --info-soft: #f0f9ff;
+  --info-text: #0c4a6e;
+  
+  /* Warning */
+  --warning-solid: #d97706;
+  --warning-soft: #fffbeb;
+  --warning-text: #92400e;
+  
+  /* Danger */
+  --danger-solid: #dc2626;
+  --danger-soft: #fef2f2;
+  --danger-text: #991b1b;
+
+  /* === TYPOGRAPHY === */
+  /* 3 sizes max - clean hierarchy */
+  --text-title: 16px;             /* Rare, short headings */
+  --text-body: 14px;              /* Default text */
+  --text-meta: 12px;              /* Timestamps, hints */
+  
+  /* Line heights - generous for readability */
+  --leading-title: 1.4;
+  --leading-body: 1.6;
+  --leading-meta: 1.4;
+  
+  /* Font weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* === SPACING SCALE === */
+  /* Compact, consistent steps */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* === RADIUS === */
+  /* Larger radii for modern feel */
+  --radius-sm: 6px;               /* Small elements */
+  --radius-md: 8px;               /* Standard elements */
+  --radius-lg: 12px;              /* Cards, panels */
+  --radius-xl: 16px;              /* Chat bubbles */
+
+  /* === ELEVATION === */
+  /* 3 shadow levels - low blur, low opacity */
+  --shadow-rest: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-overlay: 0 12px 24px rgba(0, 0, 0, 0.12);
+
+  /* === FOCUS === */
+  --focus-ring: 0 0 0 2px var(--accent-outline);
+
+  /* === MOTION === */
+  /* Standard durations - subtle easing */
+  --duration-fast: 120ms;
+  --duration-normal: 160ms;
+  --easing: cubic-bezier(0.2, 0, 0.2, 1);
+
+  /* === LAYOUT === */
+  /* Reading width constraints */
+  --content-max-width: 820px;     /* Center column max */
+  --sidebar-width: 280px;         /* Left sidebar */
+  --sources-width: 320px;         /* Right panel */
+}
+
+/* === DARK MODE === */
+.dark {
+  /* Neutrals - rich deep tones */
+  --neutral-bg: #0a0a0a;
+  --neutral-surface: #111111;
+  --neutral-raised: #1a1a1a;
+  --neutral-overlay: #1a1a1a;
+  
+  /* Text - maintain contrast ratios */
+  --neutral-text-primary: #f5f5f5;
+  --neutral-text-secondary: #a3a3a3;
+  --neutral-text-tertiary: #737373;
+  
+  /* Borders */
+  --neutral-border: #262626;
+  --neutral-border-subtle: #1a1a1a;
+
+  /* Accent - tempered for dark */
+  --accent-solid: #6366f1;
+  --accent-soft: #1e1b3a;
+  --accent-outline: #3730a3;
+  --accent-hover: #7c3aed;
+  --accent-active: #8b5cf6;
+
+  /* Semantics adapted */
+  --success-solid: #10b981;
+  --success-soft: #064e3b;
+  --success-text: #a7f3d0;
+  
+  --info-solid: #0ea5e9;
+  --info-soft: #0c4a6e;
+  --info-text: #7dd3fc;
+  
+  --warning-solid: #f59e0b;
+  --warning-soft: #78350f;
+  --warning-text: #fbbf24;
+  
+  --danger-solid: #ef4444;
+  --danger-soft: #7f1d1d;
+  --danger-text: #fca5a5;
+
+  /* Shadows replaced with color elevation */
+  --shadow-rest: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-overlay: 0 12px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* === BASE STYLES === */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--neutral-text-primary);
+  background-color: var(--neutral-bg);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* === UTILITY CLASSES === */
+.text-title {
+  font-size: var(--text-title);
+  line-height: var(--leading-title);
+  font-weight: var(--weight-semibold);
+  color: var(--neutral-text-primary);
+}
+
+.text-body {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--neutral-text-primary);
+}
+
+.text-meta {
+  font-size: var(--text-meta);
+  line-height: var(--leading-meta);
+  color: var(--neutral-text-tertiary);
+}
+
+.text-secondary {
+  color: var(--neutral-text-secondary);
+}
+
+/* Surface utilities */
+.surface-base { background-color: var(--neutral-surface); }
+.surface-raised { background-color: var(--neutral-raised); }
+.surface-overlay { background-color: var(--neutral-overlay); }
+
+/* Elevation utilities */
+.elevation-rest { box-shadow: var(--shadow-rest); }
+.elevation-hover { box-shadow: var(--shadow-hover); }
+.elevation-overlay { box-shadow: var(--shadow-overlay); }
+
+/* Transition utilities */
+.transition-fast { transition: all var(--duration-fast) var(--easing); }
+.transition-normal { transition: all var(--duration-normal) var(--easing); }
+
+/* Focus utilities */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .transition-fast,
+  .transition-normal {
+    transition: none;
+  }
+}

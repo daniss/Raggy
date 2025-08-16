@@ -15,6 +15,7 @@ import { UpgradeBanner } from "@/components/ui/upgrade-banner"
 import { useLimits, shouldShowUpgradeBanner } from "@/lib/hooks/use-limits"
 import { DocumentsAPI, type Document } from "@/lib/api/documents"
 import { useApp } from "@/contexts/app-context"
+import { useToast } from "@/hooks/use-toast"
 import { Upload, Search, Filter, MoreVertical, FileText, ImageIcon, File, Download, Trash2, Eye, Loader2 } from "lucide-react"
 
 function DocumentsContent() {
@@ -26,6 +27,7 @@ function DocumentsContent() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const limits = useLimits()
   const { organization } = useApp()
+  const { toast } = useToast()
 
   // Load documents
   useEffect(() => {
@@ -116,15 +118,19 @@ function DocumentsContent() {
       const docs = await DocumentsAPI.getDocuments(organization.id, statusFilter, searchQuery)
       setDocuments(docs)
       
-    } catch (error: any) {
-      console.error('Upload failed:', error)
+      // Notify user about successful upload and indexation process
+      toast({
+        title: "Document téléchargé avec succès",
+        description: `${file.name} a été téléchargé et est en cours d'indexation pour être disponible dans l'assistant IA.`,
+      })
       
-      // Handle specific limit errors
-      if (error.code === 'DOCUMENTS_EXCEEDED' || error.code === 'STORAGE_EXCEEDED') {
-        alert(error.message || 'Limite de votre plan atteinte')
-      } else {
-        alert('Erreur lors du téléchargement du fichier')
-      }
+    } catch (error) {
+      console.error('Upload failed:', error)
+      toast({
+        title: "Erreur lors du téléchargement",
+        description: "Une erreur s'est produite lors du téléchargement du document.",
+        variant: "destructive",
+      })
     } finally {
       setUploading(false)
       if (fileInputRef.current) {
@@ -211,7 +217,7 @@ function DocumentsContent() {
   const getStatusBadge = (status: string) => {
     const variants = {
       Prêt: "default",
-      "En cours": "secondary",
+      "En cours": "secondary", 
       Erreur: "destructive",
     } as const
 

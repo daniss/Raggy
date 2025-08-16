@@ -13,7 +13,7 @@ from pathlib import Path
 
 # Configuration de test (utiliser les vraies variables d'env si disponibles)
 TEST_CONFIG = {
-    'RAG_BASE_URL': 'http://localhost:8001',
+    'RAG_BASE_URL': 'http://localhost:8000',
     'SUPABASE_URL': os.getenv('SUPABASE_URL'),
     'SUPABASE_SERVICE_KEY': os.getenv('SUPABASE_SERVICE_KEY'),
     'RAG_MASTER_KEY': os.getenv('RAG_MASTER_KEY'),

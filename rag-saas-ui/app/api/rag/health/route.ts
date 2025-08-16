@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
           code: 'RAG_SERVICE_NOT_CONFIGURED',
           config: {
             rag_base_url: 'Not set',
-            expected_url: 'http://localhost:8001 (or your FastAPI service URL)'
+            expected_url: 'http://localhost:8000 (or your FastAPI service URL)'
           }
         },
         { status: 501 }

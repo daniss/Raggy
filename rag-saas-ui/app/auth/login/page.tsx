@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense, useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -20,8 +20,46 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirectTo') || '/dashboard'
+  const code = searchParams.get('code')
   
   const supabase = createSupabaseBrowserClient()
+
+  // Handle OAuth callback if code is present
+  useEffect(() => {
+    if (code) {
+      console.log('Code detected, processing OAuth callback:', code)
+      handleOAuthCallback(code)
+    }
+  }, [code])
+
+  const handleOAuthCallback = async (authCode: string) => {
+    console.log('Starting OAuth callback processing...')
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(authCode)
+      
+      if (exchangeError) {
+        console.error('OAuth exchange error:', exchangeError)
+        setError("Erreur lors de la connexion OAuth")
+        setIsLoading(false)
+        return
+      }
+
+      if (data.user) {
+        console.log('OAuth successful, user authenticated:', data.user.id)
+        console.log('About to redirect to:', redirectTo)
+        
+        // Force immediate redirect
+        window.location.replace(redirectTo)
+      }
+    } catch (error) {
+      console.error('OAuth callback error:', error)
+      setError("Une erreur inattendue s'est produite lors de la connexion")
+      setIsLoading(false)
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -42,12 +80,13 @@ function LoginForm() {
         } else {
           setError(signInError.message)
         }
-        return
+        setIsLoading(false);
+        return;
       }
 
       if (data.user) {
-        router.push(redirectTo)
-        router.refresh()
+        // Redirect to dashboard - middleware will handle organization check
+        router.replace(redirectTo)
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -73,66 +112,79 @@ function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleLogin} className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="votre@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
-            />
+        {/* Show processing message if handling OAuth callback */}
+        {code && isLoading && (
+          <div className="text-center py-8">
+            <Loader2 className="mx-auto h-8 w-8 animate-spin mb-4" />
+            <p className="text-muted-foreground">Connexion en cours...</p>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="password">Mot de passe</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={isLoading || !email.trim() || !password}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Connexion...
-              </>
-            ) : (
-              "Se connecter"
-            )}
-          </Button>
-        </form>
+        )}
         
-        <div className="mt-6 text-center text-sm">
-          <span className="text-muted-foreground">
-            Pas encore de compte ?{" "}
-          </span>
-          <Link 
-            href="/auth/register" 
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
-            Créer un compte
-          </Link>
-        </div>
+        {/* Show login form only if no OAuth code is being processed */}
+        {!code && (
+          <>
+            <form onSubmit={handleLogin} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="votre@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isLoading || !email.trim() || !password}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connexion...
+                  </>
+                ) : (
+                  "Se connecter"
+                )}
+              </Button>
+            </form>
+            
+            <div className="mt-6 text-center text-sm">
+              <span className="text-muted-foreground">
+                Pas encore de compte ?{" "}
+              </span>
+              <Link 
+                href="/auth/register" 
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
+                Créer un compte
+              </Link>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   )

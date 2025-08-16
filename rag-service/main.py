@@ -8,6 +8,7 @@ Strictly separated from business logic (auth, teams, documents CRUD stay in Next
 import os
 import asyncio
 import logging
+import base64
 from typing import AsyncGenerator, Dict, Any, Optional
 from contextlib import asynccontextmanager
 
@@ -255,23 +256,32 @@ async def _stream_rag_response(request: AskRequest) -> AsyncGenerator[str, None]
         )
         
         if not chunks:
-            # No relevant context found - use mock context for testing
-            if 'test' in str(os.getenv('GROQ_API_KEY', '')):
-                # In mock mode, provide a simple context for demonstration
-                logger.info(f"[{correlation_id}] No chunks found, using mock context for testing")
-                context = "This is a RAG (Retrieval-Augmented Generation) system for document search and question answering."
-                decrypted_chunks = []
-            else:
-                # No relevant context found
-                yield 'data: {"type": "token", "text": "Je ne trouve pas d\'informations pertinentes dans vos documents pour répondre à cette question."}\n\n'
-                yield 'data: {"type": "done"}\n\n'
-                return
-        else:
-            # Step 3: Decrypt retrieved chunks
-            decrypted_chunks = await _decrypt_chunks(request.org_id, chunks, correlation_id)
-            
-            # Step 4: Build context for LLM
-            context = _build_context_from_chunks(decrypted_chunks)
+            # No relevant context found
+            yield 'data: {"type": "token", "text": "Je ne trouve pas d\'informations pertinentes dans vos documents pour répondre à cette question."}\n\n'
+            yield 'data: {"type": "done"}\n\n'
+            return
+        
+        # Step 3: Decrypt retrieved chunks
+        decrypted_chunks = await _decrypt_chunks(request.org_id, chunks, correlation_id)
+        
+        # Step 3.5: Enrich chunks with document metadata
+        document_ids = list(set(chunk.get('document_id') for chunk in decrypted_chunks if chunk.get('document_id')))
+        documents_metadata = await supabase_provider.get_documents_metadata(document_ids)
+        
+        # Add document metadata to chunks
+        for chunk in decrypted_chunks:
+            doc_id = chunk.get('document_id')
+            if doc_id and doc_id in documents_metadata:
+                doc_meta = documents_metadata[doc_id]
+                chunk['document_title'] = doc_meta.get('title', doc_meta.get('filename', f"Document {doc_id[:8]}..."))
+                chunk['document_filename'] = doc_meta.get('filename')
+        
+        # Step 4: Build context for LLM
+        context = _build_context_from_chunks(decrypted_chunks)
+        
+        logger.info(f"[{correlation_id}] Built context from {len(decrypted_chunks)} chunks, context length: {len(context)}")
+        if len(context) < 100:
+            logger.warning(f"[{correlation_id}] Context seems short: '{context[:200]}'")
         
         # Step 5: Stream LLM response
         model = "fast" if request.options.get("fast_mode") else "quality"
@@ -359,21 +369,20 @@ async def _extract_and_chunk_text(document_content: bytes, document_id: str, fil
         logger.error(f"Text extraction failed for {document_id}: {e}")
         raise ValueError(f"Failed to extract text: {str(e)}")
     
-    if not text.strip():
-        raise ValueError("No text content extracted from document")
+    # Basic chunking with overlap (convert tokens to characters: 1 token ≈ 4 chars)
+    chunk_size_tokens = int(os.getenv('CHUNK_SIZE', '800'))
+    logger.info(f"Using chunk size: {chunk_size_tokens} tokens")
+    overlap_tokens = int(os.getenv('CHUNK_OVERLAP', '150'))
     
-    logger.info(f"Extracted {len(text)} characters from document {document_id}")
-    
-    # Chunking with overlap
-    chunk_size = int(os.getenv('CHUNK_SIZE', '800'))  # ~800 tokens ≈ 3200 chars
-    overlap = int(os.getenv('CHUNK_OVERLAP', '150'))   # ~150 tokens ≈ 600 chars
+    # Convert tokens to characters (1 token ≈ 4 characters)
+    chunk_size_chars = chunk_size_tokens * 4  # 800 tokens = 3200 chars
+    overlap_chars = overlap_tokens * 4        # 150 tokens = 600 chars
     
     chunks = []
-    words = text.split()
     
-    for i in range(0, len(words), chunk_size - overlap):
-        chunk_words = words[i:i + chunk_size]
-        chunk_text = ' '.join(chunk_words)
+    # Chunk by characters, not words
+    for i in range(0, len(text), chunk_size_chars - overlap_chars):
+        chunk_text = text[i:i + chunk_size_chars]
         
         if chunk_text.strip():  # Only add non-empty chunks
             chunks.append({
@@ -384,7 +393,7 @@ async def _extract_and_chunk_text(document_content: bytes, document_id: str, fil
                 'word_count': len(chunk_words)
             })
         
-        if i + chunk_size >= len(words):
+        if i + chunk_size_chars >= len(text):
             break
     
     logger.info(f"Created {len(chunks)} chunks for document {document_id}")
@@ -503,8 +512,8 @@ async def _encrypt_and_store_chunks(
                 'document_id': document_id,
                 'chunk_index': i,
                 'embedding': embedding,
-                'ciphertext': encrypted_data['ciphertext'],
-                'nonce': encrypted_data['nonce'],
+                'ciphertext': base64.b64encode(encrypted_data['ciphertext']).decode('utf-8'),
+                'nonce': base64.b64encode(encrypted_data['nonce']).decode('utf-8'),
                 'aad': encrypted_data['aad'],
                 'plaintext_sha256': security_manager.hash_content(chunk['text']),
                 'section': chunk.get('section'),
@@ -529,10 +538,65 @@ async def _decrypt_chunks(org_id: str, encrypted_chunks: list, correlation_id: s
         decrypted_chunks = []
         for chunk in encrypted_chunks:
             try:
-                # Decrypt chunk content
+                # Handle both hex and base64 formats for backward compatibility
+                ciphertext_bytes = chunk['ciphertext']
+                nonce_bytes = chunk['nonce']
+                
+                # Check if data is in hex format (from PostgreSQL bytea)
+                if isinstance(ciphertext_bytes, str) and ciphertext_bytes.startswith('\\x'):
+                    # Convert hex to bytes, then decode as base64
+                    hex_ciphertext = ciphertext_bytes[2:]  # Remove \x prefix
+                    hex_nonce = nonce_bytes[2:]  # Remove \x prefix
+                    
+                    # Convert hex to bytes (this gives us the base64 string as bytes)
+                    base64_ciphertext_bytes = bytes.fromhex(hex_ciphertext)
+                    base64_nonce_bytes = bytes.fromhex(hex_nonce)
+                    
+                    # Decode the base64 string to get the actual encrypted bytes
+                    ciphertext_bytes = base64.b64decode(base64_ciphertext_bytes.decode('utf-8'))
+                    nonce_bytes = base64.b64decode(base64_nonce_bytes.decode('utf-8'))
+                    
+                elif isinstance(ciphertext_bytes, str):
+                    # Direct base64 format
+                    ciphertext_bytes = base64.b64decode(ciphertext_bytes)
+                if (
+                    isinstance(ciphertext_bytes, str)
+                    and ciphertext_bytes.startswith('\\x')
+                    and re.fullmatch(r'[0-9a-fA-F]+', ciphertext_bytes[2:])
+                    and isinstance(nonce_bytes, str)
+                    and nonce_bytes.startswith('\\x')
+                    and re.fullmatch(r'[0-9a-fA-F]+', nonce_bytes[2:])
+                ):
+                    # Robustly handle hex format from PostgreSQL bytea
+                    hex_ciphertext = ciphertext_bytes[2:]  # Remove \x prefix
+                    hex_nonce = nonce_bytes[2:]  # Remove \x prefix
+                    try:
+                        base64_ciphertext_bytes = bytes.fromhex(hex_ciphertext)
+                        base64_nonce_bytes = bytes.fromhex(hex_nonce)
+                        # Decode the base64 string to get the actual encrypted bytes
+                        ciphertext_bytes = base64.b64decode(base64_ciphertext_bytes.decode('utf-8'))
+                        nonce_bytes = base64.b64decode(base64_nonce_bytes.decode('utf-8'))
+                    except Exception as e:
+                        logger.warning(f"[{correlation_id}] Hex decoding failed for chunk {chunk.get('id')}: {e}")
+                        continue
+                elif (
+                    isinstance(ciphertext_bytes, str)
+                    and re.fullmatch(r'[A-Za-z0-9+/=]+', ciphertext_bytes)
+                    and isinstance(nonce_bytes, str)
+                    and re.fullmatch(r'[A-Za-z0-9+/=]+', nonce_bytes)
+                ):
+                    # Direct base64 format
+                    try:
+                        ciphertext_bytes = base64.b64decode(ciphertext_bytes)
+                        nonce_bytes = base64.b64decode(nonce_bytes)
+                    except Exception as e:
+                        logger.warning(f"[{correlation_id}] Base64 decoding failed for chunk {chunk.get('id')}: {e}")
+                        continue
+                # If already bytes, use as-is
+                
                 decrypted_text = security_manager.decrypt_content(
-                    ciphertext=chunk['ciphertext'],
-                    nonce=chunk['nonce'],
+                    ciphertext=ciphertext_bytes,
+                    nonce=nonce_bytes,
                     aad=chunk['aad'],
                     dek=dek
                 )
@@ -566,6 +630,7 @@ def _build_context_from_chunks(decrypted_chunks: list) -> str:
 
 def _build_citations_from_chunks(decrypted_chunks: list) -> str:
     """Build citations array from chunks"""
+    
     citations = []
     
     for chunk in decrypted_chunks:
@@ -574,13 +639,16 @@ def _build_citations_from_chunks(decrypted_chunks: list) -> str:
             'chunk_index': chunk.get('chunk_index'),
             'score': round(chunk.get('similarity', 0), 3),
             'section': chunk.get('section'),
-            'page': chunk.get('page')
+            'page': chunk.get('page'),  # This will be None, but json.dumps will convert to null
+            'document_title': chunk.get('document_title', f"Document {chunk.get('document_id', '')[:8]}..."),
+            'document_filename': chunk.get('document_filename')
         })
     
-    return str(citations).replace("'", '"')
+    # Use json.dumps to ensure proper JSON formatting (None -> null)
+    return json.dumps(citations)
 
 if __name__ == "__main__":
-    port = int(os.getenv("RAG_SERVICE_PORT", "8001"))
+    port = int(os.getenv("RAG_SERVICE_PORT", "8000"))
     uvicorn.run(
         "main:app", 
         host="0.0.0.0", 
