@@ -559,7 +559,39 @@ async def _decrypt_chunks(org_id: str, encrypted_chunks: list, correlation_id: s
                 elif isinstance(ciphertext_bytes, str):
                     # Direct base64 format
                     ciphertext_bytes = base64.b64decode(ciphertext_bytes)
-                    nonce_bytes = base64.b64decode(nonce_bytes)
+                if (
+                    isinstance(ciphertext_bytes, str)
+                    and ciphertext_bytes.startswith('\\x')
+                    and re.fullmatch(r'[0-9a-fA-F]+', ciphertext_bytes[2:])
+                    and isinstance(nonce_bytes, str)
+                    and nonce_bytes.startswith('\\x')
+                    and re.fullmatch(r'[0-9a-fA-F]+', nonce_bytes[2:])
+                ):
+                    # Robustly handle hex format from PostgreSQL bytea
+                    hex_ciphertext = ciphertext_bytes[2:]  # Remove \x prefix
+                    hex_nonce = nonce_bytes[2:]  # Remove \x prefix
+                    try:
+                        base64_ciphertext_bytes = bytes.fromhex(hex_ciphertext)
+                        base64_nonce_bytes = bytes.fromhex(hex_nonce)
+                        # Decode the base64 string to get the actual encrypted bytes
+                        ciphertext_bytes = base64.b64decode(base64_ciphertext_bytes.decode('utf-8'))
+                        nonce_bytes = base64.b64decode(base64_nonce_bytes.decode('utf-8'))
+                    except Exception as e:
+                        logger.warning(f"[{correlation_id}] Hex decoding failed for chunk {chunk.get('id')}: {e}")
+                        continue
+                elif (
+                    isinstance(ciphertext_bytes, str)
+                    and re.fullmatch(r'[A-Za-z0-9+/=]+', ciphertext_bytes)
+                    and isinstance(nonce_bytes, str)
+                    and re.fullmatch(r'[A-Za-z0-9+/=]+', nonce_bytes)
+                ):
+                    # Direct base64 format
+                    try:
+                        ciphertext_bytes = base64.b64decode(ciphertext_bytes)
+                        nonce_bytes = base64.b64decode(nonce_bytes)
+                    except Exception as e:
+                        logger.warning(f"[{correlation_id}] Base64 decoding failed for chunk {chunk.get('id')}: {e}")
+                        continue
                 # If already bytes, use as-is
                 
                 decrypted_text = security_manager.decrypt_content(
